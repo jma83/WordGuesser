@@ -1,0 +1,14 @@
+footer {
+    position: fixed;
+    height: 100px;
+    bottom: 0;
+    width: 100%;
+}
+
+.icon-color {
+    background-color: #94536d !important;
+}
+
+body {
+    background-color: #f6e0a2;
+}
