@@ -27,7 +27,14 @@ io.on('connection', (socket) => {
         console.log(data);
         //io.sockets.emit('mensajito',data)
         socket.broadcast.emit('id_conexion',socket.id);
+    });
+
+    socket.on("conexion_sala", data => {
+        console.log(data);
+        //io.sockets.emit('mensajito',data)
+        io.sockets.emit('conexion_sala',data);
     })
+    
 
     socket.on("mensaje", data => {
         io.sockets.emit('mensaje_chat',data)

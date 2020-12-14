@@ -55,7 +55,7 @@ let playGameComponent = Vue.component("play-game-component", {
             <div class="col"></div>
             <div class="card col-12 col-md-5" id="chat_container">
             <div class="alert alert-primary align-bottom" role="alert" id="chat">
-               <i>Bienvenido al chat! Aqui quedarán registrados los mensajes y respuestas de todos los usuarios!</i>
+               <p><i>Bienvenido al chat! Aqui quedarán registrados los mensajes y respuestas de todos los usuarios!</i></p>
             </div>
             </div>
         </div>
@@ -94,6 +94,11 @@ let playGameComponent = Vue.component("play-game-component", {
         } else if (Number(this.mode) === 1) {
             this.host = "Anfitrión";
         }
+
+        let codigoPartida = this.code;
+        let tipoUsuario = this.host;
+        let nombre = this.name;
+        this.socket.emit('conexion_sala', {codigoPartida, nombre,tipoUsuario});    
     },
 
     methods: {
@@ -105,18 +110,10 @@ let playGameComponent = Vue.component("play-game-component", {
             let nombre = this.name;
 
             if (palabra !== "" && palabra !== null) {
-                const socket = io();
-                this.idmsg++;
-                let self = this;
                 let idmsg = this.idmsg;
                 document.getElementById("palabra").value = "";
-                socket.emit('mensaje', {idmsg,nombre,palabra});
-                
-                socket.on("mensaje_chat", (data) => {
-                    console.log(self.idmsg + " y "+ data.idmsg)
-                    if (data.idmsg >= self.idmsg)
-                    document.getElementById("chat").innerHTML += "<p><b>" + data.nombre + ":</b> " + data.palabra + "</p>";
-                });
+                this.socket.emit('mensaje', {idmsg,nombre,palabra});    
+                this.idmsg++;
             }
         }
     }

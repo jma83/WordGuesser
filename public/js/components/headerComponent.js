@@ -19,8 +19,8 @@ let headerComponent = Vue.component("header-component", {
                   </router-link>
               </li>
               <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle waves-effect waves-light" id="navbarDropdownMenuLink-4" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                      <i class="fas fa-user"></i> Profile </a>
+                  <a class="nav-link dropdown-toggle waves-effect waves-light navbar-brand" id="navbarDropdownMenuLink-4" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      <i class="fas fa-user"></i>  &nbsp; Profile </a>
                   <div class="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4">
                       <a class="dropdown-item waves-effect waves-light" href="#">My account</a>
                       <a class="dropdown-item waves-effect waves-light" href="#">Log out</a>

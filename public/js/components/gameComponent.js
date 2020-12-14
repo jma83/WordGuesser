@@ -1,5 +1,6 @@
 import './playGameComponent.js';
 import './selectionComponent.js';
+import '../chat.js';
 
 
 let gameComponent = Vue.component("game-component", {
