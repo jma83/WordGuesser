@@ -21,12 +21,16 @@ const io = SocketIO(server);
 
 
 io.on('connection', (socket) => {
-    console.log("conexion!", socket.id)
+    //console.log("conexion!", socket.id)
 
-    socket.on("chatmessage", data => {
+    socket.on("conexion", data => {
         console.log(data);
         //io.sockets.emit('mensajito',data)
-        socket.broadcast.emit('mensajito',data)
+        socket.broadcast.emit('id_conexion',socket.id);
+    })
+
+    socket.on("mensaje", data => {
+        io.sockets.emit('mensaje_chat',data)
     })
 
 });
