@@ -88,7 +88,7 @@ let playGameComponent = Vue.component("play-game-component", {
             <button type="input" v-on:click.prevent="endGameEvent()" class="btn btn-warning col-4 col-md-2 mr-5 " id="volver" name="volver" data-dif="2">Volver</button>
         </div>
   </div>`,
-    created() {
+    mounted() {
         if (Number(this.mode) === 0) {
             this.host = "Invitado";
         } else if (Number(this.mode) === 1) {
@@ -98,11 +98,25 @@ let playGameComponent = Vue.component("play-game-component", {
         let codigoPartida = this.code;
         let tipoUsuario = this.host;
         let nombre = this.name;
-        this.socket.emit('conexion_sala', {codigoPartida, nombre,tipoUsuario});    
+        let id = this.socket.id;
+        if (id !== undefined){
+            this.socket.emit('conexion_sala', {id, codigoPartida, nombre, tipoUsuario });
+        }
     },
 
+    deactivated() {
+        this.endGameEvent();
+    },
+    beforeUnmount() {
+        this.endGameEvent();
+    },
     methods: {
         endGameEvent() {
+            let codigoPartida = this.code;
+            let tipoUsuario = this.host;
+            let nombre = this.name;
+            let id = this.socket.id;
+            this.socket.emit('desconexion_sala', {id, codigoPartida, nombre, tipoUsuario });
             this.$emit("end", {});
         },
         enviarTexto() {
@@ -112,7 +126,7 @@ let playGameComponent = Vue.component("play-game-component", {
             if (palabra !== "" && palabra !== null) {
                 let idmsg = this.idmsg;
                 document.getElementById("palabra").value = "";
-                this.socket.emit('mensaje', {idmsg,nombre,palabra});    
+                this.socket.emit('mensaje', { idmsg, nombre, palabra });
                 this.idmsg++;
             }
         }
