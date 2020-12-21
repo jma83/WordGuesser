@@ -37,7 +37,7 @@ let gameComponent = Vue.component("game-component", {
         
     },
     mounted(){
-        if (this.startedGame === false){
+        if (this.startedGame === false && this.nombre === null){
             document.getElementById("footer").style.position = "absolute";
         }else{
             document.getElementById("footer").style.position = "relative";

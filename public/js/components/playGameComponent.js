@@ -1,3 +1,7 @@
+import './playerInfoComponent.js';
+import './imageInfoComponent.js';
+import './lobbyComponent.js';
+
 let playGameComponent = Vue.component("play-game-component", {
     props: ["name", "code", "mode", "socket"],
     data: function () {
@@ -11,69 +15,34 @@ let playGameComponent = Vue.component("play-game-component", {
             estadoPartida: 0,
             msgCabecera: "Encuentra la palabra oculta!",
             descripcion: "Bienvenido al chat! aqui se verán reflejadas las respuestas a la palabra secreta!",
-            timerId: ""
+            timer: 0,
+            estado: 0
         }
     },
     template:
         `
         <div id="game" class="card p-4 m-4">
-        <h2 class="row p-2 justify-content-center">{{ this.host }} - Partida: {{this.code}}</h2>
+        
+        <div class="row">
+            <button type="input" v-on:click.prevent="endGameEvent()" class="btn btn-warning mr-1 col-3 col-lg-2 col-lg-1" id="volver" name="volver" data-dif="2"><i class="fas fa-arrow-left"></i>&nbsp;Volver</button>
+        </div>            
+        <h2 class="row p-2 align-self-center justify-content-center">{{ this.host }} - Partida: {{this.code}} jamoneskaslfklafs</h2>
         <div class="row">
             <div class="card col-12 col-md-6 justify-content-center">
-
-                <!-- Card image -->
-                <div class="view overlay justify-content-start align-self-start m-2 p-2">
-                    <img class="card-img-top" src="https://mdbootstrap.com/img/Mockups/Lightbox/Thumbnail/img%20(67).jpg"
-                    alt="Card image cap">
-                    <a href="">
-                    <div class="mask rgba-white-slight"></div>
-                    </a>
-                </div>
-
-                <!-- Card content -->
-                <div class="card-body justify-content-start align-self-center m-2 p-2">
-
-                    <ul class="list-group list-group-horizontal-sm row align-self-center justify-content-start">
-                        <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                        <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                        <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                        <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                        <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                        <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                        <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                        <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                        <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                        <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                        <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                        
-                    </ul>
-
-
-                </div>
-
+                <image-info-component v-if="this.estado === 1"></image-info-component>
+                <lobby-component v-if="this.estado === 0"></lobby-component>
             </div>
-            <div class="col"></div>
+            <div class="col-md-1"></div>
             <div class="card col-12 col-md-5" id="chat_container">
-            <div class="alert alert-primary align-bottom" role="alert" id="chat">
-               <p><i>Bienvenido al chat! Aqui quedarán registrados los mensajes y respuestas de todos los usuarios!</i></p>
-            </div>
+                <div class="alert alert-primary align-bottom" role="alert" id="chat">
+                    <p><i>Bienvenido al chat! Aqui quedarán registrados los mensajes y respuestas de todos los usuarios!</i></p>
+                </div>
             </div>
         </div>
         
         <div class="row justify-content-around">
             <div class=" col-10 col-md-4 align-self-start mt-2 p-2 ">
-                <div>
-                    <h5 class="card-title">Nombre: {{this.name}}</h5>
-                    <ul class="list-group list-group-flush ">
-                        <li class="list-group-item "><button type="button" class="btn btn-success" >
-                        Victorias <span class="badge badge-light">this.getVictorias()</span>
-                      </button></li>
-                        <li class="list-group-item "><button type="button" class="btn btn-danger" >
-                        Tiempo <span class="badge badge-light">this.getTiempo()</span>
-                      </button></li>
-                      
-                    </ul>
-                </div>
+                <player-info-component v-bind:name="name" v-bind:timer="timer" v-bind:victorias="victorias"></player-info-component>
             </div>
             <form class="col-10 col-md-3 mt-2 p-2 align-self-start">
                 <div class="form-group">
@@ -81,11 +50,12 @@ let playGameComponent = Vue.component("play-game-component", {
                     <input type="text" class="form-control" placeholder="Introduce texto" aria-label="palabra"
                         id="palabra" name="palabra" maxlength="30">
                 </div>
-                <button type="submit"  v-on:click.prevent="enviarTexto()" class="btn btn-primary mt-2">Enviar</button>
+                <button type="submit"  v-on:click.prevent="enviarTexto()" class="btn btn-primary mt-2"><i class="far fa-paper-plane"></i> &nbsp; Enviar</button>
             </form>
         </div>
         <div class="row justify-content-end">
-            <button type="input" v-on:click.prevent="endGameEvent()" class="btn btn-warning col-4 col-md-2 mr-5 " id="volver" name="volver" data-dif="2">Volver</button>
+                <button v-if="Number(this.mode)===1" type="input" v-on:click.prevent="ajustes()" class="btn btn-primary col-4 col-md-3 col-lg-2 mr-2 align-self-end" id="ajustes" name="ajustes" data-dif="2"><i class="fas fa-cog"></i> &nbsp;Ajustes de partida</button>
+            <button type="input" v-on:click.prevent="siguiente()" class="btn btn-info col-4 col-md-3 col-lg-2 mr-2 " id="siguiente" name="siguiente" data-dif="2"><i class="fas fa-check-circle"></i> &nbsp; Siguiente</button>
         </div>
   </div>`,
     mounted() {
@@ -129,6 +99,10 @@ let playGameComponent = Vue.component("play-game-component", {
                 this.socket.emit('mensaje', { idmsg, nombre, palabra });
                 this.idmsg++;
             }
+        },
+        siguiente(){
+            if (this.estado===0)
+                this.estado=1;
         }
     }
 });
