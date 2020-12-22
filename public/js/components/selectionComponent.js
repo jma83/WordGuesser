@@ -1,3 +1,6 @@
+import connection from '../connectionEvents.js';
+
+
 let selectionComponent = Vue.component("selection-component", {
   template:
     `
@@ -64,7 +67,6 @@ let selectionComponent = Vue.component("selection-component", {
             document.getElementById("error").innerText = "Error! Por favor, completa el código de partida para unirte";
             return -1;
           }
-          
           this.$emit("start", { modo, nombre, codigo });
 
       }

@@ -3,7 +3,7 @@ import './imageInfoComponent.js';
 import './lobbyComponent.js';
 
 let playGameComponent = Vue.component("play-game-component", {
-    props: ["name", "code", "mode", "socket"],
+    props: ["name", "code", "mode", "socket","socketid"],
     data: function () {
         return {
             //gm: new GameManager(this.dificultad),
@@ -26,7 +26,7 @@ let playGameComponent = Vue.component("play-game-component", {
         <div class="row">
             <button type="input" v-on:click.prevent="endGameEvent()" class="btn btn-warning mr-1 col-3 col-lg-2 col-lg-1" id="volver" name="volver" data-dif="2"><i class="fas fa-arrow-left"></i>&nbsp;Volver</button>
         </div>            
-        <h2 class="row p-2 align-self-center justify-content-center">{{ this.host }} - Partida: {{this.code}} jamoneskaslfklafs</h2>
+        <h2 class="row p-2 align-self-center justify-content-center">{{ this.host }} - Partida: {{this.code}}</h2>
         <div class="row">
             <div class="card col-12 col-md-6 justify-content-center">
                 <image-info-component v-if="this.estado === 1"></image-info-component>
@@ -68,9 +68,9 @@ let playGameComponent = Vue.component("play-game-component", {
         let codigoPartida = this.code;
         let tipoUsuario = this.host;
         let nombre = this.name;
-        let id = this.socket.id;
-        if (id !== undefined){
-            this.socket.emit('conexion_sala', {id, codigoPartida, nombre, tipoUsuario });
+        let id = this.socketid;
+        if (id !== undefined) {
+            this.socket.emit('conexion_sala', { id, codigoPartida, nombre, tipoUsuario });
         }
     },
 
@@ -85,8 +85,8 @@ let playGameComponent = Vue.component("play-game-component", {
             let codigoPartida = this.code;
             let tipoUsuario = this.host;
             let nombre = this.name;
-            let id = this.socket.id;
-            this.socket.emit('desconexion_sala', {id, codigoPartida, nombre, tipoUsuario });
+            let id = this.socketid;
+            this.socket.emit('desconexion_sala', { id, codigoPartida, nombre, tipoUsuario });
             this.$emit("end", {});
         },
         enviarTexto() {
@@ -100,9 +100,14 @@ let playGameComponent = Vue.component("play-game-component", {
                 this.idmsg++;
             }
         },
-        siguiente(){
-            if (this.estado===0)
-                this.estado=1;
+        siguiente() {
+            let codigoPartida = this.code;
+            let tipoUsuario = this.host;
+            let nombre = this.name;
+            let id = this.socketid;
+            this.socket.emit('siguiente', { id, codigoPartida, nombre, tipoUsuario });
+            if (this.estado === 0)
+                this.estado = 1;
         }
     }
 });

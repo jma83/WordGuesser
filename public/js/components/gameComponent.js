@@ -1,6 +1,6 @@
 import './playGameComponent.js';
 import './selectionComponent.js';
-import '../chat.js';
+import connection from '../connectionEvents.js';
 
 
 let gameComponent = Vue.component("game-component", {
@@ -8,10 +8,8 @@ let gameComponent = Vue.component("game-component", {
         return {
             startedGame: false,
             nombre: '',
-            codigo: -1,
             modo: -1,
-            socket: ''
-
+            connection: connection
         }
     },
     template: `
@@ -21,7 +19,7 @@ let gameComponent = Vue.component("game-component", {
                 <selection-component v-on:start="startGame"></selection-component>
             </div>
             <div v-else>
-                <play-game-component v-bind:name="nombre" v-bind:code="codigo" v-bind:mode="modo" v-bind:socket="socket" v-on:end="endGame"></play-game-component>
+                <play-game-component v-bind:name="nombre" v-bind:code="getCode()" v-bind:mode="modo" v-bind:socket="connection.socket" v-bind:socketid="connection.id" v-on:end="endGame"></play-game-component>
             </div>
         </div>
     </div>`,
@@ -30,7 +28,6 @@ let gameComponent = Vue.component("game-component", {
         this.nombre = sessionStorage.getItem("partida_nombre");
         this.codigo = sessionStorage.getItem("partida_codigo");
 
-        this.socket = await io();
         if (this.nombre !== "" && this.nombre !== null) {
             this.startedGame = true;
         }
@@ -45,22 +42,20 @@ let gameComponent = Vue.component("game-component", {
     },
     methods: {
 
-        connectServer() {
-            let code = "";
-            this.socket.on("id_conexion", (data) => {
-                code = data;
-            });
-
-            this.code = code;
-        },
         startGame(dat) {
+            //            connection.initConection();
+
             this.startedGame = true;
             this.modo = Number(dat.modo);
             this.nombre = dat.nombre;
             this.codigo = dat.codigo;
+            
+            if (this.codigo === "" || this.codigo === null){
+                console.log("entro")
 
-            if (this.codigo === "" || this.codigo === null)
-                this.connectServer();
+            }else{
+                console.log("NO entro")
+            }
             
             sessionStorage.setItem("partida_modo", this.modo);
             sessionStorage.setItem("partida_nombre", this.nombre);
@@ -72,7 +67,10 @@ let gameComponent = Vue.component("game-component", {
             sessionStorage.clear();
             this.startedGame = false;
             document.getElementById("footer").style.position = "absolute";
-        }
+        },
+        getCode(){
+            return this.connection.code.substr(0, 5);
+        },
 
         
     }

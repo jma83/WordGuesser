@@ -24,10 +24,9 @@ const io = SocketIO(server);
 io.on('connection', (socket) => {
     //console.log("conexion!", socket.id)
 
-    socket.on("conexion", data => {
-        console.log(data);
+    socket.on("conexion", () => {
         //io.sockets.emit('mensajito',data)
-        socket.broadcast.emit('id_conexion',socket.id);
+        io.sockets.emit('id_conexion',socket.id);
     });
 
     socket.on("conexion_sala", data => {
