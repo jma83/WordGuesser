@@ -12,11 +12,12 @@ export default class Conexion{
 
    
     setCode(code){
+        if (this.code===undefined || this.code==='')
         this.code = code;
     }
 
-    setId(id){
-        this.id = id;
+    setId(){
+        this.id = this.socket.id;
     }
 
 

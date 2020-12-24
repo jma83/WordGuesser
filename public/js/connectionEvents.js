@@ -22,9 +22,9 @@ connection.socket.on("desconexion_sala", (data) => {
         chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> se ha desconectado de la partida!</i></p>";
 });
 
-connection.socket.on("id_conexion", async (data) => {
+connection.socket.on("conexion",  (data) => {
     connection.setCode(data);
-    connection.setId(connection.socket.id);
+    connection.setId();
 
 });
 

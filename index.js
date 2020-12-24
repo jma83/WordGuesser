@@ -26,12 +26,13 @@ io.on('connection', (socket) => {
 
     socket.on("conexion", () => {
         //io.sockets.emit('mensajito',data)
-        io.sockets.emit('id_conexion',socket.id);
+        io.sockets.emit('conexion',socket.id);
     });
 
     socket.on("conexion_sala", data => {
         console.log(data);
         //io.sockets.emit('mensajito',data)
+        socket.join(data.codigoPartida);
         io.sockets.emit('conexion_sala',data);
     });
     

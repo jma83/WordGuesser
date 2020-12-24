@@ -58,22 +58,25 @@ let playGameComponent = Vue.component("play-game-component", {
             <button type="input" v-on:click.prevent="siguiente()" class="btn btn-info col-4 col-md-3 col-lg-2 mr-2 " id="siguiente" name="siguiente" data-dif="2"><i class="fas fa-check-circle"></i> &nbsp; Siguiente</button>
         </div>
   </div>`,
-    mounted() {
+    async mounted() {
         if (Number(this.mode) === 0) {
             this.host = "Invitado";
         } else if (Number(this.mode) === 1) {
             this.host = "Anfitrión";
         }
 
+        
+    },
+    updated(){
         let codigoPartida = this.code;
-        let tipoUsuario = this.host;
+        let tipoUsuario = this.mode;
         let nombre = this.name;
         let id = this.socketid;
-        if (id !== undefined) {
+        
+        if (id !== undefined && id!=='') {
             this.socket.emit('conexion_sala', { id, codigoPartida, nombre, tipoUsuario });
         }
     },
-
     deactivated() {
         this.endGameEvent();
     },
