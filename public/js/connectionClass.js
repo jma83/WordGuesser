@@ -22,11 +22,11 @@ export default class Conexion{
 
 
     
-    initConection(){
+    initConection(code = ''){
         let self = this;
         return new Promise(function (resolve, reject) {
             self.socket = io();
-            self.code = '';
+            self.code = code;
             self.socket.emit('conexion');
             resolve();
         });

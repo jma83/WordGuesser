@@ -23,7 +23,11 @@ connection.socket.on("desconexion_sala", (data) => {
 });
 
 connection.socket.on("conexion",  (data) => {
-    connection.setCode(data);
+    console.log(connection.code);
+    let code = data.substr(0, 5);
+    console.log(code);
+
+    connection.setCode(code);
     connection.setId();
 
 });

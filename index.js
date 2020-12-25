@@ -20,6 +20,7 @@ const SocketIO = require('socket.io');
 
 const io = SocketIO(server);
 
+let listaPartidas = [];
 
 io.on('connection', (socket) => {
     //console.log("conexion!", socket.id)
@@ -32,16 +33,31 @@ io.on('connection', (socket) => {
     socket.on("conexion_sala", data => {
         console.log(data);
         //io.sockets.emit('mensajito',data)
+        console.log("ME HE SUSCRITO: " + data.id + " a " + data.codigoPartida);
         socket.join(data.codigoPartida);
-        io.sockets.emit('conexion_sala',data);
+        let check = listaPartidas.includes(data.codigoPartida);
+        if(!check)
+        listaPartidas.push(data.codigoPartida);
+        io.to(data.codigoPartida).emit('conexion_sala',data);
+        console.log(listaPartidas)
     });
     
     socket.on("mensaje", data => {
-        io.sockets.emit('mensaje_chat',data)
-    });
+        let check = listaPartidas.includes(data.codigoPartida);
+        console.log("codigoPartida " + data.codigoPartida)
+        console.log("check " + check)
+        if(check){
+            console.log("EMITIDO! " + data.palabra);
+            io.to(data.codigoPartida).emit('mensaje_chat',data);
+        }
+    }); 
 
     socket.on("desconexion_sala", data => {
-        socket.broadcast.emit('desconexion_sala',data)
+        let index = listaPartidas.indexOf(data.codigoPartida);
+        if (index!==-1){
+            listaPartidas.splice(index, 1);
+            socket.to(data.codigoPartida).emit('desconexion_sala',data);
+        }
     });
 
 });

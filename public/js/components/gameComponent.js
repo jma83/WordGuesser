@@ -44,15 +44,20 @@ let gameComponent = Vue.component("game-component", {
     methods: {
 
         startGame(dat) {
-            if(this.connection.socket.connected)
-                this.connection.initConection();
-
             this.startedGame = true;
             this.modo = Number(dat.modo);
             this.nombre = dat.nombre;
 
-            if (this.checkValid(dat.codigo))
-            this.connection.setCode(dat.codigo);
+            
+
+            if(this.connection.socket.connected){
+                if (this.checkValid(dat.codigo) && this.modo===0)
+                this.connection.initConection(dat.codigo);
+                else
+                this.connection.initConection();
+            }
+
+            
             
             sessionStorage.setItem("partida_modo", this.modo);
             sessionStorage.setItem("partida_nombre", this.nombre);
@@ -71,7 +76,7 @@ let gameComponent = Vue.component("game-component", {
 
         },
         getId(){
-            return this.connection.code;
+            return this.connection.id;
         },
         
         checkValid(val){

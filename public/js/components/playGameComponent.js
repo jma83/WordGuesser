@@ -73,7 +73,8 @@ let playGameComponent = Vue.component("play-game-component", {
         let nombre = this.name;
         let id = this.socketid;
         
-        if (id !== undefined && id!=='') {
+        if (id !== undefined && id!=='' && codigoPartida!=='') {
+             console.log("conexion_sala")
             this.socket.emit('conexion_sala', { id, codigoPartida, nombre, tipoUsuario });
         }
     },
@@ -95,11 +96,11 @@ let playGameComponent = Vue.component("play-game-component", {
         enviarTexto() {
             let palabra = document.getElementById("palabra").value;
             let nombre = this.name;
-
+            let codigoPartida = this.code;
             if (palabra !== "" && palabra !== null) {
                 let idmsg = this.idmsg;
                 document.getElementById("palabra").value = "";
-                this.socket.emit('mensaje', { idmsg, nombre, palabra });
+                this.socket.emit('mensaje', { idmsg, codigoPartida, nombre, palabra });
                 this.idmsg++;
             }
         },
