@@ -33,12 +33,15 @@ io.on('connection', (socket) => {
     socket.on("conexion_sala", data => {
         console.log(data);
         //io.sockets.emit('mensajito',data)
-        console.log("ME HE SUSCRITO: " + data.id + " a " + data.codigoPartida);
         socket.join(data.codigoPartida);
         let check = listaPartidas.includes(data.codigoPartida);
-        if(!check)
-        listaPartidas.push(data.codigoPartida);
-        io.to(data.codigoPartida).emit('conexion_sala',data);
+        if(!check && Number(data.tipoUsuario) === 1){
+            listaPartidas.push(data.codigoPartida);
+            io.to(data.codigoPartida).emit('conexion_sala',data);
+        }else{
+            io.to(data.codigoPartida).emit('sala_no_valida',data);
+            
+        }
         console.log(listaPartidas)
     });
     
@@ -54,10 +57,11 @@ io.on('connection', (socket) => {
 
     socket.on("desconexion_sala", data => {
         let index = listaPartidas.indexOf(data.codigoPartida);
-        if (index!==-1){
+        if (index!==-1 && Number(data.tipoUsuario)===1){
             listaPartidas.splice(index, 1);
             socket.to(data.codigoPartida).emit('desconexion_sala',data);
         }
     });
+    
 
 });

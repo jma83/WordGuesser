@@ -3,7 +3,7 @@ import './imageInfoComponent.js';
 import './lobbyComponent.js';
 
 let playGameComponent = Vue.component("play-game-component", {
-    props: ["name", "code", "mode", "socket","socketid"],
+    props: ["name", "code", "mode", "socket", "socketid"],
     data: function () {
         return {
             //gm: new GameManager(this.dificultad),
@@ -42,7 +42,7 @@ let playGameComponent = Vue.component("play-game-component", {
         
         <div class="row justify-content-around">
             <div class=" col-10 col-md-4 align-self-start mt-2 p-2 ">
-                <player-info-component v-bind:name="name" v-bind:timer="timer" v-bind:victorias="victorias"></player-info-component>
+                <player-info-component v-bind:name="name" v-bind:timer="timer" v-bind:victorias="victorias" v-if="this.estado === 1"></player-info-component>
             </div>
             <form class="col-10 col-md-3 mt-2 p-2 align-self-start">
                 <div class="form-group">
@@ -73,10 +73,17 @@ let playGameComponent = Vue.component("play-game-component", {
         let nombre = this.name;
         let id = this.socketid;
         
-        if (id !== undefined && id!=='' && codigoPartida!=='') {
+        console.log("updated!")
+        if(this.invalid){
+            console.log("desconecto!")
+            this.endGame();
+        }
+
+        if (id !== undefined && id!=='' && codigoPartida!=='' && this.estado===0) {
              console.log("conexion_sala")
             this.socket.emit('conexion_sala', { id, codigoPartida, nombre, tipoUsuario });
         }
+        
     },
     deactivated() {
         this.endGameEvent();
@@ -87,7 +94,7 @@ let playGameComponent = Vue.component("play-game-component", {
     methods: {
         endGameEvent() {
             let codigoPartida = this.code;
-            let tipoUsuario = this.host;
+            let tipoUsuario = this.mode;
             let nombre = this.name;
             let id = this.socketid;
             this.socket.emit('desconexion_sala', { id, codigoPartida, nombre, tipoUsuario });
@@ -106,12 +113,13 @@ let playGameComponent = Vue.component("play-game-component", {
         },
         siguiente() {
             let codigoPartida = this.code;
-            let tipoUsuario = this.host;
+            let tipoUsuario = this.mode;
             let nombre = this.name;
             let id = this.socketid;
-            this.socket.emit('siguiente', { id, codigoPartida, nombre, tipoUsuario });
+            
             if (this.estado === 0)
                 this.estado = 1;
+            this.socket.emit('siguiente', { id, codigoPartida, nombre, tipoUsuario });
         }
     }
 });

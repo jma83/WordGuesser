@@ -1,4 +1,3 @@
-import connection from '../connectionEvents.js';
 
 
 let selectionComponent = Vue.component("selection-component", {

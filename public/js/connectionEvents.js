@@ -1,34 +1,44 @@
-import Conexion from './connectionClass.js';
+import ConnectionEvents from './connectionClass.js';
 
-let connection = new Conexion();
 const chatStr = "chat";
 
 
-connection.socket.on("mensaje_chat", (data) => {
+
+let event = new ConnectionEvents();
+event.startConnection();
+
+
+event.connection.socket.on("mensaje_chat", (data) => {
     let chat = document.getElementById(chatStr);
     if (chat !== null)
         chat.innerHTML += "<p><b>" + data.nombre + ":</b> " + data.palabra + "</p>";
 });
 
-connection.socket.on("conexion_sala", (data) => {
+event.connection.socket.on("conexion_sala", (data) => {
     let chat = document.getElementById(chatStr);
     if (chat !== null)
         chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> se ha unido a la partida!</i></p>";
 });
 
-connection.socket.on("desconexion_sala", (data) => {
+event.connection.socket.on("desconexion_sala", (data) => {
     let chat = document.getElementById(chatStr);
     if (chat !== null)
         chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> se ha desconectado de la partida!</i></p>";
 });
 
-connection.socket.on("conexion",  (data) => {
-    console.log(connection.code);
+event.connection.socket.on("conexion",  (data) => {
+    console.log(event.connection.code);
     let code = data.substr(0, 5);
     console.log(code);
 
-    connection.setCode(code);
-    connection.setId();
+    event.connection.setCode(code);
+    event.connection.setId();
+
+});
+
+event.connection.socket.on("sala_no_valida",  () => {
+
+    event.connection.setInvalid(true);
 
 });
 
@@ -37,7 +47,7 @@ window.addEventListener('beforeunload', (event) => {
     let nombre = sessionStorage.getItem("partida_nombre");
     let codigoPartida = sessionStorage.getItem("partida_codigo");
     let tipoUsuario = -1;
-    let id = connection.socket.id;
+    //let id = event.connection.socket.id;
     
     if (Number(modo) === 0) {
         tipoUsuario = "Invitado";
@@ -46,8 +56,8 @@ window.addEventListener('beforeunload', (event) => {
     }
 
     if (nombre!== null && nombre!==undefined)
-    connection.socket.emit('desconexion_sala', {id, codigoPartida, nombre, tipoUsuario });
+    event.connection.socket.emit('desconexion_sala', {id, codigoPartida, nombre, tipoUsuario });
 
 })
 
-export default connection;
+export default event;

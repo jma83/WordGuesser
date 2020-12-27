@@ -1,6 +1,6 @@
 import './playGameComponent.js';
 import './selectionComponent.js';
-import connection from '../connectionEvents.js';
+import event from '../connectionEvents.js';
 
 
 let gameComponent = Vue.component("game-component", {
@@ -9,7 +9,8 @@ let gameComponent = Vue.component("game-component", {
             startedGame: false,
             nombre: '',
             modo: -1,
-            connection: connection
+            event: event,
+            connection: event.getConnection()
         }
     },
     template: `
@@ -34,11 +35,11 @@ let gameComponent = Vue.component("game-component", {
     },
     mounted(){
         this.responsive();
-        this.connection.setCode(sessionStorage.getItem("partida_codigo"));
+        this.event.setCode(sessionStorage.getItem("partida_codigo"));
     },
     updated(){
-        if (this.checkValid(this.connection.code))
-        sessionStorage.setItem("partida_codigo", this.connection.code);
+        if (this.checkValid(this.event.getCode()))
+        sessionStorage.setItem("partida_codigo", this.event.getCode());
 
     },
     methods: {
@@ -48,17 +49,13 @@ let gameComponent = Vue.component("game-component", {
             this.modo = Number(dat.modo);
             this.nombre = dat.nombre;
 
-            
-
-            if(this.connection.socket.connected){
+            if(this.event.getConnection().socket.connected){
                 if (this.checkValid(dat.codigo) && this.modo===0)
-                this.connection.initConection(dat.codigo);
+                this.event.initConection(dat.codigo);
                 else
-                this.connection.initConection();
+                this.event.initConection();
             }
-
-            
-            
+                
             sessionStorage.setItem("partida_modo", this.modo);
             sessionStorage.setItem("partida_nombre", this.nombre);
             this.responsive();
@@ -67,16 +64,17 @@ let gameComponent = Vue.component("game-component", {
             sessionStorage.clear();
             this.startedGame = false;
             this.responsive();
+            this.event.startConnection();
         },
         getCode(){
-            if (this.checkValid(this.connection.code))
-            return this.connection.code.substr(0, 5);
+            if (this.checkValid(this.event.getCode()))
+            return this.event.getCode().substr(0, 5);
 
             return '';
 
         },
         getId(){
-            return this.connection.id;
+            return this.event.getId();
         },
         
         checkValid(val){
