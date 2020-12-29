@@ -14,13 +14,13 @@ let gameComponent = Vue.component("game-component", {
         }
     },
     template: `
-    <div>
+    <div ref="gameComponent">
         <div class="container">
             <div v-if="startedGame === false">
                 <selection-component v-on:start="startGame"></selection-component>
             </div>
             <div v-else>
-                <play-game-component v-bind:name="nombre" v-bind:code="getCode()" v-bind:mode="modo" v-bind:socket="connection.socket" v-bind:socketid="getId()" v-on:end="endGame"></play-game-component>
+                <play-game-component ref="playgame" v-bind:name="nombre" v-bind:code="getCode()" v-bind:mode="modo" v-bind:socket="connection.socket" v-bind:socketid="getId()" v-bind:invalid="event.getInvalid()" v-on:end="endGame"></play-game-component>
             </div>
         </div>
     </div>`,
@@ -64,6 +64,7 @@ let gameComponent = Vue.component("game-component", {
             sessionStorage.clear();
             this.startedGame = false;
             this.responsive();
+            if (this.event !== undefined)
             this.event.startConnection();
         },
         getCode(){

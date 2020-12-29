@@ -35,11 +35,14 @@ io.on('connection', (socket) => {
         //io.sockets.emit('mensajito',data)
         socket.join(data.codigoPartida);
         let check = listaPartidas.includes(data.codigoPartida);
-        if(!check && Number(data.tipoUsuario) === 1){
-            listaPartidas.push(data.codigoPartida);
+
+        if (!check && Number(data.tipoUsuario) === 1)
+        listaPartidas.push(data.codigoPartida);
+
+        if(!check && Number(data.tipoUsuario) === 1 || check && Number(data.tipoUsuario) === 0){
             io.to(data.codigoPartida).emit('conexion_sala',data);
         }else{
-            io.to(data.codigoPartida).emit('sala_no_valida',data);
+            io.to(data.id).emit('sala_no_valida',data); 
             
         }
         console.log(listaPartidas)

@@ -4,7 +4,7 @@ import './welcomeComponent.js';
 import router from '../routes.js'
 
 
-new Vue({
+let miapp = new Vue({
     el: "#miapp",
     data: {
         startedGame: false,
@@ -25,6 +25,20 @@ new Vue({
         
         <footer-component class="mt-5"></footer-component>
     </div>`
-    , router
-    
-})
+    , router,
+    computed: {
+        getAllRefs: function () {
+            return this.$refs
+        }
+    }
+});
+
+class mainClass{
+    constructor(miapp){
+        this.instance = miapp;
+    }
+}
+
+let main = new mainClass(miapp);
+
+export default main;
