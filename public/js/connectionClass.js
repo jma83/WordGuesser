@@ -17,12 +17,17 @@ class Conexion{
         this.code = code;
     }
 
-    setId(){
-        this.id = this.socket.id;
+    setId(id){
+        this.id = id;
+        console.log("id: " + id)
     }
 
     setInvalid(b){
         this.invalid = b;
+    }
+
+    getInvalid(){
+        return this.invalid;
     }
 
     initSocket(){
@@ -34,9 +39,21 @@ class Conexion{
         this.code = code;
         this.socket.emit('conexion');
     }
+    setPlayers(list){
+        
+        this.players = list;
+        if (this.players != null)
+        this.players.sort();
+    }
+
+    getPlayers(){
+        return this.players;
+    }
 }
 
 export default class ConnectionEvents{
+    players = [];
+
     startConnection(){
         this.connection = new Conexion();
     }
@@ -46,6 +63,10 @@ export default class ConnectionEvents{
 
     setCode(code){
         this.connection.setCode(code);
+    }
+
+    setId(id){
+        this.connection.setId(id);
     }
 
     getSocket(){

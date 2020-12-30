@@ -1,4 +1,5 @@
 import ConnectionEvents from './connectionClass.js';
+import main from './components/main.js';
 
 const chatStr = "chat";
 const gameStr = "maingame";
@@ -33,9 +34,9 @@ event.connection.socket.on("conexion",  (data) => {
     console.log(code);
 
     event.connection.setCode(code);
-    event.connection.setId();
 
 });
+
 
 event.connection.socket.on("sala_no_valida",  () => {
 
@@ -73,25 +74,26 @@ event.connection.socket.on("sala_no_valida",  () => {
     event.connection.setInvalid(true);
 
     
-    
 
 });
 
-window.addEventListener('beforeunload', (event) => { 
+window.addEventListener('beforeunload', () => { 
     let modo = sessionStorage.getItem("partida_modo");
     let nombre = sessionStorage.getItem("partida_nombre");
     let codigoPartida = sessionStorage.getItem("partida_codigo");
-    let tipoUsuario = -1;
-    //let id = event.connection.socket.id;
+    let endGameMethod = false;
+    let id = event.getId();
+    if (id === 0)
+    id = event.connection.socket.id;
     
-    if (Number(modo) === 0) {
+    /*if (Number(modo) === 0) {
         tipoUsuario = "Invitado";
     } else if (Number(modo) === 1) {
         tipoUsuario = "Anfitrión";
-    }
+    }*/
 
     if (nombre!== null && nombre!==undefined)
-    event.connection.socket.emit('desconexion_sala', {id, codigoPartida, nombre, tipoUsuario });
+    event.connection.socket.emit('desconexion_sala', {id, codigoPartida, nombre, modo, endGameMethod });
 
 })
 

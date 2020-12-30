@@ -10,7 +10,7 @@ let gameComponent = Vue.component("game-component", {
             nombre: '',
             modo: -1,
             event: event,
-            connection: event.getConnection()
+            connection: event.getConnection(),
         }
     },
     template: `
@@ -20,26 +20,34 @@ let gameComponent = Vue.component("game-component", {
                 <selection-component v-on:start="startGame"></selection-component>
             </div>
             <div v-else>
-                <play-game-component ref="playgame" v-bind:name="nombre" v-bind:code="getCode()" v-bind:mode="modo" v-bind:socket="connection.socket" v-bind:socketid="getId()" v-bind:invalid="event.getInvalid()" v-on:end="endGame"></play-game-component>
+                <play-game-component ref="playgame" v-bind:name="nombre" v-bind:code="getCode()" v-bind:mode="modo" v-bind:socket="connection.socket" v-bind:socketid="getId()" v-on:end="endGame"></play-game-component>
             </div>
         </div>
     </div>`,
     async created() {
         this.modo = sessionStorage.getItem("partida_modo");
         this.nombre = sessionStorage.getItem("partida_nombre");
-        
+        this.event.setCode(sessionStorage.getItem("partida_codigo"));
+        this.event.setId(sessionStorage.getItem("partida_id"));
+
         if (this.checkValid(this.nombre)) {
             this.startedGame = true;
         }
-        
+        console.log("mounted id:" + sessionStorage.getItem("partida_id"))
     },
+
+
     mounted(){
         this.responsive();
-        this.event.setCode(sessionStorage.getItem("partida_codigo"));
     },
     updated(){
         if (this.checkValid(this.event.getCode()))
         sessionStorage.setItem("partida_codigo", this.event.getCode());
+        if (this.checkValid(this.event.getId()))
+            sessionStorage.setItem("partida_id", this.event.getId());
+        else if (this.checkValid(this.connection.socket.id)){
+            sessionStorage.setItem("partida_id", this.connection.socket.id);
+        }
 
     },
     methods: {
@@ -59,7 +67,7 @@ let gameComponent = Vue.component("game-component", {
             sessionStorage.setItem("partida_modo", this.modo);
             sessionStorage.setItem("partida_nombre", this.nombre);
             this.responsive();
-        },
+        }, 
         endGame(){
             sessionStorage.clear();
             this.startedGame = false;
@@ -79,7 +87,7 @@ let gameComponent = Vue.component("game-component", {
         },
         
         checkValid(val){
-            if (val !== null && val !== ""){
+            if (val != null && val !== "" && Number(val) !== 0){
                 return true;
             }
             return false;
