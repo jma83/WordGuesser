@@ -11,6 +11,8 @@ let gameComponent = Vue.component("game-component", {
             modo: -1,
             event: event,
             connection: event.getConnection(),
+            estado: 0,
+
         }
     },
     template: `
@@ -20,7 +22,7 @@ let gameComponent = Vue.component("game-component", {
                 <selection-component v-on:start="startGame"></selection-component>
             </div>
             <div v-else>
-                <play-game-component ref="playgame" v-bind:name="nombre" v-bind:code="getCode()" v-bind:mode="modo" v-bind:socket="connection.socket" v-bind:socketid="getId()" v-on:end="endGame"></play-game-component>
+                <play-game-component ref="playgame" v-bind:name="nombre" v-bind:code="getCode()" v-bind:mode="modo" v-bind:socket="connection.socket" v-bind:socketid="getId()" v-bind:estado="estado" v-on:end="endGame" v-on:cambioEstado="cambioEstado"></play-game-component>
             </div>
         </div>
     </div>`,
@@ -98,6 +100,9 @@ let gameComponent = Vue.component("game-component", {
             }else{
                 document.getElementById("footer").style.position = "relative";
             }
+        },
+        cambioEstado(dat){
+            this.estado = dat;
         }
         
     }

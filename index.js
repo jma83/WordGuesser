@@ -106,7 +106,7 @@ io.on('connection', (socket) => {
 function inicializarJugadoresSala(data) {
     let nombres = [data.nombre];
     let ids = [data.id];
-    let siguiente = false;
+    let siguiente = [false];
     mapPlayers.set(data.codigoPartida, { ids, nombres, siguiente });
 }
 
@@ -127,8 +127,10 @@ function siguienteJugador(data){
         let ids = mapPlayers.get(data.codigoPartida).ids;
         let siguiente = mapPlayers.get(data.codigoPartida).siguiente;
         let index = ids.indexOf(data.id);
+        console.log(index  + "!!!")
         if (index !== -1) {
             siguiente[index] = true;
+            
         }
     }
 }
@@ -145,6 +147,7 @@ function borrarJugadorSala(data) {
 
             ids.splice(index, 1);
             nombres.splice(index, 1);
+            siguiente.splice(siguiente, 1);
             console.log("borro ok!" + nombres)
         }
         mapPlayers.set(data.codigoPartida, { ids, nombres, siguiente });
@@ -173,6 +176,7 @@ function gestionJugadoresNuevos(check, data) {
     if (check) {
         listPlayers.push(data.nombre);
         listPlayerIds.push(data.id);
+        listSiguiente.push(false);
     }
     let ids = listPlayerIds;
     let nombres = listPlayers;

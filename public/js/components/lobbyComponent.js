@@ -12,7 +12,10 @@ let lobbyComponent = Vue.component("lobby-component", {
         <p>Jugadores Conectados {{this.getNumPlayers()}}</p>
         <ul class="list-group">
           <!--<li class="list-group-item active" aria-current="true">Cras justo odio</li>-->
-          <li v-for="n in getPlayers()" class="list-group-item ">{{n}} <span v-if="getPlayers()[0] === n">(Anfitrión)</span></li>
+          <li v-for="n in getPlayers()"  class="list-group-item ">{{n.name}} <span v-if="getPlayers()[0].name === n.name">(Anfitrión)</span>
+            <span v-if="n.siguiente === true" class="badge bg-success">Listo</span>
+            <span v-else class="badge bg-danger">No listo</span>
+          </li>
         </ul>
     </div>`,
     methods: {

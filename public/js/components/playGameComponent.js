@@ -3,7 +3,7 @@ import './imageInfoComponent.js';
 import './lobbyComponent.js';
 
 let playGameComponent = Vue.component("play-game-component", {
-    props: ["name", "code", "mode", "socket", "socketid"],
+    props: ["name", "code", "mode", "socket", "socketid", "estado"],
     data: function () {
         return {
             //gm: new GameManager(this.dificultad),
@@ -11,15 +11,12 @@ let playGameComponent = Vue.component("play-game-component", {
             arrayLetras: [],
             victorias: 3,
             host: '',
-            valorInput: "",
-            estadoPartida: 0,
             msgCabecera: "Encuentra la palabra oculta!",
-            descripcion: "Bienvenido al chat! aqui se verán reflejadas las respuestas a la palabra secreta!",
+            descripcion: "Bienvenido al chat! Aqui quedarán registrados los mensajes y respuestas de todos los usuarios!",
             timer: 0,
-            estado: 0,
             players: [],
-            siguientes: [],
-            connected: false
+            connected: false,
+            siguienteRonda: false
 
         }
     },
@@ -40,7 +37,7 @@ let playGameComponent = Vue.component("play-game-component", {
                 <div class="col-md-1"></div>
                 <div class="card col-12 col-md-5" id="chat_container">
                     <div class="alert alert-primary align-bottom" role="alert" id="chat">
-                        <p><i>Bienvenido al chat! Aqui quedarán registrados los mensajes y respuestas de todos los usuarios!</i></p>
+                        <p><i>{{this.descripcion}}</i></p>
                     </div>
                 </div>
             </div>
@@ -59,8 +56,8 @@ let playGameComponent = Vue.component("play-game-component", {
                 </form>
             </div>
             <div class="row justify-content-end">
-                    <button v-if="Number(this.mode)===1" type="input" v-on:click.prevent="ajustes()" class="btn btn-primary col-4 col-md-3 col-lg-2 mr-2 align-self-end" id="ajustes" name="ajustes" data-dif="2"><i class="fas fa-cog"></i> &nbsp;Ajustes de partida</button>
-                <button type="input" v-on:click.prevent="siguiente()" class="btn btn-info col-4 col-md-3 col-lg-2 mr-2 " id="siguiente" name="siguiente" data-dif="2"><i class="fas fa-check-circle"></i> &nbsp; Siguiente</button>
+                <button v-if="Number(this.mode)===1 && this.estado === 0" type="input" v-on:click.prevent="ajustes()" class="btn btn-primary col-4 col-md-3 col-lg-2 mr-2 align-self-end" id="ajustes" name="ajustes" data-dif="2"><i class="fas fa-cog"></i> &nbsp;Ajustes de partida</button>
+                <button v-if="this.estado === 0 || this.siguienteRonda===true" type="input" v-on:click.prevent="siguiente()" class="btn btn-info col-4 col-md-3 col-lg-2 mr-2 " id="siguiente" name="siguiente" data-dif="2"><i class="fas fa-check-circle"></i> &nbsp; Siguiente</button>
             </div>
         </div>        
   </div>`,
@@ -79,15 +76,12 @@ let playGameComponent = Vue.component("play-game-component", {
         let id = this.socketid || this.socket.id;
 
         if (id != null && id !== '' && this.connected === false && this.code !== '' && this.estado === 0) {
-            let codigoPartida = this.code;
-            let tipoUsuario = this.mode;
-            let nombre = this.name;
+            
+            //console.log("conexion_sala");
+            //console.log("updated! id:" + id)
 
             this.connected = true;
-            console.log("conexion_sala");
-            console.log("updated! id:" + id)
-
-            this.socket.emit('conexion_sala', { id, codigoPartida, nombre, tipoUsuario });
+            this.emitir('conexion_sala');
         }
     },
     deactivated() {
@@ -98,12 +92,7 @@ let playGameComponent = Vue.component("play-game-component", {
     },
     methods: {
         endGameEvent() {
-            let codigoPartida = this.code;
-            let tipoUsuario = this.mode;
-            let nombre = this.name;
-            let id = this.socket.id || this.socketid;
-            let endGameMethod = true;
-            this.socket.emit('desconexion_sala', { id, codigoPartida, nombre, tipoUsuario, endGameMethod });
+            this.emitir('desconexion_sala');
             this.$emit("end", {});
         },
         enviarTexto() {
@@ -116,27 +105,39 @@ let playGameComponent = Vue.component("play-game-component", {
                 this.socket.emit('mensaje', { idmsg, codigoPartida, nombre, palabra });
                 this.idmsg++;
             }
-
-
         },
         siguiente() {
-            let codigoPartida = this.code;
-            let tipoUsuario = this.mode;
-            let nombre = this.name;
-            let id = this.socket.id || this.socketid;
-
-
-            if (this.estado === 0)
-                this.estado = 1;
-            this.socket.emit('siguiente', { id, codigoPartida, nombre, tipoUsuario });
+            this.emitir('siguiente');
         },
         getPlayers() {
             this.socket.on("listPlayers", (p) => {
-                console.log("listPlayers " + p.listPlayers)
-                this.players = p.listPlayers;
-                this.siguientes = p.listSiguiente;
+                console.log("listPlayers ")
+                console.log(p)
+                this.players = [];
+                let checkSiguientes = true;
+                for (let i = 0; i < p.listPlayers.length; i++) {
+                    let name = p.listPlayers[i];
+                    let siguiente = p.listSiguiente[i];
+
+                    if (siguiente===false) checkSiguientes = false;
+
+                    this.players.push({name,siguiente});
+                }
+
+                if (checkSiguientes && p.listSiguiente.length > 1){
+                    this.$emit("cambioEstado", 1);
+                }
             });
+        },
+        emitir(str){
+            let codigoPartida = this.code;
+            let tipoUsuario = this.mode;
+            let nombre = this.name;
+            let id = this.socketid || this.socket.id;
+            let endGameMethod = true;
+            this.socket.emit(str, { id, codigoPartida, nombre, tipoUsuario, endGameMethod });
         }
+        
     }
 });
 
