@@ -1,5 +1,5 @@
 let lobbyComponent = Vue.component("lobby-component", {
-  props: ["players","name","mode"],
+  props: ["players","name"],
   data: function () {
     return {
         //gm: new GameManager(this.dificultad),

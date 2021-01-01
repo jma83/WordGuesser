@@ -17,14 +17,18 @@ const server = app.listen(app.get('port'), () => {
 //websockets
 
 const SocketIO = require('socket.io');
+const RoomsManager = require('./server/roomsManager.js');
 
 const io = SocketIO(server);
 
+let mapPartidas = new Map();
 let listaPartidas = [];
 let mapPlayers = new Map();
 let listPlayers = [];
 let listPlayerIds = [];
 let listSiguiente = [];
+
+let roomsManager = new RoomsManager();
 
 io.on('connection', (socket) => {
 
@@ -35,150 +39,70 @@ io.on('connection', (socket) => {
     socket.on("conexion_sala", data => {
         console.log(data);
 
-        socket.join(data.codigoPartida);
-        let check = listaPartidas.includes(data.codigoPartida);
-
-        if (!check && Number(data.tipoUsuario) === 1) {
-            inicializarJugadoresSala(data);
-            listaPartidas.push(data.codigoPartida);
-        }
-
         let reenter = false;
-        reenter = comprobarJugador(data);
+        let sala = roomsManager.getSala(data.codigoPartida);
+        if (sala != null)
+            reenter = sala.comprobarJugador(data.id);
 
-        if (!check && Number(data.tipoUsuario) === 1 || check && Number(data.tipoUsuario) === 0 || reenter) {
+        if (roomsManager.comprobarUnionSala(data, reenter)) {
+            roomsManager.crearSala(data);
+            if (sala == null) sala = roomsManager.getSala(data.codigoPartida);
+
             if (!reenter)
-            gestionJugadoresNuevos(check, data);
+                sala.crearJugadorSala(data);
 
             console.log("conexion_sala")
-            console.log(mapPlayers)
+            socket.join(data.codigoPartida);
+
             io.to(data.codigoPartida).emit('conexion_sala', data);
 
-            listPlayers = getNombres(data);
-            listSiguiente = getSiguientes(data);
-            io.to(data.codigoPartida).emit('listPlayers', {listPlayers,listSiguiente});
+            listPlayers = sala.getNombreJugadores();
+            listSiguiente = sala.getSiguienteJugadores();
+            io.to(data.codigoPartida).emit('listPlayers', { listPlayers, listSiguiente });
+            
         } else {
             console.log("sala no valida!! " + data.id)
             io.to(data.id).emit('sala_no_valida', data);
-
         }
-        console.log(listaPartidas)
+
+        console.log("Salas!!! "+roomsManager.getCodigosSalas())
     });
 
     socket.on("mensaje", data => {
-        let check = listaPartidas.includes(data.codigoPartida);
+        let check = roomsManager.comprobarSala(data.codigoPartida);
         if (check) {
             io.to(data.codigoPartida).emit('mensaje_chat', data);
         }
     });
 
     socket.on("siguiente", data => {
-        siguienteJugador(data);
-        
-        listPlayers = getNombres(data);
-        listSiguiente = getSiguientes(data);
-        io.to(data.codigoPartida).emit('listPlayers', {listPlayers,listSiguiente});
+        let sala = roomsManager.getSala(data.codigoPartida);
+        if (sala != null) {
+            sala.siguienteJugador(data.id);
+
+            listPlayers = sala.getNombreJugadores();
+            listSiguiente = sala.getSiguienteJugadores();
+            io.to(data.codigoPartida).emit('listPlayers', { listPlayers, listSiguiente });
+        }
     });
 
     socket.on("desconexion_sala", data => {
-        if (data.endGameMethod) {
-            let index = listaPartidas.indexOf(data.codigoPartida);
-            if (index !== -1 && Number(data.tipoUsuario) === 1) {
-                listaPartidas.splice(index, 1);
-                mapPlayers.delete(data.codigoPartida);
-            }
+        let sala = roomsManager.getSala(data.codigoPartida);
 
-            borrarJugadorSala(data);
+        if (data.endGameMethod && sala != null) {
+            roomsManager.borrarSala(data);
+
             console.log("desconexion_sala")
-            console.log(mapPlayers)
 
-            listPlayers = getNombres(data);
-            listSiguiente = getSiguientes(data);
-            io.to(data.codigoPartida).emit('listPlayers', {listPlayers,listSiguiente});
+            listPlayers = sala.getNombreJugadores();
+            listSiguiente = sala.getSiguienteJugadores();
+            io.to(data.codigoPartida).emit('listPlayers', { listPlayers, listSiguiente });
             socket.to(data.codigoPartida).emit('desconexion_sala', data);
-            
+
         }
+        console.log("Salas!!! "+roomsManager.getCodigosSalas())
     });
 
 
 });
 
-function inicializarJugadoresSala(data) {
-    let nombres = [data.nombre];
-    let ids = [data.id];
-    let siguiente = [false];
-    mapPlayers.set(data.codigoPartida, { ids, nombres, siguiente });
-}
-
-function comprobarJugador(data) {
-    if (mapPlayers.get(data.codigoPartida)) {
-        let ids = mapPlayers.get(data.codigoPartida).ids;
-
-        let check = ids.includes(data.id);
-        if (check) {
-            return true;
-        }
-    }
-    return false;
-}
-
-function siguienteJugador(data){
-    if (mapPlayers.get(data.codigoPartida)) {
-        let ids = mapPlayers.get(data.codigoPartida).ids;
-        let siguiente = mapPlayers.get(data.codigoPartida).siguiente;
-        let index = ids.indexOf(data.id);
-        console.log(index  + "!!!")
-        if (index !== -1) {
-            siguiente[index] = true;
-            
-        }
-    }
-}
-
-function borrarJugadorSala(data) {
-    if (mapPlayers.get(data.codigoPartida) != null) {
-        let ids = mapPlayers.get(data.codigoPartida).ids;
-        let nombres = mapPlayers.get(data.codigoPartida).nombres;
-        let siguiente = mapPlayers.get(data.codigoPartida).siguiente;
-
-        let index = ids.indexOf(data.id);
-        if (index !== -1) {
-            console.log("antes de borrar!" + nombres)
-
-            ids.splice(index, 1);
-            nombres.splice(index, 1);
-            siguiente.splice(siguiente, 1);
-            console.log("borro ok!" + nombres)
-        }
-        mapPlayers.set(data.codigoPartida, { ids, nombres, siguiente });
-    }
-}
-
-function getNombres(data){
-    if (mapPlayers.get(data.codigoPartida) != null) {
-        let nombres = mapPlayers.get(data.codigoPartida).nombres;
-        return nombres;
-    }
-    return [];
-}
-function getSiguientes(data){
-    if (mapPlayers.get(data.codigoPartida) != null) {
-        let siguiente = mapPlayers.get(data.codigoPartida).siguiente;
-        return siguiente;
-    }
-    return [];
-}
-
-function gestionJugadoresNuevos(check, data) {
-    listPlayers = mapPlayers.get(data.codigoPartida).nombres;
-    listPlayerIds = mapPlayers.get(data.codigoPartida).ids;
-    let siguiente = mapPlayers.get(data.codigoPartida).siguiente;
-    if (check) {
-        listPlayers.push(data.nombre);
-        listPlayerIds.push(data.id);
-        listSiguiente.push(false);
-    }
-    let ids = listPlayerIds;
-    let nombres = listPlayers;
-    mapPlayers.set(data.codigoPartida, { ids, nombres, siguiente });
-}

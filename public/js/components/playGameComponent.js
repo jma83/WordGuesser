@@ -13,7 +13,7 @@ let playGameComponent = Vue.component("play-game-component", {
             host: '',
             msgCabecera: "Encuentra la palabra oculta!",
             descripcion: "Bienvenido al chat! Aqui quedarán registrados los mensajes y respuestas de todos los usuarios!",
-            timer: 0,
+            timer: 100,
             players: [],
             connected: false,
             siguienteRonda: false
@@ -32,7 +32,7 @@ let playGameComponent = Vue.component("play-game-component", {
             <div class="row">
                 <div class="card col-12 col-md-6 justify-content-center align-self-start">
                     <image-info-component v-if="this.estado === 1"></image-info-component>
-                    <lobby-component v-if="this.estado === 0" v-bind:name="name" v-bind:socket="socket" v-bind:players="players" v-bind:mode="mode" ></lobby-component>
+                    <lobby-component v-if="this.estado === 0" v-bind:name="name" v-bind:players="players"></lobby-component>
                 </div>
                 <div class="col-md-1"></div>
                 <div class="card col-12 col-md-5" id="chat_container">
@@ -109,6 +109,7 @@ let playGameComponent = Vue.component("play-game-component", {
         siguiente() {
             this.emitir('siguiente');
         },
+        
         getPlayers() {
             this.socket.on("listPlayers", (p) => {
                 console.log("listPlayers ")
@@ -134,8 +135,9 @@ let playGameComponent = Vue.component("play-game-component", {
             let tipoUsuario = this.mode;
             let nombre = this.name;
             let id = this.socketid || this.socket.id;
+            let estado = this.estado;
             let endGameMethod = true;
-            this.socket.emit(str, { id, codigoPartida, nombre, tipoUsuario, endGameMethod });
+            this.socket.emit(str, { id, codigoPartida, nombre, tipoUsuario, endGameMethod, estado });
         }
         
     }
