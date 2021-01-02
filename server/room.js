@@ -1,4 +1,4 @@
-Player = require('./player')
+const Player = require('./player')
 
 module.exports = class Room {
     constructor(data) {

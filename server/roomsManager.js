@@ -2,7 +2,7 @@
 //desde llamar a la api para obtener las palabras segun la config
 //como controlar los eventos de siguiente ronda o fin de partida
 
-Room = require('./room')
+const Room = require('./room')
 
 module.exports = class RoomsManager {
     constructor() {
