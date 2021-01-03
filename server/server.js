@@ -33,6 +33,10 @@ module.exports = class Server {
             this.io.to(data.codigoPartida).emit('conexion_sala', data);
 
             this.emitirListPlayer(sala, data);
+            sala.getInfoSala().then((res) => {
+                console.log(res);
+                this.io.to(data.codigoPartida).emit('serverInfo', res);
+            });
 
         } else {
             console.log("sala no valida!! " + data.id)
@@ -82,11 +86,19 @@ module.exports = class Server {
 
     cambiarEstadoServer(data) {
         let sala = this.roomsManager.getSala(data.codigoPartida);
-
         if (sala != null) {
-            sala.gestionarRonda();
-            let res = sala.getInfoSala();
-            this.io.to(data.codigoPartida).emit('serverInfo', res);
+            console.log("cambio estado server")
+
+            sala.gestionarRonda(data.estado, data.ronda).then(() => {
+                sala.getInfoSala().then((res) => {
+                    console.log(res);
+                    this.io.to(data.codigoPartida).emit('serverInfo', res);
+                });
+
+            }).catch((e) => {
+                console.log(e);
+            });
+
 
         }
 

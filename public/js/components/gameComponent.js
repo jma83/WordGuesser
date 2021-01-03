@@ -11,8 +11,7 @@ let gameComponent = Vue.component("game-component", {
             modo: -1,
             event: event,
             connection: event.getConnection(),
-            estado: 0,
-
+            serverInfo: this.initServerInfo()
         }
     },
     template: `
@@ -22,7 +21,7 @@ let gameComponent = Vue.component("game-component", {
                 <selection-component v-on:start="startGame"></selection-component>
             </div>
             <div v-else>
-                <play-game-component ref="playgame" v-bind:name="nombre" v-bind:code="getCode()" v-bind:mode="modo" v-bind:socket="connection.socket" v-bind:socketid="getId()" v-bind:estado="estado" v-on:end="endGame" v-on:cambioEstado="cambioEstado"></play-game-component>
+                <play-game-component ref="playgame" v-bind:name="nombre" v-bind:code="getCode()" v-bind:mode="modo" v-bind:socket="connection.socket" v-bind:socketid="getId()" v-bind:serverInfo="serverInfo" v-on:end="endGame" v-on:setServerInfo="setServerInfo"></play-game-component>
             </div>
         </div>
     </div>`,
@@ -73,7 +72,6 @@ let gameComponent = Vue.component("game-component", {
         endGame(){
             sessionStorage.clear();
             this.startedGame = false;
-            this.cambioEstado(0);
             this.responsive();
             if (this.event !== undefined)
             this.event.startConnection();
@@ -102,8 +100,21 @@ let gameComponent = Vue.component("game-component", {
                 document.getElementById("footer").style.position = "relative";
             }
         },
-        cambioEstado(dat){
-            this.estado = dat;
+        setServerInfo(dat){
+            this.serverInfo = dat;
+        },
+        initServerInfo(){
+            return {
+                codigo: 'JClI1',
+                estado: 0,
+                ronda: 0,
+                imagen: '',
+                palabra: '',
+                finRonda: false,
+                fin: false,
+                maxRondas: 6,
+                maxPlayers: 4
+              }
         }
         
     }

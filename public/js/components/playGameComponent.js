@@ -3,7 +3,7 @@ import './imageInfoComponent.js';
 import './lobbyComponent.js';
 
 let playGameComponent = Vue.component("play-game-component", {
-    props: ["name", "code", "mode", "socket", "socketid", "estado"],
+    props: ["name", "code", "mode", "socket", "socketid", "serverInfo"],
     data: function () {
         return {
             //gm: new GameManager(this.dificultad),
@@ -16,7 +16,6 @@ let playGameComponent = Vue.component("play-game-component", {
             timer: 100,
             players: [],
             connected: false,
-            siguienteRonda: false
 
         }
     },
@@ -31,8 +30,8 @@ let playGameComponent = Vue.component("play-game-component", {
             <h2 class="row p-2 align-self-center justify-content-center">{{ this.host }} - Partida: {{this.code}}</h2>
             <div class="row">
                 <div class="card col-12 col-md-6 justify-content-center align-self-start">
-                    <image-info-component v-if="this.estado === 1"></image-info-component>
-                    <lobby-component v-if="this.estado === 0" v-bind:name="name" v-bind:players="players"></lobby-component>
+                    <image-info-component v-if="this.serverInfo.estado === 1" v-bind:image="this.serverInfo.imagen" v-bind:palabra="this.serverInfo.palabra"></image-info-component>
+                    <lobby-component v-if="this.serverInfo.estado === 0" v-bind:name="name" v-bind:players="players"></lobby-component>
                 </div>
                 <div class="col-md-1"></div>
                 <div class="card col-12 col-md-5" id="chat_container">
@@ -44,7 +43,7 @@ let playGameComponent = Vue.component("play-game-component", {
             
             <div class="row justify-content-around">
                 <div class=" col-10 col-md-4 align-self-start mt-2 p-2 ">
-                    <player-info-component v-bind:name="name" v-bind:timer="timer" v-bind:victorias="victorias" v-if="this.estado === 1"></player-info-component>
+                    <player-info-component v-bind:name="name" v-bind:timer="timer" v-bind:victorias="victorias" v-if="this.serverInfo.estado === 1"></player-info-component>
                 </div>
                 <form class="col-10 col-md-3 mt-2 p-2 align-self-start">
                     <div class="form-group">
@@ -56,13 +55,14 @@ let playGameComponent = Vue.component("play-game-component", {
                 </form>
             </div>
             <div class="row justify-content-end">
-                <button v-if="Number(this.mode)===1 && this.estado === 0" type="input" v-on:click.prevent="ajustes()" class="btn btn-primary col-4 col-md-3 col-lg-2 mr-2 align-self-end" id="ajustes" name="ajustes" data-dif="2"><i class="fas fa-cog"></i> &nbsp;Ajustes de partida</button>
-                <button v-if="this.estado === 0 || this.siguienteRonda===true" type="input" v-on:click.prevent="siguiente()" class="btn btn-info col-4 col-md-3 col-lg-2 mr-2 " id="siguiente" name="siguiente" data-dif="2"><i class="fas fa-check-circle"></i> &nbsp; Siguiente</button>
+                <button v-if="Number(this.mode)===1 && this.serverInfo.estado === 0" type="input" v-on:click.prevent="ajustes()" class="btn btn-primary col-4 col-md-3 col-lg-2 mr-2 align-self-end" id="ajustes" name="ajustes" data-dif="2"><i class="fas fa-cog"></i> &nbsp;Ajustes de partida</button>
+                <button v-if="this.serverInfo.estado === 0 || this.serverInfo.finRonda===true" type="input" v-on:click.prevent="siguiente()" class="btn btn-info col-4 col-md-3 col-lg-2 mr-2 " id="siguiente" name="siguiente" data-dif="2"><i class="fas fa-check-circle"></i> &nbsp; Siguiente</button>
             </div>
         </div>        
   </div>`,
     created() {
         this.getPlayers();
+        this.getServerInfo();
     },
     mounted() {
         if (Number(this.mode) === 0) {
@@ -75,7 +75,7 @@ let playGameComponent = Vue.component("play-game-component", {
     updated() {
         let id = this.socketid || this.socket.id;
         console.log("ID!!!! " + id);
-        if (id != null && id !== '' && this.connected === false && this.code !== '' && this.estado === 0) {
+        if (id != null && id !== '' && this.connected === false && this.code !== '' && this.serverInfo.estado === 0) {
             
             //console.log("conexion_sala");
             //console.log("updated! id:" + id)
@@ -127,13 +127,15 @@ let playGameComponent = Vue.component("play-game-component", {
 
                 if (checkSiguientes && p.listSiguiente.length > 1 && Number(this.mode===1)){
                     //this.$emit("cambioEstado", 1);
+                    console.log('cambiarEstadoServer')
                     this.emitir('cambiarEstadoServer');
                 }
             });
         },
         getServerInfo() {
             this.socket.on("serverInfo", (data) => {
-                this.$emit("cambioEstado", data.estado);
+                console.log('serverInfo')
+                this.$emit("setServerInfo", data);
             });
         },
         emitir(str){
@@ -141,7 +143,7 @@ let playGameComponent = Vue.component("play-game-component", {
             let tipoUsuario = this.mode;
             let nombre = this.name;
             let id = this.socketid || this.socket.id;
-            let estado = this.estado;
+            let estado = this.serverInfo.estado;
             let endGameMethod = true;
             this.socket.emit(str, { id, codigoPartida, nombre, tipoUsuario, endGameMethod, estado });
         }

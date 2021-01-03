@@ -12,6 +12,8 @@ module.exports = class Room {
             this.players = [];
             this.maxRondas = 6;
             this.maxPlayers = 4;
+            this.imagen = '';
+            this.palabra = '';
             this.apiManager = new APIManager();
             //this.crearJugadorSala(data);
         }
@@ -24,18 +26,21 @@ module.exports = class Room {
         }
     }
 
-    getInfoSala(){
-        let codigo = this.codigo;
-        let estado = this.estado;
-        let ronda = this.ronda;
-        let imagen = this.apiManager.imagen;
-        let palabra = this.apiManager.palabra;
-        let finRonda = this.finRonda;
-        let fin = this.fin;
-        let maxRondas = this.maxRondas;
-        let maxPlayers = this.maxPlayers;
+    getInfoSala() {
+        let self = this;
+        return new Promise(function (resolve, reject) {
+            let codigo = self.codigo;
+            let estado = self.estado;
+            let ronda = self.ronda;
+            let imagen = self.imagen;
+            let palabra = self.palabra;
+            let finRonda = self.finRonda;
+            let fin = self.fin;
+            let maxRondas = self.maxRondas;
+            let maxPlayers = self.maxPlayers;
 
-        return {codigo,estado,ronda,imagen,palabra,finRonda,fin,maxRondas,maxPlayers};
+            resolve({ codigo, estado, ronda, imagen, palabra, finRonda, fin, maxRondas, maxPlayers });
+        });
     }
 
     comprobarJugador(p) {
@@ -109,29 +114,69 @@ module.exports = class Room {
     }
 
     gestionarRonda(estado, ronda) {
-        if (estado === 0)
-            this.empezarPartida();
-        if (estado === 1) {
-            if (ronda >= this.maxRondas)
-                this.finalizarPartida();
-            else
-                this.siguienteRonda();
-        }
+        let self = this;
+        return new Promise(function (resolve, reject) {
+            if (estado === 0){
+                self.empezarPartida().then(() => {
+                    resolve();
+                }).catch((e) => {
+                    console.log("ERROR!" + e)
+                    reject();
+                });;
+            }
+            if (estado === 1) {
+                if (ronda >= self.maxRondas) {
+                    self.finalizarPartida();
+                    resolve();
+                } else {
+                    self.siguienteRonda().then(resolve()).catch((e) => {
+                        console.log("ERROR!" + e)
+                        reject();
+                    });;
+                }
+            }
+        });
     }
 
     empezarPartida() {
-        this.setEstado(1);
-        this.setRonda(1);
-        this.apiManager.getImage();
+        let self = this;
+        return new Promise(function (resolve, reject) {
+            self.setEstado(1);
+            self.setRonda(1);
+            self.finRonda = false;
+            self.fin = false;
+            self.apiManager.getImage().then((data) => {
+                self.palabra = data.palabra
+                self.imagen = data.imagen;
+                resolve();
+            }).catch((e) => {
+                console.log("ERROR!" + e)
+                reject();
+            });
+        });
+
     }
 
     siguienteRonda() {
-        let ronda = this.ronda + 1;
-        this.setEstado(1);
-        this.setRonda(ronda);
-        this.finRonda = true;
-        this.fin = false;
-        this.apiManager.getImage();
+        let self = this;
+        return new Promise(function (resolve, reject) {
+
+            let ronda = self.ronda + 1;
+            self.setEstado(1);
+            self.setRonda(ronda);
+            self.finRonda = true;
+            self.fin = false;
+            self.apiManager.getImage().then((data) => {
+                self.palabra = data.palabra
+                self.imagen = data.imagen;
+                resolve();
+            }).catch((e) => {
+                console.log("ERROR!" + e)
+                reject();
+            });
+
+
+        });
     }
 
     finalizarPartida() {

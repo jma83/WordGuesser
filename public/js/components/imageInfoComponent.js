@@ -1,12 +1,11 @@
 let imageInfoComponent = Vue.component("image-info-component", {
-
+    props: ["image","palabra"],
     template:
     `<div>
 
         <!-- Card image -->
         <div class="view overlay justify-content-start align-self-start m-2 p-2">
-            <img class="card-img-top" src="https://mdbootstrap.com/img/Mockups/Lightbox/Thumbnail/img%20(67).jpg"
-            alt="Card image cap">
+            <img class="card-img-top" v-bind:src="this.image" v-bind:alt="this.palabra">
             <a href="">
             <div class="mask rgba-white-slight"></div>
             </a>
