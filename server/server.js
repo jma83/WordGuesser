@@ -11,7 +11,7 @@ module.exports = class Server {
     }
 
 
-    conexion_sala(data,socket) {
+    conexion_sala(data, socket) {
         console.log(data);
 
         let reenter = false;
@@ -26,7 +26,8 @@ module.exports = class Server {
             if (!reenter)
                 sala.crearJugadorSala(data);
 
-            console.log("conexion_sala")
+            console.log("conexion_sala " + data.codigoPartida);
+            console.log("id " + data.id);
             socket.join(data.codigoPartida);
 
             this.io.to(data.codigoPartida).emit('conexion_sala', data);
@@ -41,7 +42,7 @@ module.exports = class Server {
 
     }
 
-    desconexion_sala(data,socket) {
+    desconexion_sala(data, socket) {
         let sala = this.roomsManager.getSala(data.codigoPartida);
 
         if (data.endGameMethod && sala != null) {
@@ -51,7 +52,7 @@ module.exports = class Server {
 
             this.emitirListPlayer(sala, data);
             socket.to(data.codigoPartida).emit('desconexion_sala', data);
- 
+
         }
         console.log("Salas!!! " + this.roomsManager.getCodigosSalas())
 
@@ -77,5 +78,17 @@ module.exports = class Server {
         let listPlayers = sala.getNombreJugadores();
         let listSiguiente = sala.getSiguienteJugadores();
         this.io.to(data.codigoPartida).emit('listPlayers', { listPlayers, listSiguiente });
+    }
+
+    cambiarEstadoServer(data) {
+        let sala = this.roomsManager.getSala(data.codigoPartida);
+
+        if (sala != null) {
+            sala.gestionarRonda();
+            let res = sala.getInfoSala();
+            this.io.to(data.codigoPartida).emit('serverInfo', res);
+
+        }
+
     }
 }

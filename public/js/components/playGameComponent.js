@@ -74,7 +74,7 @@ let playGameComponent = Vue.component("play-game-component", {
     },
     updated() {
         let id = this.socketid || this.socket.id;
-
+        console.log("ID!!!! " + id);
         if (id != null && id !== '' && this.connected === false && this.code !== '' && this.estado === 0) {
             
             //console.log("conexion_sala");
@@ -125,9 +125,15 @@ let playGameComponent = Vue.component("play-game-component", {
                     this.players.push({name,siguiente});
                 }
 
-                if (checkSiguientes && p.listSiguiente.length > 1){
-                    this.$emit("cambioEstado", 1);
+                if (checkSiguientes && p.listSiguiente.length > 1 && Number(this.mode===1)){
+                    //this.$emit("cambioEstado", 1);
+                    this.emitir('cambiarEstadoServer');
                 }
+            });
+        },
+        getServerInfo() {
+            this.socket.on("serverInfo", (data) => {
+                this.$emit("cambioEstado", data.estado);
             });
         },
         emitir(str){

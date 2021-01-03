@@ -1,5 +1,4 @@
 import ConnectionEvents from './connectionClass.js';
-import main from './components/main.js';
 
 const chatStr = "chat";
 const gameStr = "maingame";

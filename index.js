@@ -28,12 +28,16 @@ let game = new Server(io);
 io.on('connection', (socket) => {
 
     socket.on("conexion", () => {
-        //io.sockets.emit('conexion', socket.id);
-        io.to(socket.id).emit('conexion', socket.id);
+        io.sockets.emit('conexion', socket.id);
+        //io.to(socket.id).emit('conexion', socket.id);
     });
 
     socket.on("conexion_sala", data => {
         game.conexion_sala(data,socket);
+    });
+    
+    socket.on("cambiarEstadoServer", data => {
+        game.cambiarEstadoServer(data);
     });
 
     socket.on("mensaje", data => {

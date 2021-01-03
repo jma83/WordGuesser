@@ -1,4 +1,5 @@
 const Player = require('./player')
+const APIManager = require('./APIManager')
 
 module.exports = class Room {
     constructor(data) {
@@ -6,11 +7,12 @@ module.exports = class Room {
             this.codigo = data.codigoPartida;
             this.estado = 0;
             this.ronda = 0;
-            this.imagen = '';
-            this.palabra = '';
             this.finRonda = false;
             this.fin = false;
             this.players = [];
+            this.maxRondas = 6;
+            this.maxPlayers = 4;
+            this.apiManager = new APIManager();
             //this.crearJugadorSala(data);
         }
 
@@ -22,6 +24,20 @@ module.exports = class Room {
         }
     }
 
+    getInfoSala(){
+        let codigo = this.codigo;
+        let estado = this.estado;
+        let ronda = this.ronda;
+        let imagen = this.apiManager.imagen;
+        let palabra = this.apiManager.palabra;
+        let finRonda = this.finRonda;
+        let fin = this.fin;
+        let maxRondas = this.maxRondas;
+        let maxPlayers = this.maxPlayers;
+
+        return {codigo,estado,ronda,imagen,palabra,finRonda,fin,maxRondas,maxPlayers};
+    }
+
     comprobarJugador(p) {
         let index = this.getIndexJugador(p);
         if (index !== -1) {
@@ -31,7 +47,7 @@ module.exports = class Room {
         return false;
     }
 
-    siguienteJugador(p){
+    siguienteJugador(p) {
         let index = this.getIndexJugador(p);
 
         if (index !== -1) {
@@ -51,15 +67,15 @@ module.exports = class Room {
         }
     }
 
-    getNombreJugadores(){
+    getNombreJugadores() {
         let nombres = [];
         this.players.forEach(element => {
-           nombres.push(element.nombre);
+            nombres.push(element.nombre);
         });
         return nombres;
     }
 
-    getSiguienteJugadores(){
+    getSiguienteJugadores() {
         let siguientes = [];
         this.players.forEach(element => {
             siguientes.push(element.siguiente);
@@ -67,11 +83,11 @@ module.exports = class Room {
         return siguientes;
     }
 
-    getJugadores(){
+    getJugadores() {
         return this.players;
     }
 
-    
+
     getJugador(id) {
         if (id != null) {
             this.players.forEach(player => {
@@ -84,12 +100,45 @@ module.exports = class Room {
 
     getIndexJugador(id) {
         if (id != null) {
-            for(let i = 0;i<this.players.length;i++){
+            for (let i = 0; i < this.players.length; i++) {
                 if (this.players[i].id === id)
-                return i;
+                    return i;
             }
         }
         return -1;
+    }
+
+    gestionarRonda(estado, ronda) {
+        if (estado === 0)
+            this.empezarPartida();
+        if (estado === 1) {
+            if (ronda >= this.maxRondas)
+                this.finalizarPartida();
+            else
+                this.siguienteRonda();
+        }
+    }
+
+    empezarPartida() {
+        this.setEstado(1);
+        this.setRonda(1);
+        this.apiManager.getImage();
+    }
+
+    siguienteRonda() {
+        let ronda = this.ronda + 1;
+        this.setEstado(1);
+        this.setRonda(ronda);
+        this.finRonda = true;
+        this.fin = false;
+        this.apiManager.getImage();
+    }
+
+    finalizarPartida() {
+        this.setEstado(2);
+        this.setRonda(0);
+        this.finRonda = true;
+        this.fin = true;
     }
 
     setEstado(new_estado) {
@@ -100,5 +149,5 @@ module.exports = class Room {
         this.ronda = new_ronda;
     }
 
-    
+
 }

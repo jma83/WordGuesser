@@ -29,6 +29,7 @@ let gameComponent = Vue.component("game-component", {
     async created() {
         this.modo = sessionStorage.getItem("partida_modo");
         this.nombre = sessionStorage.getItem("partida_nombre");
+        console.log("CREATED!")
         this.event.setCode(sessionStorage.getItem("partida_codigo"));
         this.event.setId(sessionStorage.getItem("partida_id"));
 
