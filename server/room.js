@@ -1,21 +1,18 @@
 const Player = require('./player')
-const APIManager = require('./APIManager')
+const Round = require('./Round')
 
 module.exports = class Room {
     constructor(data) {
         if (data.codigoPartida != null && data.codigoPartida.length > 0) {
             this.codigo = data.codigoPartida;
             this.estado = 0;
-            this.ronda = 0;
-            this.finRonda = false;
             this.fin = false;
-            this.players = [];
             this.maxRondas = 6;
             this.maxPlayers = 4;
-            this.imagen = '';
-            this.palabra = '';
-            this.palabraFictia = [];
-            this.apiManager = new APIManager();
+            this.ronda = new Round();
+            this.players = [];
+
+
             //this.crearJugadorSala(data);
         }
 
@@ -32,15 +29,16 @@ module.exports = class Room {
         return new Promise(function (resolve, reject) {
             let codigo = self.codigo;
             let estado = self.estado;
-            let ronda = self.ronda;
-            let imagen = self.imagen;
-            let palabra = self.palabraFictia;
-            let finRonda = self.finRonda;
             let fin = self.fin;
             let maxRondas = self.maxRondas;
             let maxPlayers = self.maxPlayers;
+            let ronda = self.ronda.getRonda();
+            let imagen = self.ronda.getImagen();
+            let palabra = self.ronda.getPalabraFicticia();
+            let finRonda = self.ronda.getFinRonda();
+            let tiempo = self.ronda.getTime();
 
-            resolve({ codigo, estado, ronda, imagen, palabra, finRonda, fin, maxRondas, maxPlayers });
+            resolve({ codigo, estado, ronda, imagen, palabra, finRonda, tiempo, fin, maxRondas, maxPlayers });
         });
     }
 
@@ -53,14 +51,19 @@ module.exports = class Room {
         return false;
     }
 
-
-
     siguienteJugador(p) {
         let index = this.getIndexJugador(p);
 
         if (index !== -1) {
             this.players[index].setSiguiente(true);
         }
+    }
+
+    setAllSiguienteOff() {
+        for (let i = 0; i < this.players.length; i++) {
+            this.players[i].setSiguiente(false);
+        }
+
     }
 
     borrarJugadorSala(data) {
@@ -73,6 +76,10 @@ module.exports = class Room {
                 console.log("borro ok!" + data.nombre)
             }
         }
+    }
+
+    calcularTiempoMuestra() {
+        return this.ronda.calcularTiempoMuestra();
     }
 
     getNombreJugadores() {
@@ -124,135 +131,67 @@ module.exports = class Room {
         return -1;
     }
 
-    gestionarRonda(estado, ronda) {
+    gestionarRonda() {
         let self = this;
         return new Promise(function (resolve, reject) {
-            if (estado === 0) {
-                self.empezarPartida().then(() => {
+            if (self.estado === 0) {
+                self.ronda.siguienteRonda().then(() => {
+                    self.setEstado(1);
+                    self.setAllSiguienteOff();
                     resolve();
                 }).catch((e) => {
                     console.log("ERROR!" + e)
                     reject();
                 });;
             }
-            if (estado === 1) {
-                if (ronda >= self.maxRondas) {
-                    self.finalizarPartida();
+            if (self.estado === 1) {
+                if (self.comprobarFinPartida()) {
+                    console.log("fin partida?")
                     resolve();
-                } else {
-                    self.siguienteRonda().then(resolve()).catch((e) => {
+                } else if (self.ronda.getFinRonda() && !self.getSiguienteJugadores().includes(false)) {
+                    console.log("condicion ok!")
+                    self.ronda.siguienteRonda().then(() => {
+                        self.setAllSiguienteOff();
+                        resolve();
+                    }).catch((e) => {
                         console.log("ERROR!" + e)
                         reject();
                     });;
                 }
+                console.log("adios!")
+                resolve();
             }
         });
     }
 
-    empezarPartida() {
-        let self = this;
-        return new Promise(function (resolve, reject) {
-            self.setEstado(1);
-            self.setRonda(1);
-            self.finRonda = false;
-            self.fin = false;
-            if (self.palabra === '') {
-                self.apiManager.getImage().then((data) => {
-                    self.palabra = data.palabra;
-                    self.initPalabraFicticia();
-                    self.imagen = data.imagen;
-                    resolve();
-                }).catch((e) => {
-                    console.log("ERROR!" + e)
-                    reject();
-                });
-            } else {
-                resolve();
-            }
-        });
-
-    }
-
-    siguienteRonda() {
-        let self = this;
-        return new Promise(function (resolve, reject) {
-
-            let ronda = self.ronda + 1;
-            self.setEstado(1);
-            self.setRonda(ronda);
-            self.finRonda = true;
-            self.fin = false;
-            if (self.palabra === '') {
-                self.apiManager.getImage().then((data) => {
-                    self.palabra = data.palabra
-                    self.initPalabraFicticia();
-                    self.imagen = data.imagen;
-                    resolve();
-                }).catch((e) => {
-                    console.log("ERROR!" + e)
-                    reject();
-                });
-            } else {
-                resolve();
-            }
-
-
-        });
+    comprobarFinPartida() {
+        if (this.ronda.getRonda() >= this.maxRondas) {
+            this.finalizarPartida();
+            this.setAllSiguienteOff();
+        }
     }
 
     finalizarPartida() {
         this.setEstado(2);
-        this.setRonda(0);
-        this.finRonda = true;
-        this.fin = true;
+        this.ronda.setRonda(0);
+        this.ronda.setFinRonda(true);
+        this.setFin(true);
     }
 
     setEstado(new_estado) {
         this.estado = new_estado;
     }
 
-    setRonda(new_ronda) {
-        this.ronda = new_ronda;
-    }
-
-    initPalabraFicticia() {
-        let array = Array.from(this.palabra);
-
-        for (let i = 0; i < array.length; i++)
-            this.palabraFictia.push("_");
-
-        this.palabraFictia = this.palabraFictia.join("");
+    setFin(fin) {
+        this.fin = fin;
     }
 
     nextPalabraFicticia() {
-        let index = this.encontrarLetraDistinta();
-        let array = Array.from(this.palabra);
-        let array2 = Array.from(this.palabraFictia);
-        array2[index] = array[index];
-        this.palabraFictia = array2.join("");
-        console.log(this.palabraFictia);
-        return index;
-    }
-
-    calcularRandom(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min) + min);
-    }
-
-    encontrarLetraDistinta() {
-        let posicionRandom = -1;
-
-        if (this.palabraFictia.includes("_")) {
-            let exit = 0;
-            do {
-                posicionRandom = Math.floor(Math.random() * (this.palabra.length));
-                exit++;
-            } while (this.palabraFictia[posicionRandom] !== '_' && exit <= this.palabra.length * 2);
-
-        }
-        return posicionRandom;
+        return this.ronda.nextPalabraFicticia();
 
     }
+
+
+
 
 }

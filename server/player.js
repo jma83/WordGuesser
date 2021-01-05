@@ -15,4 +15,8 @@ module.exports = class Player{
     setNombre(value){
         this.nombre = value;
     }
+
+    setPuntos(puntos){
+        this.puntos = puntos;
+    }
 }

@@ -41,7 +41,7 @@ module.exports = class APIManager {
         let palabra = '';
         let imagen = '';
         let count = 0;
-        while (img == null || img === '' && palabra.length > 45 || count < 10) {
+        while ((img == null || img === '' || palabra.length > 45) && count < 10) {
             let index = this.calcularRandom(0, 20);
             let res = data.results[index];
 
@@ -65,7 +65,8 @@ module.exports = class APIManager {
             }
             count++;
         }
-
+        console.log("PALABRA " + palabra)
+        console.log("IMAGEN " + imagen)
         return { palabra, imagen }
     }
 

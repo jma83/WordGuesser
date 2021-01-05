@@ -70,14 +70,19 @@ module.exports = class Server {
         let sala = this.roomsManager.getSala(data.codigoPartida);
         if (sala != null) {
             sala.siguienteJugador(data.id);
-
+            if (!sala.getSiguienteJugadores().includes(false)){
+                this.cambiarEstadoServer(data);
+            }
             this.emitirListPlayer(sala, data);
         }
     }
 
     mensaje(data) {
-        let check = this.roomsManager.comprobarSala(data.codigoPartida);
-        if (check) {
+        let sala = this.roomsManager.getSala(data.codigoPartida);
+        if (sala != null) {
+            if (sala.comprobarPalabra(data.mensaje)){
+                
+            }
             this.io.to(data.codigoPartida).emit('mensaje_chat', data);
         }
     }
@@ -97,9 +102,11 @@ module.exports = class Server {
         if (sala != null) {
             console.log("cambio estado server")
 
-            sala.gestionarRonda(data.estado, data.ronda).then(() => {
+            sala.gestionarRonda().then(() => {
                 sala.getInfoSala().then((res) => {
-                    console.log(res);
+                    this.interval = sala.calcularTiempoMuestra();
+                    console.log("interval: " +  this.interval);
+
                     this.crearInterval(res, data);
                     this.io.to(data.codigoPartida).emit('serverInfo', res);
                 });
@@ -111,6 +118,7 @@ module.exports = class Server {
     }
 
     crearInterval(res, data) {
+
         if (res.estado === 1 && this.intervalMap.has(data.codigoPartida) === false) {
             let intervalID = setInterval(
                 (function (self) {
@@ -127,6 +135,7 @@ module.exports = class Server {
     borrarInterval(data) {
         let intervalID = this.intervalMap.get(data.codigoPartida);
         clearInterval(intervalID);
+        this.intervalMap.delete(data.codigoPartida);
     }
 
     actualizarPalabraRonda(data) {
@@ -136,13 +145,12 @@ module.exports = class Server {
             let res = sala.nextPalabraFicticia();
             if (Number(res) === -1) {
                 this.borrarInterval(data);
-            } else {
-                sala.getInfoSala().then((res) => {
-                    console.log(data.codigoPartida);
-                    this.io.to(data.codigoPartida).emit('serverInfo', res);
-
-                });
             }
+            sala.getInfoSala().then((res) => {
+                console.log(data.codigoPartida);
+                this.io.to(data.codigoPartida).emit('serverInfo', res);
+
+            });
         }
     }
 

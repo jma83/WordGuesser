@@ -1,9 +1,9 @@
 let lobbyComponent = Vue.component("lobby-component", {
-  props: ["players", "id"],
+  props: ["players", "id", "maxPlayers"],
   template:
     `<div>
         <h3>Lobby!</h3>
-        <p>Jugadores Conectados {{this.getNumPlayers()}}</p>
+        <p>Jugadores Conectados {{this.getNumPlayers()}}/{{this.maxPlayers}}</p>
         <ul class="list-group">
           <li v-for="n in getPlayers()" v-bind:key="n.id" v-bind:id="n.id" class="list-group-item players">{{n.name}} 
             <span v-if="checkAnfitrion(n)">(Anfitrión)</span>
