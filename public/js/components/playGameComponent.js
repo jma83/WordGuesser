@@ -48,8 +48,8 @@ let playGameComponent = Vue.component("play-game-component", {
                 <form class="col-10 col-md-3 mt-2 p-2 align-self-start">
                     <div class="form-group">
                         <label for="name" >Chat de respuestas: </label>
-                        <input type="text" class="form-control" placeholder="Introduce texto" aria-label="palabra"
-                            id="palabra" name="palabra" maxlength="30">
+                        <input type="text" class="form-control" placeholder="Introduce texto" aria-label="mensaje"
+                            id="mensaje" name="mensaje" maxlength="30">
                     </div>
                     <button type="submit"  v-on:click.prevent="enviarTexto()" class="btn btn-primary mt-2"><i class="far fa-paper-plane"></i> &nbsp; Enviar</button>
                 </form>
@@ -98,13 +98,13 @@ let playGameComponent = Vue.component("play-game-component", {
             this.$emit("end", {});
         },
         enviarTexto() {
-            let palabra = document.getElementById("palabra").value;
+            let mensaje = document.getElementById("mensaje").value;
             let nombre = this.name;
             let codigoPartida = this.code;
-            if (palabra !== "" && palabra !== null) {
+            if (mensaje !== "" && mensaje !== null) {
                 let idmsg = this.idmsg;
-                document.getElementById("palabra").value = "";
-                this.socket.emit('mensaje', { idmsg, codigoPartida, nombre, palabra });
+                document.getElementById("mensaje").value = "";
+                this.socket.emit('mensaje', { idmsg, codigoPartida, nombre, mensaje });
                 this.idmsg++;
             }
         },

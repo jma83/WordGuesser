@@ -5,6 +5,7 @@ module.exports = class Player{
 
         this.nombre = data.nombre;
         this.siguiente = false;
+        this.puntos = 0;
     }
 
     setSiguiente(value){

@@ -1,10 +1,5 @@
 let imageInfoComponent = Vue.component("image-info-component", {
     props: ["image", "palabra"],
-    data: function () {
-        return {
-            arrayLetras: []
-        }
-    },
     template:
         `<div>
 
@@ -26,15 +21,10 @@ let imageInfoComponent = Vue.component("image-info-component", {
 
         </div>
     </div>`,
-    mounted(){
-        this.arrayLetras = Array.from(this.palabra);
-    },updated(){
-        //this.arrayLetras = Array.from(this.palabra);
-    },
     methods: {
         getArrayLetras() {
-            return this.arrayLetras;
-        }
+            return Array.from(this.palabra);
+        },
     }
 });
 

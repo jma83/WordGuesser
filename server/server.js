@@ -7,8 +7,8 @@ module.exports = class Server {
     constructor(io) {
         this.io = io;
         this.roomsManager = new RoomsManager();
-        this.intervalID = null;
         this.interval = 5000;
+        this.intervalMap = new Map()
 
     }
 
@@ -50,9 +50,12 @@ module.exports = class Server {
     desconexion_sala(data, socket) {
         let sala = this.roomsManager.getSala(data.codigoPartida);
         if (data.endGameMethod && sala != null) {
-            this.roomsManager.borrarSala(data);
-            sala.borrarJugadorSala(data);
+            if (this.roomsManager.borrarSala(data)){
+                this.borrarInterval(data);
+            }
 
+            sala.borrarJugadorSala(data);
+            
             console.log("desconexion_sala")
 
             this.emitirListPlayer(sala, data);
@@ -97,16 +100,7 @@ module.exports = class Server {
             sala.gestionarRonda(data.estado, data.ronda).then(() => {
                 sala.getInfoSala().then((res) => {
                     console.log(res);
-                    if (res.estado === 1) {
-                        this.intervalID = setInterval(
-                            (function (self) {
-                                return function () {
-                                    self.actualizarPalabraRonda(data);
-                                }
-                            })(this),
-                            this.interval
-                        );
-                    }
+                    this.crearInterval(res, data);
                     this.io.to(data.codigoPartida).emit('serverInfo', res);
                 });
 
@@ -116,18 +110,39 @@ module.exports = class Server {
         }
     }
 
+    crearInterval(res, data) {
+        if (res.estado === 1 && this.intervalMap.has(data.codigoPartida) === false) {
+            let intervalID = setInterval(
+                (function (self) {
+                    return function () {
+                        self.actualizarPalabraRonda(data);
+                    }
+                })(this),
+                this.interval
+            );
+            this.intervalMap.set(data.codigoPartida, intervalID);
+        }
+    }
+
+    borrarInterval(data) {
+        let intervalID = this.intervalMap.get(data.codigoPartida);
+        clearInterval(intervalID);
+    }
+
     actualizarPalabraRonda(data) {
         let sala = this.roomsManager.getSala(data.codigoPartida);
 
         if (sala != null) {
             let res = sala.nextPalabraFicticia();
-            if (Number(res) === -1)
-                clearInterval(this.intervalID);
-            sala.getInfoSala().then((res) => {
-                console.log(data.codigoPartida);
-                this.io.to(data.codigoPartida).emit('serverInfo', res);
+            if (Number(res) === -1) {
+                this.borrarInterval(data);
+            } else {
+                sala.getInfoSala().then((res) => {
+                    console.log(data.codigoPartida);
+                    this.io.to(data.codigoPartida).emit('serverInfo', res);
 
-            });
+                });
+            }
         }
     }
 

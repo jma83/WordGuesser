@@ -12,7 +12,7 @@ event.startConnection();
 event.connection.socket.on("mensaje_chat", (data) => {
     let chat = document.getElementById(chatStr);
     if (chat !== null)
-        chat.innerHTML += "<p><b>" + data.nombre + ":</b> " + data.palabra + "</p>";
+        chat.innerHTML += "<p><b>" + data.nombre + ":</b> " + data.mensaje + "</p>";
 });
 
 event.connection.socket.on("conexion_sala", (data) => {

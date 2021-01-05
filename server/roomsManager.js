@@ -21,6 +21,14 @@ module.exports = class RoomsManager {
         return false;
     }
 
+    comprobarPalabra(p){
+        if (this.palabra.toLowerCase() === p.toLowerCase()){
+            return true;
+        }
+        return false;
+
+    }
+
     comprobarUnionSala(data, reenter) {
         if (!this.comprobarSala(data.codigoPartida) && Number(data.tipoUsuario) === 1 ||
             this.comprobarSala(data.codigoPartida) && Number(data.tipoUsuario) === 0 ||
@@ -38,8 +46,10 @@ module.exports = class RoomsManager {
                 console.log("antes de borrar sala!");
                 this.rooms.splice(index, 1);
                 console.log("borro ok!" + data.codigoPartida)
+                return true;
             }
         }
+        return false;
     }
 
     getSalas() {
