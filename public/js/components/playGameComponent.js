@@ -31,7 +31,7 @@ let playGameComponent = Vue.component("play-game-component", {
             <div class="row">
                 <div class="card col-12 col-md-6 justify-content-center align-self-start">
                     <image-info-component v-if="this.serverInfo.estado === 1" v-bind:image="this.serverInfo.imagen" v-bind:palabra="this.serverInfo.palabra"></image-info-component>
-                    <lobby-component v-if="this.serverInfo.estado === 0" v-bind:name="name" v-bind:players="players"></lobby-component>
+                    <lobby-component v-if="this.serverInfo.estado === 0" v-bind:id="this.getId()" v-bind:players="players"></lobby-component>
                 </div>
                 <div class="col-md-1"></div>
                 <div class="card col-12 col-md-5" id="chat_container">
@@ -73,8 +73,9 @@ let playGameComponent = Vue.component("play-game-component", {
 
     },
     updated() {
-        let id = this.socketid || this.socket.id;
+        let id = this.getId();
         console.log("ID!!!! " + id);
+        console.log("this.serverInfo.estado!!!! " + this.serverInfo.estado);
         if (id != null && id !== '' && this.connected === false && this.code !== '' && this.serverInfo.estado === 0) {
             
             //console.log("conexion_sala");
@@ -93,6 +94,7 @@ let playGameComponent = Vue.component("play-game-component", {
     methods: {
         endGameEvent() {
             this.emitir('desconexion_sala');
+            this.connected = false;
             this.$emit("end", {});
         },
         enviarTexto() {
@@ -117,15 +119,16 @@ let playGameComponent = Vue.component("play-game-component", {
                 this.players = [];
                 let checkSiguientes = true;
                 for (let i = 0; i < p.listPlayers.length; i++) {
+                    let id = p.listIds[i];
                     let name = p.listPlayers[i];
                     let siguiente = p.listSiguiente[i];
+                    
 
                     if (siguiente===false) checkSiguientes = false;
 
-                    this.players.push({name,siguiente});
+                    this.players.push({id, name, siguiente});
                 }
-
-                if (checkSiguientes && p.listSiguiente.length > 1 && Number(this.mode===1)){
+                if (checkSiguientes && p.listSiguiente.length > 0 && Number(this.mode)===1){
                     //this.$emit("cambioEstado", 1);
                     console.log('cambiarEstadoServer')
                     this.emitir('cambiarEstadoServer');
@@ -134,7 +137,7 @@ let playGameComponent = Vue.component("play-game-component", {
         },
         getServerInfo() {
             this.socket.on("serverInfo", (data) => {
-                console.log('serverInfo')
+                console.log('serverInfo' + data.palabra)
                 this.$emit("setServerInfo", data);
             });
         },
@@ -142,12 +145,15 @@ let playGameComponent = Vue.component("play-game-component", {
             let codigoPartida = this.code;
             let tipoUsuario = this.mode;
             let nombre = this.name;
-            let id = this.socketid || this.socket.id;
+            let id = this.getId();
             let estado = this.serverInfo.estado;
             let endGameMethod = true;
             this.socket.emit(str, { id, codigoPartida, nombre, tipoUsuario, endGameMethod, estado });
-        }
+        },
         
+        getId(){
+            return this.socketid || this.socket.id;
+        }
     }
 });
 

@@ -1,7 +1,12 @@
 let imageInfoComponent = Vue.component("image-info-component", {
-    props: ["image","palabra"],
+    props: ["image", "palabra"],
+    data: function () {
+        return {
+            arrayLetras: []
+        }
+    },
     template:
-    `<div>
+        `<div>
 
         <!-- Card image -->
         <div class="view overlay justify-content-start align-self-start m-2 p-2">
@@ -12,30 +17,29 @@ let imageInfoComponent = Vue.component("image-info-component", {
         </div>
 
         <!-- Card content -->
-        <div class="card-body justify-content-start align-self-center m-2 p-2">
+        <div class="card-body justify-content-center align-self-center m-2 p-2">
 
             <ul class="list-group list-group-horizontal-sm row align-self-center justify-content-start">
-                <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                <li class="list-group-item col-1 bg-secondary h3 align-self-center palabraFin">n</li>
-                
+                <li v-for="n in getArrayLetras()"  class="list-group-item col-1 h3 align-self-center palabraFin">{{n}}</li>                
             </ul>
 
 
         </div>
-    </div>`
-  });
-  
-  export default {
+    </div>`,
+    mounted(){
+        this.arrayLetras = Array.from(this.palabra);
+    },updated(){
+        //this.arrayLetras = Array.from(this.palabra);
+    },
+    methods: {
+        getArrayLetras() {
+            return this.arrayLetras;
+        }
+    }
+});
+
+export default {
     imageInfoComponent
-  }
+}
 
 

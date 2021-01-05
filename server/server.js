@@ -7,13 +7,14 @@ module.exports = class Server {
     constructor(io) {
         this.io = io;
         this.roomsManager = new RoomsManager();
+        this.intervalID = null;
+        this.interval = 5000;
 
     }
 
 
     conexion_sala(data, socket) {
         console.log(data);
-
         let reenter = false;
         let sala = this.roomsManager.getSala(data.codigoPartida);
         if (sala != null)
@@ -48,9 +49,9 @@ module.exports = class Server {
 
     desconexion_sala(data, socket) {
         let sala = this.roomsManager.getSala(data.codigoPartida);
-
         if (data.endGameMethod && sala != null) {
             this.roomsManager.borrarSala(data);
+            sala.borrarJugadorSala(data);
 
             console.log("desconexion_sala")
 
@@ -79,9 +80,13 @@ module.exports = class Server {
     }
 
     emitirListPlayer(sala, data) {
+        let listIds = sala.getIdJugadores();
         let listPlayers = sala.getNombreJugadores();
         let listSiguiente = sala.getSiguienteJugadores();
-        this.io.to(data.codigoPartida).emit('listPlayers', { listPlayers, listSiguiente });
+        console.log("EMITIR LIST PLAYER:");
+        console.log(listPlayers);
+        console.log(listSiguiente);
+        this.io.to(data.codigoPartida).emit('listPlayers', { listIds, listPlayers, listSiguiente });
     }
 
     cambiarEstadoServer(data) {
@@ -92,15 +97,40 @@ module.exports = class Server {
             sala.gestionarRonda(data.estado, data.ronda).then(() => {
                 sala.getInfoSala().then((res) => {
                     console.log(res);
+                    if (res.estado === 1) {
+                        this.intervalID = setInterval(
+                            (function (self) {
+                                return function () {
+                                    self.actualizarPalabraRonda(data);
+                                }
+                            })(this),
+                            this.interval
+                        );
+                    }
                     this.io.to(data.codigoPartida).emit('serverInfo', res);
                 });
 
             }).catch((e) => {
                 console.log(e);
             });
-
-
         }
-
     }
+
+    actualizarPalabraRonda(data) {
+        let sala = this.roomsManager.getSala(data.codigoPartida);
+
+        if (sala != null) {
+            let res = sala.nextPalabraFicticia();
+            if (Number(res) === -1)
+                clearInterval(this.intervalID);
+            sala.getInfoSala().then((res) => {
+                console.log(data.codigoPartida);
+                this.io.to(data.codigoPartida).emit('serverInfo', res);
+
+            });
+        }
+    }
+
+
+
 }

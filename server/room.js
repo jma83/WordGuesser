@@ -14,6 +14,7 @@ module.exports = class Room {
             this.maxPlayers = 4;
             this.imagen = '';
             this.palabra = '';
+            this.palabraFictia = [];
             this.apiManager = new APIManager();
             //this.crearJugadorSala(data);
         }
@@ -33,7 +34,7 @@ module.exports = class Room {
             let estado = self.estado;
             let ronda = self.ronda;
             let imagen = self.imagen;
-            let palabra = self.palabra;
+            let palabra = self.palabraFictia;
             let finRonda = self.finRonda;
             let fin = self.fin;
             let maxRondas = self.maxRondas;
@@ -51,6 +52,8 @@ module.exports = class Room {
         }
         return false;
     }
+
+
 
     siguienteJugador(p) {
         let index = this.getIndexJugador(p);
@@ -78,6 +81,14 @@ module.exports = class Room {
             nombres.push(element.nombre);
         });
         return nombres;
+    }
+
+    getIdJugadores() {
+        let ids = [];
+        this.players.forEach(element => {
+            ids.push(element.id);
+        });
+        return ids;
     }
 
     getSiguienteJugadores() {
@@ -116,7 +127,7 @@ module.exports = class Room {
     gestionarRonda(estado, ronda) {
         let self = this;
         return new Promise(function (resolve, reject) {
-            if (estado === 0){
+            if (estado === 0) {
                 self.empezarPartida().then(() => {
                     resolve();
                 }).catch((e) => {
@@ -145,14 +156,19 @@ module.exports = class Room {
             self.setRonda(1);
             self.finRonda = false;
             self.fin = false;
-            self.apiManager.getImage().then((data) => {
-                self.palabra = data.palabra
-                self.imagen = data.imagen;
+            if (self.palabra === '') {
+                self.apiManager.getImage().then((data) => {
+                    self.palabra = data.palabra;
+                    self.initPalabraFicticia();
+                    self.imagen = data.imagen;
+                    resolve();
+                }).catch((e) => {
+                    console.log("ERROR!" + e)
+                    reject();
+                });
+            } else {
                 resolve();
-            }).catch((e) => {
-                console.log("ERROR!" + e)
-                reject();
-            });
+            }
         });
 
     }
@@ -166,14 +182,19 @@ module.exports = class Room {
             self.setRonda(ronda);
             self.finRonda = true;
             self.fin = false;
-            self.apiManager.getImage().then((data) => {
-                self.palabra = data.palabra
-                self.imagen = data.imagen;
+            if (self.palabra === '') {
+                self.apiManager.getImage().then((data) => {
+                    self.palabra = data.palabra
+                    self.initPalabraFicticia();
+                    self.imagen = data.imagen;
+                    resolve();
+                }).catch((e) => {
+                    console.log("ERROR!" + e)
+                    reject();
+                });
+            } else {
                 resolve();
-            }).catch((e) => {
-                console.log("ERROR!" + e)
-                reject();
-            });
+            }
 
 
         });
@@ -194,5 +215,44 @@ module.exports = class Room {
         this.ronda = new_ronda;
     }
 
+    initPalabraFicticia() {
+        let array = Array.from(this.palabra);
+
+        for (let i = 0; i < array.length; i++)
+            this.palabraFictia.push("_");
+
+        this.palabraFictia = this.palabraFictia.join("");
+    }
+
+    nextPalabraFicticia() {
+        let index = this.encontrarLetraDistinta();
+        let array = Array.from(this.palabra);
+        let array2 = Array.from(this.palabraFictia);
+        array2[index] = array[index];
+        this.palabraFictia = array2.join("");
+        console.log(this.palabraFictia);
+        return index;
+    }
+
+    calcularRandom(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min) + min);
+    }
+
+    encontrarLetraDistinta() {
+        let posicionRandom = -1;
+
+        if (this.palabraFictia.includes("_")) {
+            let exit = 0;
+            do {
+                posicionRandom = Math.floor(Math.random() * (this.palabra.length));
+                exit++;
+            } while (this.palabraFictia[posicionRandom] !== '_' && exit <= this.palabra.length * 2);
+
+        }
+        return posicionRandom;
+
+    }
 
 }

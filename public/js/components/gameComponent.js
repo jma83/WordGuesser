@@ -73,6 +73,7 @@ let gameComponent = Vue.component("game-component", {
             sessionStorage.clear();
             this.startedGame = false;
             this.responsive();
+            this.serverInfo = this.initServerInfo();
             if (this.event !== undefined)
             this.event.startConnection();
         },
@@ -105,7 +106,7 @@ let gameComponent = Vue.component("game-component", {
         },
         initServerInfo(){
             return {
-                codigo: 'JClI1',
+                codigo: '',
                 estado: 0,
                 ronda: 0,
                 imagen: '',
