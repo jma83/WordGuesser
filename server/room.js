@@ -11,19 +11,11 @@ module.exports = class Room {
             this.maxPlayers = 4;
             this.ronda = new Round();
             this.players = [];
-
-
-            //this.crearJugadorSala(data);
         }
 
     }
 
-    crearJugadorSala(data) {
-        if (!this.comprobarJugador(data.id)) {
-            this.players.push(new Player(data));
-        }
-    }
-
+    /* Metodo generico inicio */
     getInfoSala() {
         let self = this;
         return new Promise(function (resolve, reject) {
@@ -37,9 +29,19 @@ module.exports = class Room {
             let palabra = self.ronda.getPalabraFicticia();
             let finRonda = self.ronda.getFinRonda();
             let tiempo = self.ronda.getTime();
-
-            resolve({ codigo, estado, ronda, imagen, palabra, finRonda, tiempo, fin, maxRondas, maxPlayers });
+            let res = { codigo, estado, ronda, imagen, palabra, finRonda, tiempo, fin, maxRondas, maxPlayers };
+            resolve(res);
         });
+    }
+
+
+    /* Metodos gestión jugadores */
+    crearJugadorSala(data) {
+        if (!this.comprobarJugador(data.id) && this.players.length < this.maxPlayers) {
+            this.players.push(new Player(data));
+            return true;
+        }
+        return false;
     }
 
     comprobarJugador(p) {
@@ -60,8 +62,10 @@ module.exports = class Room {
     }
 
     setAllSiguienteOff() {
+        console.log("--setAllSiguienteOff")
         for (let i = 0; i < this.players.length; i++) {
             this.players[i].setSiguiente(false);
+            this.players[i].setAcierto(false);
         }
 
     }
@@ -78,47 +82,48 @@ module.exports = class Room {
         }
     }
 
-    calcularTiempoMuestra() {
-        return this.ronda.calcularTiempoMuestra();
-    }
-
     getNombreJugadores() {
         let nombres = [];
-        this.players.forEach(element => {
-            nombres.push(element.nombre);
-        });
+        for (let i = 0; i < this.players.length; i++)
+            nombres.push(this.players[i].nombre);
+
         return nombres;
     }
 
     getIdJugadores() {
         let ids = [];
-        this.players.forEach(element => {
-            ids.push(element.id);
-        });
+        for (let i = 0; i < this.players.length; i++)
+            ids.push(this.players[i].id);
+
         return ids;
     }
 
     getSiguienteJugadores() {
         let siguientes = [];
-        this.players.forEach(element => {
-            siguientes.push(element.siguiente);
-        });
+        for (let i = 0; i < this.players.length; i++)
+            siguientes.push(this.players[i].siguiente);
+
         return siguientes;
+    }
+
+    getAciertoJugadores() {
+        let aciertos = [];
+        for (let i = 0; i < this.players.length; i++)
+        aciertos.push(this.players[i].acierto);
+
+        return aciertos;
+    }
+
+    getPuntosJugadores() {
+        let puntos = [];
+        for (let i = 0; i < this.players.length; i++)
+            puntos.push(this.players[i].puntos);
+
+        return puntos;
     }
 
     getJugadores() {
         return this.players;
-    }
-
-
-    getJugador(id) {
-        if (id != null) {
-            this.players.forEach(player => {
-                if (player.id === id)
-                    return player;
-            });
-        }
-        return null;
     }
 
     getIndexJugador(id) {
@@ -131,44 +136,71 @@ module.exports = class Room {
         return -1;
     }
 
-    gestionarRonda() {
+    /* Metodos gestión ronda */
+    calcularTiempoMuestra(ronda) {
         let self = this;
         return new Promise(function (resolve, reject) {
-            if (self.estado === 0) {
-                self.ronda.siguienteRonda().then(() => {
-                    self.setEstado(1);
-                    self.setAllSiguienteOff();
-                    resolve();
-                }).catch((e) => {
-                    console.log("ERROR!" + e)
-                    reject();
-                });;
-            }
-            if (self.estado === 1) {
-                if (self.comprobarFinPartida()) {
-                    console.log("fin partida?")
-                    resolve();
-                } else if (self.ronda.getFinRonda() && !self.getSiguienteJugadores().includes(false)) {
-                    console.log("condicion ok!")
-                    self.ronda.siguienteRonda().then(() => {
+            resolve(self.ronda.calcularTiempoMuestra(ronda));
+
+        });
+    }
+
+    gestionarRonda() {
+        let self = this;
+        return new Promise(async function (resolve, reject) {
+            try {
+                if (self.estado === 0) {
+                    let b = await self.ronda.siguienteRonda();
+                    if (b) {
+                        self.setEstado(1);
                         self.setAllSiguienteOff();
-                        resolve();
-                    }).catch((e) => {
-                        console.log("ERROR!" + e)
-                        reject();
-                    });;
+                        resolve(true);
+                    }
+
                 }
-                console.log("adios!")
-                resolve();
+                if (self.estado === 1) {
+                    if (self.comprobarFinPartida()) {
+                        resolve(true);
+                    } else if (self.ronda.getFinRonda() && !self.getSiguienteJugadores().includes(false)) {
+                        let b = await self.ronda.siguienteRonda();
+                        if (b) {
+                            self.setAllSiguienteOff();
+                            resolve(true);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.log("ERROR! " + e)
             }
         });
     }
 
+    comprobarPalabra(data) {
+        let res = this.ronda.comprobarPalabra(data.mensaje);
+        if (res !== -1 && data.id !== '' && data.id != null) {
+            let index = this.getIndexJugador(data.id);
+            let player = this.players[index];
+            if (player != null && player.getAcierto() === false) {
+                player.setPuntosRonda(res);
+            } else {
+                console.log("No estblece puntos jugador es null! " + player.getAcierto())
+                res = -1;
+            }
+        }
+
+        return res;
+
+    }
+
     comprobarFinPartida() {
+        console.log("comprobarFinPartida")
         if (this.ronda.getRonda() >= this.maxRondas) {
             this.finalizarPartida();
             this.setAllSiguienteOff();
+            console.log("zzz")
+            return true;
         }
+        return false;
     }
 
     finalizarPartida() {
@@ -188,7 +220,6 @@ module.exports = class Room {
 
     nextPalabraFicticia() {
         return this.ronda.nextPalabraFicticia();
-
     }
 
 

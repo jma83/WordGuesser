@@ -6,6 +6,7 @@ module.exports = class Player{
         this.nombre = data.nombre;
         this.siguiente = false;
         this.puntos = 0;
+        this.acierto = false;
     }
 
     setSiguiente(value){
@@ -16,7 +17,20 @@ module.exports = class Player{
         this.nombre = value;
     }
 
-    setPuntos(puntos){
-        this.puntos = puntos;
+    setPuntosRonda(puntos){
+        this.puntos+= puntos;
+        this.setAcierto(true);
+    }
+
+    setAcierto(b){
+        this.acierto = b;
+    }
+
+    getAcierto(){
+        return this.acierto;
+    }
+
+    getPuntos(){
+        return this.puntos;
     }
 }

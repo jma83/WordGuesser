@@ -10,7 +10,7 @@ module.exports = class Round {
         this.apiManager = new APIManager();
         this.tiempo = 0;
         this.intervalID = 0;
-        this.tiempoMax = 5;
+        this.tiempoMax = 30;
         this.porcentajeMostrar = 80;
     }
 
@@ -25,28 +25,27 @@ module.exports = class Round {
 
     siguienteRonda() {
         let self = this;
-        return new Promise(function (resolve, reject) {
-            console.log("Siguiente ronda!");
+        return new Promise(async function (resolve, reject) {
             let ronda = self.getRonda() + 1;
 
             if (self.palabra === '' || self.getFinRonda()) {
                 self.setRonda(ronda);
-
                 self.setFinRonda(false);
                 self.palabraFictia = [];
 
-                self.apiManager.getImage().then((data) => {
+                try {
+                    let data = await self.apiManager.getImage();
                     self.setPalabra(data.palabra);
                     self.setImagen(data.imagen);
                     self.initPalabraFicticia();
                     self.crearInterval();
-                    resolve();
-                }).catch((e) => {
-                    console.log("ERROR!" + e)
-                    reject();
-                });
+                    resolve(true);
+                } catch (e) {
+                    console.log("ERROR! "+ e);
+                }
+
             } else {
-                resolve();
+                resolve(false);
             }
         });
     }
@@ -70,20 +69,37 @@ module.exports = class Round {
         return index;
     }
 
-    resolverPalabra(){
+    resolverPalabra() {
         this.palabraFictia = this.palabra;
+        this.palabra = '';
     }
 
-    calcularTiempoMuestra(){
-        let porcentaje = this.porcentajeMostrar / 100;
-        let numeroLetrasMostrar = porcentaje * this.palabra.length;
+    comprobarPalabra(mensaje) {
+        if (mensaje.toLowerCase() === this.palabra.toLowerCase()) {
+            return this.obtenerPuntuacion();
+        }
+        return -1;
+    }
 
-        let res = this.tiempoMax / numeroLetrasMostrar;
+    obtenerPuntuacion() {
+        return this.tiempo * 10;
+    }
 
-        res = Math.round(res);
-        if (res===0)
-            res = 1;
-        return (res*1000);
+    calcularTiempoMuestra(r) {
+        let res = 1;
+        if (r === this.ronda) {
+            let porcentaje = this.porcentajeMostrar / 100;
+            let numeroLetrasMostrar = porcentaje * this.palabra.length;
+
+            res = this.tiempoMax / numeroLetrasMostrar;
+
+            res = Math.round(res);
+            if (res < 1)
+                res = 1;
+
+        }
+        return (res * 1000);
+
     }
 
 

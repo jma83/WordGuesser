@@ -11,8 +11,13 @@ event.startConnection();
 
 event.connection.socket.on("mensaje_chat", (data) => {
     let chat = document.getElementById(chatStr);
-    if (chat !== null)
-        chat.innerHTML += "<p><b>" + data.nombre + ":</b> " + data.mensaje + "</p>";
+    if (chat !== null) {
+        if (!data.acierto) {
+            chat.innerHTML += "<p><b>" + data.nombre + ":</b> " + data.mensaje + "</p>";
+        } else {
+            chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> acertó la respuesta! (+" + data.puntos + " puntos!)</i></p>";
+        }
+    }
 });
 
 event.connection.socket.on("conexion_sala", (data) => {
@@ -27,7 +32,7 @@ event.connection.socket.on("desconexion_sala", (data) => {
         chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> se ha desconectado de la partida!</i></p>";
 });
 
-event.connection.socket.on("conexion",  (data) => {
+event.connection.socket.on("conexion", (data) => {
     console.log(event.connection.code);
     let code = data.substr(0, 5);
     console.log(code);
@@ -37,7 +42,7 @@ event.connection.socket.on("conexion",  (data) => {
 });
 
 
-event.connection.socket.on("sala_no_valida",  () => {
+event.connection.socket.on("sala_no_valida", () => {
 
     console.log("sala no valida!!!")
 
@@ -63,8 +68,8 @@ event.connection.socket.on("sala_no_valida",  () => {
     classP.value = "card-text align-self-center justify-content-center";
     p.setAttributeNode(classP);
 
-    
-    
+
+
     div2.appendChild(title);
     div2.appendChild(p);
     div1.appendChild(div2);
@@ -72,27 +77,27 @@ event.connection.socket.on("sala_no_valida",  () => {
     game.appendChild(div1);
     event.connection.setInvalid(true);
 
-    
+
 
 });
 
-window.addEventListener('beforeunload', () => { 
+window.addEventListener('beforeunload', () => {
     let modo = sessionStorage.getItem("partida_modo");
     let nombre = sessionStorage.getItem("partida_nombre");
     let codigoPartida = sessionStorage.getItem("partida_codigo");
     let endGameMethod = false;
     let id = event.getId();
     if (id === 0)
-    id = event.connection.socket.id;
-    
+        id = event.connection.socket.id;
+
     /*if (Number(modo) === 0) {
         tipoUsuario = "Invitado";
     } else if (Number(modo) === 1) {
         tipoUsuario = "Anfitrión";
     }*/
 
-    if (nombre!== null && nombre!==undefined)
-    event.connection.socket.emit('desconexion_sala', {id, codigoPartida, nombre, modo, endGameMethod });
+    if (nombre !== null && nombre !== undefined)
+        event.connection.socket.emit('desconexion_sala', { id, codigoPartida, nombre, modo, endGameMethod });
 
 })
 

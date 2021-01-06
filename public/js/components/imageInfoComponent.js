@@ -6,9 +6,7 @@ let imageInfoComponent = Vue.component("image-info-component", {
         <!-- Card image -->
         <div class="view overlay justify-content-start align-self-start m-2 p-2">
             <img class="card-img-top" v-bind:src="this.image" v-bind:alt="this.palabra">
-            <a href="">
             <div class="mask rgba-white-slight"></div>
-            </a>
         </div>
 
         <!-- Card content -->

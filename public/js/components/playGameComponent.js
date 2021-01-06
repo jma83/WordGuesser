@@ -1,6 +1,7 @@
 import './playerInfoComponent.js';
 import './imageInfoComponent.js';
 import './lobbyComponent.js';
+import './titleComponent.js';
 
 let playGameComponent = Vue.component("play-game-component", {
     props: ["name", "code", "mode", "socket", "socketid", "serverInfo"],
@@ -16,7 +17,8 @@ let playGameComponent = Vue.component("play-game-component", {
             timer: 100,
             players: [],
             connected: false,
-            intervalID: null
+            intervalID: null,
+            ganador: ''
 
         }
     },
@@ -29,15 +31,15 @@ let playGameComponent = Vue.component("play-game-component", {
             <span class="col-4" v-if="this.serverInfo.estado === 1">{{ this.host }} - Partida: {{this.code}}</span>
         </div>    
         <div id="maingame">
-            <h2 class="row p-2 align-self-center justify-content-center" v-if="this.serverInfo.estado === 0">{{ this.host }} - Partida: {{this.code}}</h2>
-            <h2 class="row p-2 align-self-center justify-content-center" v-if="this.serverInfo.estado === 1">Ronda: {{ this.serverInfo.ronda}}/{{ this.serverInfo.maxRondas}} - &nbsp;
-            <button type="button" class="btn btn-danger col-2">Tiempo <span class="badge badge-light bg-light text-dark"> {{this.serverInfo.tiempo}}</span></button></h2>
+            
+            <title-component v-bind:ganador="this.ganador" v-bind:host="this.host" v-bind:code="this.code" v-bind:serverInfo="serverInfo"></title-component>
             <div class="row">
-                <div class="card col-12 col-md-6 justify-content-center align-self-start">
+                <div class="card col-12 col-md-7 justify-content-center align-self-start">
+                    <lobby-component v-if="this.serverInfo.estado === 0" v-bind:id="this.getId()" v-bind:maxPlayers="this.serverInfo.maxPlayers" v-bind:players="players"></lobby-component>    
                     <image-info-component v-if="this.serverInfo.estado === 1" v-bind:image="this.serverInfo.imagen" v-bind:palabra="this.serverInfo.palabra"></image-info-component>
-                    <lobby-component v-if="this.serverInfo.estado === 0" v-bind:id="this.getId()" v-bind:maxPlayers="this.serverInfo.maxPlayers" v-bind:players="players"></lobby-component>
+                    <player-info-component v-if="this.serverInfo.estado === 2" v-bind:id="this.getId()" v-bind:serverInfo="this.serverInfo" v-bind:players="players"></player-info-component>
                 </div>
-                <div class="col-md-1"></div>
+                <!--<div class="col-md-1"></div>-->
                 <div class="card col-12 col-md-5" id="chat_container">
                     <div class="alert alert-primary align-bottom" role="alert" id="chat">
                         <p><i>{{this.descripcion}}</i></p>
@@ -46,14 +48,14 @@ let playGameComponent = Vue.component("play-game-component", {
             </div>
             
             <div class="row justify-content-around">
-                <div class=" col-10 col-md-4 align-self-start mt-2 p-2 ">
-                    <player-info-component v-bind:name="name" v-bind:timer="this.serverInfo.tiempo" v-bind:victorias="victorias" v-if="this.serverInfo.estado === 1"></player-info-component>
+                <div class=" col-10 col-md-4 align-self-start p-2 ">
+                    <player-info-component v-bind:id="this.getId()" v-bind:serverInfo="this.serverInfo" v-bind:players="players" v-if="this.serverInfo.estado === 1"></player-info-component>
                 </div>
                 <form class="col-10 col-md-3 mt-2 p-2 align-self-start">
                     <div class="form-group">
                         <label for="name" >Chat de respuestas: </label>
                         <input type="text" class="form-control" placeholder="Introduce texto" aria-label="mensaje"
-                            id="mensaje" name="mensaje" maxlength="30">
+                            id="mensaje" name="mensaje" maxlength="150">
                     </div>
                     <button type="submit" v-on:click.prevent="enviarTexto()" class="btn btn-primary mt-2"><i class="far fa-paper-plane"></i> &nbsp; Enviar</button>
                 </form>
@@ -106,10 +108,13 @@ let playGameComponent = Vue.component("play-game-component", {
             let mensaje = document.getElementById("mensaje").value;
             let nombre = this.name;
             let codigoPartida = this.code;
+            let acierto = false;
+            let puntos = 0;
+            let id = this.getId();
             if (mensaje !== "" && mensaje !== null) {
                 let idmsg = this.idmsg;
                 document.getElementById("mensaje").value = "";
-                this.socket.emit('mensaje', { idmsg, codigoPartida, nombre, mensaje });
+                this.socket.emit('mensaje', { id, idmsg, codigoPartida, nombre, mensaje, acierto, puntos });
                 this.idmsg++;
             }
         },
@@ -149,8 +154,10 @@ let playGameComponent = Vue.component("play-game-component", {
                     let id = p.listIds[i];
                     let name = p.listPlayers[i];
                     let siguiente = p.listSiguiente[i];
+                    let acierto = p.listAcierto[i];
+                    let puntos = p.listPuntos[i];
 
-                    this.players.push({ id, name, siguiente });
+                    this.players.push({ id, name, siguiente, acierto, puntos });
                 }
             });
         },
@@ -158,10 +165,23 @@ let playGameComponent = Vue.component("play-game-component", {
             this.socket.on("serverInfo", (data) => {
                 console.log('serverInfo' + data.palabra)
                 this.$emit("setServerInfo", data);
+                if (data.fin){
+                    this.comprobarGanador();
+                }
                 this.crearInterval();
 
             });
         },
+        comprobarGanador(){
+            let max = -1;
+            for (let i = 0; i < this.players.length; i++){
+                if (max === -1 || this.players[i].puntos > max.puntos){
+                    max = this.players[i];
+                }
+            }
+            this.ganador = max;
+        }
+        ,
         emitir(str) {
             let codigoPartida = this.code;
             let tipoUsuario = this.mode;

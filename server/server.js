@@ -13,7 +13,7 @@ module.exports = class Server {
     }
 
 
-    conexion_sala(data, socket) {
+    async conexion_sala(data, socket) {
         console.log(data);
         let reenter = false;
         let sala = this.roomsManager.getSala(data.codigoPartida);
@@ -25,7 +25,8 @@ module.exports = class Server {
             if (sala == null) sala = this.roomsManager.getSala(data.codigoPartida);
 
             if (!reenter)
-                sala.crearJugadorSala(data);
+                if (!sala.crearJugadorSala(data))
+                this.io.to(data.id).emit('sala_no_valida', data);
 
             console.log("conexion_sala " + data.codigoPartida);
             console.log("id " + data.id);
@@ -33,11 +34,14 @@ module.exports = class Server {
 
             this.io.to(data.codigoPartida).emit('conexion_sala', data);
 
-            this.emitirListPlayer(sala, data);
-            sala.getInfoSala().then((res) => {
+            try {
+                this.emitirListPlayer(sala, data);
+                let res = await sala.getInfoSala()
                 console.log(res);
                 this.io.to(data.codigoPartida).emit('serverInfo', res);
-            });
+            } catch (e) {
+                console.log("ERROR! " + e);
+            }
 
         } else {
             console.log("sala no valida!! " + data.id)
@@ -50,12 +54,12 @@ module.exports = class Server {
     desconexion_sala(data, socket) {
         let sala = this.roomsManager.getSala(data.codigoPartida);
         if (data.endGameMethod && sala != null) {
-            if (this.roomsManager.borrarSala(data)){
+            if (this.roomsManager.borrarSala(data)) {
                 this.borrarInterval(data);
             }
 
             sala.borrarJugadorSala(data);
-            
+
             console.log("desconexion_sala")
 
             this.emitirListPlayer(sala, data);
@@ -66,22 +70,35 @@ module.exports = class Server {
 
     }
 
-    siguiente(data) {
+    async siguiente(data) {
         let sala = this.roomsManager.getSala(data.codigoPartida);
         if (sala != null) {
             sala.siguienteJugador(data.id);
-            if (!sala.getSiguienteJugadores().includes(false)){
-                this.cambiarEstadoServer(data);
+            if (!sala.getSiguienteJugadores().includes(false)) {
+                try {
+                    let res = await this.cambiarEstadoServer(data);
+                    if (res) {
+                        console.log("-emitirListPlayer")
+                        this.emitirListPlayer(sala, data);
+                    }
+                } catch (e) {
+                    console.log("ERROR! " + e)
+                }
+            } else {
+                console.log("-emitirListPlayer")
+                this.emitirListPlayer(sala, data);
             }
-            this.emitirListPlayer(sala, data);
         }
     }
 
     mensaje(data) {
         let sala = this.roomsManager.getSala(data.codigoPartida);
         if (sala != null) {
-            if (sala.comprobarPalabra(data.mensaje)){
-                
+            let res = sala.comprobarPalabra(data);
+            if (res !== -1 && res != null) {
+                data.acierto = true;
+                data.puntos = res;
+                this.emitirListPlayer(sala, data);
             }
             this.io.to(data.codigoPartida).emit('mensaje_chat', data);
         }
@@ -91,30 +108,34 @@ module.exports = class Server {
         let listIds = sala.getIdJugadores();
         let listPlayers = sala.getNombreJugadores();
         let listSiguiente = sala.getSiguienteJugadores();
+        let listAcierto = sala.getAciertoJugadores();
+        let listPuntos = sala.getPuntosJugadores();
         console.log("EMITIR LIST PLAYER:");
-        console.log(listPlayers);
-        console.log(listSiguiente);
-        this.io.to(data.codigoPartida).emit('listPlayers', { listIds, listPlayers, listSiguiente });
+        this.io.to(data.codigoPartida).emit('listPlayers', { listIds, listPlayers, listSiguiente, listAcierto, listPuntos });
     }
 
     cambiarEstadoServer(data) {
-        let sala = this.roomsManager.getSala(data.codigoPartida);
-        if (sala != null) {
-            console.log("cambio estado server")
+        let self = this;
+        return new Promise(async function (resolve, reject) {
+            let sala = self.roomsManager.getSala(data.codigoPartida);
+            if (sala != null) {
+                console.log("cambio estado server")
+                try {
+                    await sala.gestionarRonda();
+                    let res = await sala.getInfoSala();
+                    let interval = await sala.calcularTiempoMuestra(res.ronda);
+                    self.interval = interval;
+                    console.log("interval: " + self.interval);
 
-            sala.gestionarRonda().then(() => {
-                sala.getInfoSala().then((res) => {
-                    this.interval = sala.calcularTiempoMuestra();
-                    console.log("interval: " +  this.interval);
+                    self.crearInterval(res, data);
+                    self.io.to(data.codigoPartida).emit('serverInfo', res);
+                    resolve(true);
 
-                    this.crearInterval(res, data);
-                    this.io.to(data.codigoPartida).emit('serverInfo', res);
-                });
-
-            }).catch((e) => {
-                console.log(e);
-            });
-        }
+                } catch (e) {
+                    console.log("ERROR! " + e);
+                }
+            }
+        });
     }
 
     crearInterval(res, data) {
@@ -138,19 +159,22 @@ module.exports = class Server {
         this.intervalMap.delete(data.codigoPartida);
     }
 
-    actualizarPalabraRonda(data) {
+    async actualizarPalabraRonda(data) {
         let sala = this.roomsManager.getSala(data.codigoPartida);
 
         if (sala != null) {
-            let res = sala.nextPalabraFicticia();
-            if (Number(res) === -1) {
+            let value = sala.nextPalabraFicticia();
+            if (Number(value) === -1) {
                 this.borrarInterval(data);
+                this.emitirListPlayer(sala, data);
             }
-            sala.getInfoSala().then((res) => {
+            try {
+                let res = await sala.getInfoSala();
                 console.log(data.codigoPartida);
                 this.io.to(data.codigoPartida).emit('serverInfo', res);
-
-            });
+            } catch (e) {
+                console.log("ERROR! " + e);
+            }
         }
     }
 
