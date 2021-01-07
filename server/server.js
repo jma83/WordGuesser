@@ -95,10 +95,12 @@ module.exports = class Server {
         let sala = this.roomsManager.getSala(data.codigoPartida);
         if (sala != null) {
             let res = sala.comprobarPalabra(data);
-            if (res !== -1 && res != null) {
+            if (res.puntos !== -1 && res.puntos != null) {
                 data.acierto = true;
-                data.puntos = res;
+                data.puntos = res.puntos;
                 this.emitirListPlayer(sala, data);
+                if (res.aciertoPlayers)
+                this.enviarInfoSala(data);
             }
             this.io.to(data.codigoPartida).emit('mensaje_chat', data);
         }
@@ -159,7 +161,7 @@ module.exports = class Server {
         this.intervalMap.delete(data.codigoPartida);
     }
 
-    async actualizarPalabraRonda(data) {
+    actualizarPalabraRonda(data) {
         let sala = this.roomsManager.getSala(data.codigoPartida);
 
         if (sala != null) {
@@ -168,13 +170,19 @@ module.exports = class Server {
                 this.borrarInterval(data);
                 this.emitirListPlayer(sala, data);
             }
-            try {
-                let res = await sala.getInfoSala();
-                console.log(data.codigoPartida);
-                this.io.to(data.codigoPartida).emit('serverInfo', res);
-            } catch (e) {
-                console.log("ERROR! " + e);
-            }
+            this.enviarInfoSala(data);
+        }
+    }
+
+    async enviarInfoSala(data){
+        let sala = this.roomsManager.getSala(data.codigoPartida);
+
+        try {
+            let res = await sala.getInfoSala();
+            console.log(data.codigoPartida);
+            this.io.to(data.codigoPartida).emit('serverInfo', res);
+        } catch (e) {
+            console.log("ERROR! " + e);
         }
     }
 

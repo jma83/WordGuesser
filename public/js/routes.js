@@ -4,7 +4,7 @@ import gameComponent from './components/gameComponent.js';
 
 
 const routes = [
-  { path: '/', component: welcomeComponent },
+  { path: '/', component: welcomeComponent, exact: true },
   { path: '/game', component: gameComponent },
   { path: '/about', component: about },
 ]

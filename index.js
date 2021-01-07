@@ -6,7 +6,6 @@ const app = express();
 //settings
 app.set('port', process.env.PORT || 4000);
 
-console.log(path.join(__dirname, "public"))
 app.use(express.static(path.join(__dirname, "public")))
 
 const server = app.listen(app.get('port'), () => {

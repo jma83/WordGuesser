@@ -8,9 +8,12 @@ class Conexion{
     invalid=false;
 
     constructor(){
+        this.startConnection();
+
+    }
+    startConnection(){
         this.initSocket();
         this.initConection();
-
     }
     setCode(code){
         if (this.code===undefined || this.code==='')
@@ -48,6 +51,13 @@ class Conexion{
 
     getPlayers(){
         return this.players;
+    }
+
+    getCode(){
+        return this.code;
+    }
+    getId(){
+        return this.id;
     }
 }
 

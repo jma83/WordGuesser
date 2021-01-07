@@ -5,7 +5,7 @@ let playerInfoComponent = Vue.component("player-info-component", {
               <p>Jugadores Conectados {{this.getNumPlayers()}}/{{this.serverInfo.maxPlayers}}</p>
               <ul class="list-group row">
                 <li v-for="n in getPlayers()" v-bind:key="n.id" v-bind:id="n.id" class="list-group-item players col"> 
-                  {{n.name}}  
+                  {{n.nombre}}  
                   <span v-if="checkAnfitrion(n)">(Anfitrión)</span>
                   <span v-if="n.siguiente === true && serverInfo.finRonda === true" class="badge bg-success">Listo</span>
                   <span v-if="n.siguiente === false  && serverInfo.finRonda === true" class="badge bg-danger">No listo</span>
@@ -18,8 +18,6 @@ let playerInfoComponent = Vue.component("player-info-component", {
     updated() {
         let players = document.getElementsByClassName("players");
         players.forEach(element => {
-            console.log(element.getAttribute("id"))
-
             if (element.getAttribute("id") === this.id)
                 element.classList.add("active");
 

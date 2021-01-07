@@ -18,8 +18,6 @@ let playGameComponent = Vue.component("play-game-component", {
             players: [],
             connected: false,
             intervalID: null,
-            ganador: ''
-
         }
     },
     template:
@@ -32,7 +30,7 @@ let playGameComponent = Vue.component("play-game-component", {
         </div>    
         <div id="maingame">
             
-            <title-component v-bind:ganador="this.ganador" v-bind:host="this.host" v-bind:code="this.code" v-bind:serverInfo="serverInfo"></title-component>
+            <title-component v-bind:ganador="this.serverInfo.ganador" v-bind:host="this.host" v-bind:code="this.code" v-bind:serverInfo="serverInfo"></title-component>
             <div class="row">
                 <div class="card col-12 col-md-7 justify-content-center align-self-start">
                     <lobby-component v-if="this.serverInfo.estado === 0" v-bind:id="this.getId()" v-bind:maxPlayers="this.serverInfo.maxPlayers" v-bind:players="players"></lobby-component>    
@@ -80,8 +78,8 @@ let playGameComponent = Vue.component("play-game-component", {
     },
     updated() {
         let id = this.getId();
-        console.log("ID!!!! " + id);
-        console.log("this.serverInfo.estado!!!! " + this.serverInfo.estado);
+        //console.log("ID!!!! " + id);
+        //console.log("this.serverInfo.estado!!!! " + this.serverInfo.estado);
         if (id != null && id !== '' && this.connected === false && this.code !== '' && this.serverInfo.estado === 0) {
 
             //console.log("conexion_sala");
@@ -152,12 +150,12 @@ let playGameComponent = Vue.component("play-game-component", {
                 this.players = [];
                 for (let i = 0; i < p.listPlayers.length; i++) {
                     let id = p.listIds[i];
-                    let name = p.listPlayers[i];
+                    let nombre = p.listPlayers[i];
                     let siguiente = p.listSiguiente[i];
                     let acierto = p.listAcierto[i];
                     let puntos = p.listPuntos[i];
 
-                    this.players.push({ id, name, siguiente, acierto, puntos });
+                    this.players.push({ id, nombre, siguiente, acierto, puntos });
                 }
             });
         },
@@ -165,23 +163,10 @@ let playGameComponent = Vue.component("play-game-component", {
             this.socket.on("serverInfo", (data) => {
                 console.log('serverInfo' + data.palabra)
                 this.$emit("setServerInfo", data);
-                if (data.fin){
-                    this.comprobarGanador();
-                }
                 this.crearInterval();
 
             });
         },
-        comprobarGanador(){
-            let max = -1;
-            for (let i = 0; i < this.players.length; i++){
-                if (max === -1 || this.players[i].puntos > max.puntos){
-                    max = this.players[i];
-                }
-            }
-            this.ganador = max;
-        }
-        ,
         emitir(str) {
             let codigoPartida = this.code;
             let tipoUsuario = this.mode;

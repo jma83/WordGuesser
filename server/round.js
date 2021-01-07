@@ -41,7 +41,7 @@ module.exports = class Round {
                     self.crearInterval();
                     resolve(true);
                 } catch (e) {
-                    console.log("ERROR! "+ e);
+                    console.log("ERROR! " + e);
                 }
 
             } else {
@@ -61,9 +61,8 @@ module.exports = class Round {
         }
         if (index === -1) {
 
-            this.setFinRonda(true);
-            this.resolverPalabra();
-            this.borrarInterval();
+            this.finalizarRonda(true);
+
         }
 
         return index;
@@ -150,6 +149,12 @@ module.exports = class Round {
 
     setFinRonda(fin_ronda) {
         this.finRonda = fin_ronda;
+    }
+
+    finalizarRonda() {
+        this.setFinRonda(true);
+        this.resolverPalabra();
+        this.borrarInterval();
     }
 
     setImagen(img) {

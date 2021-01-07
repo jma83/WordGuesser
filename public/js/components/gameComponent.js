@@ -37,16 +37,16 @@ let gameComponent = Vue.component("game-component", {
         }
         console.log("mounted id:" + sessionStorage.getItem("partida_id"))
     },
-    mounted(){
+    mounted() {
         this.responsive();
     },
-    updated(){
+    updated() {
         if (this.checkValid(this.event.getCode()))
             sessionStorage.setItem("partida_codigo", this.event.getCode());
-        
-        if (this.checkValid(this.event.getId()))
+
+        if (this.checkValid(this.event.getId())) {
             sessionStorage.setItem("partida_id", this.event.getId());
-        else if (this.checkValid(this.connection.socket.id)){
+        } else if (this.checkValid(this.connection.socket.id)) {
             sessionStorage.setItem("partida_id", this.connection.socket.id);
         }
 
@@ -58,53 +58,51 @@ let gameComponent = Vue.component("game-component", {
             this.modo = Number(dat.modo);
             this.nombre = dat.nombre;
 
-            if(this.event.getConnection().socket.connected){
-                if (this.checkValid(dat.codigo) && this.modo===0)
+            if (this.checkValid(dat.codigo) && this.modo === 0)
                 this.event.initConection(dat.codigo);
-                else
+            else
                 this.event.initConection();
-            }
-                
+
             sessionStorage.setItem("partida_modo", this.modo);
             sessionStorage.setItem("partida_nombre", this.nombre);
             this.responsive();
-        }, 
-        endGame(){
+        },
+        endGame() {
             sessionStorage.clear();
             this.startedGame = false;
             this.responsive();
             this.serverInfo = this.initServerInfo();
             if (this.event !== undefined)
-            this.event.startConnection();
+                this.event.startConnection();
         },
-        getCode(){
+        getCode() {
             if (this.checkValid(this.event.getCode()))
-            return this.event.getCode().substr(0, 5);
+                return this.event.getCode().substr(0, 5);
 
             return '';
 
         },
-        getId(){
+        getId() {
             return this.event.getId();
         },
-        
-        checkValid(val){
-            if (val != null && val !== "" && Number(val) !== 0){
+
+        checkValid(val) {
+            if (val != null && val !== "" && Number(val) !== 0) {
                 return true;
             }
             return false;
         },
-        responsive(){
-            if (this.startedGame === false && this.nombre === null){
+        responsive() {
+            if (this.startedGame === false && this.nombre === null) {
                 document.getElementById("footer").style.position = "absolute";
-            }else{
+            } else {
                 document.getElementById("footer").style.position = "relative";
             }
         },
-        setServerInfo(dat){
+        setServerInfo(dat) {
             this.serverInfo = dat;
         },
-        initServerInfo(){
+        initServerInfo() {
             return {
                 codigo: '',
                 estado: 0,
@@ -116,12 +114,12 @@ let gameComponent = Vue.component("game-component", {
                 fin: false,
                 maxRondas: 6,
                 maxPlayers: 4
-              }
+            }
         },
-        decreaseTime(){
+        decreaseTime() {
             this.serverInfo.tiempo--;
         }
-        
+
     }
 })
 export default gameComponent;

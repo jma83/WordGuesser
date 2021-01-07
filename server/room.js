@@ -7,10 +7,11 @@ module.exports = class Room {
             this.codigo = data.codigoPartida;
             this.estado = 0;
             this.fin = false;
-            this.maxRondas = 6;
+            this.maxRondas = 2;
             this.maxPlayers = 4;
             this.ronda = new Round();
             this.players = [];
+            this.ganador = null;
         }
 
     }
@@ -24,12 +25,13 @@ module.exports = class Room {
             let fin = self.fin;
             let maxRondas = self.maxRondas;
             let maxPlayers = self.maxPlayers;
+            let ganador = self.getGanador();
             let ronda = self.ronda.getRonda();
             let imagen = self.ronda.getImagen();
             let palabra = self.ronda.getPalabraFicticia();
             let finRonda = self.ronda.getFinRonda();
             let tiempo = self.ronda.getTime();
-            let res = { codigo, estado, ronda, imagen, palabra, finRonda, tiempo, fin, maxRondas, maxPlayers };
+            let res = { codigo, estado, ronda, imagen, palabra, finRonda, tiempo, fin, maxRondas, maxPlayers, ganador };
             resolve(res);
         });
     }
@@ -109,7 +111,7 @@ module.exports = class Room {
     getAciertoJugadores() {
         let aciertos = [];
         for (let i = 0; i < this.players.length; i++)
-        aciertos.push(this.players[i].acierto);
+            aciertos.push(this.players[i].acierto);
 
         return aciertos;
     }
@@ -134,6 +136,10 @@ module.exports = class Room {
             }
         }
         return -1;
+    }
+
+    getGanador() {
+        return this.ganador;
     }
 
     /* Metodos gestión ronda */
@@ -176,19 +182,24 @@ module.exports = class Room {
     }
 
     comprobarPalabra(data) {
-        let res = this.ronda.comprobarPalabra(data.mensaje);
-        if (res !== -1 && data.id !== '' && data.id != null) {
+        let puntos = this.ronda.comprobarPalabra(data.mensaje);
+        let aciertoPlayers = false;
+        if (puntos !== -1 && data.id !== '' && data.id != null) {
             let index = this.getIndexJugador(data.id);
             let player = this.players[index];
             if (player != null && player.getAcierto() === false) {
-                player.setPuntosRonda(res);
+                player.setPuntosRonda(puntos);
+                aciertoPlayers = !this.getAciertoJugadores().includes(false);
+                if (aciertoPlayers)
+                this.ronda.finalizarRonda(true);
+
             } else {
                 console.log("No estblece puntos jugador es null! " + player.getAcierto())
-                res = -1;
+                puntos = -1;
             }
         }
 
-        return res;
+        return { puntos, aciertoPlayers };
 
     }
 
@@ -216,6 +227,17 @@ module.exports = class Room {
 
     setFin(fin) {
         this.fin = fin;
+        this.comprobarGanador();
+    }
+
+    comprobarGanador() {
+        let max = -1;
+        for (let i = 0; i < this.players.length; i++) {
+            if (max === -1 || this.players[i].puntos > max.puntos) {
+                max = this.players[i];
+            }
+        }
+        this.ganador = max;
     }
 
     nextPalabraFicticia() {

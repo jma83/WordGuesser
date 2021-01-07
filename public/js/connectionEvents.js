@@ -4,7 +4,7 @@ const chatStr = "chat";
 const gameStr = "maingame";
 
 
-
+console.log("hola!!!")
 let event = new ConnectionEvents();
 event.startConnection();
 
@@ -33,9 +33,9 @@ event.connection.socket.on("desconexion_sala", (data) => {
 });
 
 event.connection.socket.on("conexion", (data) => {
-    console.log(event.connection.code);
+    console.log("event.connection.code " + event.connection.code);
     let code = data.substr(0, 5);
-    console.log(code);
+    console.log("code: " + code);
 
     event.connection.setCode(code);
 
