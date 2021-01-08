@@ -27,11 +27,13 @@ let game = new Server(io);
 io.on('connection', (socket) => {
 
     socket.on("conexion", () => {
+        console.log("conexion!")
         io.sockets.emit('conexion', socket.id);
         //io.to(socket.id).emit('conexion', socket.id);
     });
 
     socket.on("conexion_sala", data => {
+        console.log("conexion_sala!")
         game.conexion_sala(data,socket);
     });
     

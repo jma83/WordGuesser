@@ -30,6 +30,8 @@ module.exports = class RoomsManager {
     }
 
     comprobarUnionSala(data, reenter) {
+        console.log("comprobar!")
+        console.log(data);
         if (!this.comprobarSala(data.codigoPartida) && Number(data.tipoUsuario) === 1 ||
             this.comprobarSala(data.codigoPartida) && Number(data.tipoUsuario) === 0 ||
             reenter) {

@@ -1,101 +1,52 @@
 
 
 
-class Conexion{
+export default class Conexion {
     socket = '';
     code = '';
-    id=0;
-    invalid=false;
+    id = 0;
 
-    constructor(){
+    constructor() {
         this.startConnection();
 
     }
-    startConnection(){
+    startConnection() {
+        console.log("startConnection")
         this.initSocket();
         this.initConection();
     }
-    setCode(code){
-        if (this.code===undefined || this.code==='')
-        this.code = code;
+    setCode(code, session = false) {
+        if (this.code === undefined || this.code === '' || session) {
+            this.code = code;
+            console.log("codigo: " + code);
+        }
     }
 
-    setId(id){
-        this.id = id;
-        console.log("id: " + id)
+    setId(id, session = false) {
+        if (this.id === undefined || this.id === '' || session) {
+            this.id = id;
+            console.log("id: " + id)
+        }
     }
 
-    setInvalid(b){
-        this.invalid = b;
-    }
-
-    getInvalid(){
-        return this.invalid;
-    }
-
-    initSocket(){
+    initSocket() {
         this.socket = io();
     }
-    
-    initConection(code = ''){
-        this.invalid = false;
+
+    initConection(code = '') {
         this.code = code;
         this.socket.emit('conexion');
     }
-    setPlayers(list){
-        
-        this.players = list;
-        if (this.players != null)
-        this.players.sort();
-    }
 
-    getPlayers(){
-        return this.players;
-    }
-
-    getCode(){
+    getCode() {
         return this.code;
     }
-    getId(){
+    getId() {
         return this.id;
     }
-}
 
-export default class ConnectionEvents{
-    players = [];
-
-    startConnection(){
-        this.connection = new Conexion();
-    }
-    initConection(code=''){
-        this.connection.initConection(code);
-    }
-
-    setCode(code){
-        this.connection.setCode(code);
-    }
-
-    setId(id){
-        this.connection.setId(id);
-    }
-
-    getSocket(){
-        return this.connection.socket;
-    }
-
-    getCode(){
-        return this.connection.code;
-    }
-
-    getInvalid(){
-        return this.connection.invalid;
-    }
-
-    getId(){
-        return this.connection.id;
-    }
-
-    getConnection(){
-        return this.connection;
+    restartValues() {
+        this.code = '';
+        this.id = '';
     }
 }

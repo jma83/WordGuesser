@@ -1,104 +1,110 @@
-import ConnectionEvents from './connectionClass.js';
 
-const chatStr = "chat";
-const gameStr = "maingame";
+export default class ConnectionEvents {
 
+    
 
-console.log("hola!!!")
-let event = new ConnectionEvents();
-event.startConnection();
-
-
-event.connection.socket.on("mensaje_chat", (data) => {
-    let chat = document.getElementById(chatStr);
-    if (chat !== null) {
-        if (!data.acierto) {
-            chat.innerHTML += "<p><b>" + data.nombre + ":</b> " + data.mensaje + "</p>";
-        } else {
-            chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> acertó la respuesta! (+" + data.puntos + " puntos!)</i></p>";
-        }
+    constructor(connection) {
+        this.connection = connection;
+        this.socket = connection.socket;
+        this.mensaje_chat();
+        this.conexion_sala();
+        this.desconexion_sala();
+        this.conexion();
+        this.sala_no_valida();
+        this.beforeunload();
+        this.chatStr = "chat";
+        this.gameStr = "maingame";
     }
-});
 
-event.connection.socket.on("conexion_sala", (data) => {
-    let chat = document.getElementById(chatStr);
-    if (chat !== null)
-        chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> se ha unido a la partida!</i></p>";
-});
+    mensaje_chat() {
+        this.socket.on("mensaje_chat", (data) => {
+            let chat = document.getElementById(this.chatStr);
+            if (chat !== null) {
+                if (!data.acierto) {
+                    chat.innerHTML += "<p><b>" + data.nombre + ":</b> " + data.mensaje + "</p>";
+                } else {
+                    chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> acertó la respuesta! (+" + data.puntos + " puntos!)</i></p>";
+                }
+            }
+        });
+    }
+    conexion_sala() {
+        this.socket.on("conexion_sala", (data) => {
+            let chat = document.getElementById(this.chatStr);
+            if (chat !== null)
+                chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> se ha unido a la partida!</i></p>";
+        });
+    }
+    desconexion_sala() {
+        this.socket.on("desconexion_sala", (data) => {
+            let chat = document.getElementById(this.chatStr);
+            if (chat !== null)
+                chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> se ha desconectado de la partida!</i></p>";
+        });
+    }
+    conexion() {
+        this.socket.on("conexion", (data) => {
+            let code = data.substr(0, 5);
+            this.connection.setCode(code);
+            //this.connection.setId(this.socket.id);
 
-event.connection.socket.on("desconexion_sala", (data) => {
-    let chat = document.getElementById(chatStr);
-    if (chat !== null)
-        chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> se ha desconectado de la partida!</i></p>";
-});
+        });
+    }
 
-event.connection.socket.on("conexion", (data) => {
-    console.log("event.connection.code " + event.connection.code);
-    let code = data.substr(0, 5);
-    console.log("code: " + code);
+    sala_no_valida() {
+        this.socket.on("sala_no_valida", () => {
 
-    event.connection.setCode(code);
+            console.log("sala no valida!!!")
 
-});
+            let game = document.getElementById(this.gameStr);
+            let div1 = document.createElement("div");
+            var classDiv = document.createAttribute("class");
+            classDiv.value = "card mt-2";
+            div1.setAttributeNode(classDiv);
 
+            let div2 = document.createElement("div");
+            var classDiv2 = document.createAttribute("class");
+            classDiv2.value = "card-body ml-4";
+            div2.setAttributeNode(classDiv2);
 
-event.connection.socket.on("sala_no_valida", () => {
+            let title = document.createElement("h4");
+            let textTitle = document.createTextNode("Error! :(");
+            title.appendChild(textTitle);
 
-    console.log("sala no valida!!!")
-
-    let game = document.getElementById(gameStr);
-    let div1 = document.createElement("div");
-    var classDiv = document.createAttribute("class");
-    classDiv.value = "card mt-2";
-    div1.setAttributeNode(classDiv);
-
-    let div2 = document.createElement("div");
-    var classDiv2 = document.createAttribute("class");
-    classDiv2.value = "card-body ml-4";
-    div2.setAttributeNode(classDiv2);
-
-    let title = document.createElement("h4");
-    let textTitle = document.createTextNode("Error! :(");
-    title.appendChild(textTitle);
-
-    let p = document.createElement("p");
-    var classP = document.createAttribute("class");
-    let textP = document.createTextNode("Partida no encontrada! Vuelve a intentarlo más tarde");
-    p.appendChild(textP);
-    classP.value = "card-text align-self-center justify-content-center";
-    p.setAttributeNode(classP);
+            let p = document.createElement("p");
+            var classP = document.createAttribute("class");
+            let textP = document.createTextNode("Partida no encontrada! Vuelve a intentarlo más tarde");
+            p.appendChild(textP);
+            classP.value = "card-text align-self-center justify-content-center";
+            p.setAttributeNode(classP);
 
 
 
-    div2.appendChild(title);
-    div2.appendChild(p);
-    div1.appendChild(div2);
-    game.innerHTML = "";
-    game.appendChild(div1);
-    event.connection.setInvalid(true);
+            div2.appendChild(title);
+            div2.appendChild(p);
+            div1.appendChild(div2);
+            game.innerHTML = "";
+            game.appendChild(div1);
 
+        });
+    }
+    beforeunload() {
+        window.addEventListener('beforeunload', () => {
+            let modo = sessionStorage.getItem("partida_modo");
+            let nombre = sessionStorage.getItem("partida_nombre");
+            let codigoPartida = sessionStorage.getItem("partida_codigo");
+            let endGameMethod = false;
+            let id = this.socket.id;
 
+            /*if (Number(modo) === 0) {
+                tipoUsuario = "Invitado";
+            } else if (Number(modo) === 1) {
+                tipoUsuario = "Anfitrión";
+            }*/
 
-});
+            if (nombre !== null && nombre !== undefined)
+                this.socket.emit('desconexion_sala', { id, codigoPartida, nombre, modo, endGameMethod });
 
-window.addEventListener('beforeunload', () => {
-    let modo = sessionStorage.getItem("partida_modo");
-    let nombre = sessionStorage.getItem("partida_nombre");
-    let codigoPartida = sessionStorage.getItem("partida_codigo");
-    let endGameMethod = false;
-    let id = event.getId();
-    if (id === 0)
-        id = event.connection.socket.id;
-
-    /*if (Number(modo) === 0) {
-        tipoUsuario = "Invitado";
-    } else if (Number(modo) === 1) {
-        tipoUsuario = "Anfitrión";
-    }*/
-
-    if (nombre !== null && nombre !== undefined)
-        event.connection.socket.emit('desconexion_sala', { id, codigoPartida, nombre, modo, endGameMethod });
-
-})
-
-export default event;
+        });
+    }
+}
