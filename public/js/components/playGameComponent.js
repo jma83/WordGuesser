@@ -9,12 +9,10 @@ let playGameComponent = Vue.component("play-game-component", {
         return {
             //gm: new GameManager(this.dificultad),
             idmsg: 0,
-            arrayLetras: [],
             victorias: 3,
             host: '',
             msgCabecera: "Encuentra la palabra oculta!",
             descripcion: "Bienvenido al chat! Aqui quedarán registrados los mensajes y respuestas de todos los usuarios!",
-            timer: 100,
             players: [],
             connected: false,
             intervalID: null,
@@ -155,6 +153,7 @@ let playGameComponent = Vue.component("play-game-component", {
                     let acierto = p.listAcierto[i];
                     let puntos = p.listPuntos[i];
 
+                    console.log("nombre: " +nombre )
                     this.players.push({ id, nombre, siguiente, acierto, puntos });
                 }
             });

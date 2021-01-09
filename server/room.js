@@ -49,10 +49,29 @@ module.exports = class Room {
     comprobarJugador(p) {
         let index = this.getIndexJugador(p);
         if (index !== -1) {
-            if (this.players[index].room === this.codigo)
+            if (this.players[index].room === this.codigo) {
                 return true;
+            }
         }
         return false;
+    }
+
+    avisoAnfitrion(p) {
+        let index = this.getIndexJugador(p);
+        console.log("avisoAnfitrion")
+        if (index !== -1 && this.players[index].tipoUsuario === 1) {
+            this.players[index].setConectado(false);
+
+        }
+    }
+
+    conexionAnfitrion(p){
+        let index = this.getIndexJugador(p);
+        console.log("avisoAnfitrion")
+        if (index !== -1 && this.players[index].tipoUsuario === 1) {
+            this.players[index].setConectado(true);
+
+        }
     }
 
     siguienteJugador(p) {
@@ -72,14 +91,13 @@ module.exports = class Room {
 
     }
 
-    borrarJugadorSala(data) {
-        if (this.comprobarJugador(data.id)) {
-            let index = this.getIndexJugador(data.id);
+    borrarJugadorSala(id,anfitrion=false) {
+        if (this.comprobarJugador(id)) {
+            let index = this.getIndexJugador(id);
 
-            if (index !== -1) {
+            if (index !== -1 && (anfitrion || !anfitrion && this.players[index].tipoUsuario === 0)) {
                 console.log("antes de borrar player!");
                 this.players.splice(index, 1);
-                console.log("borro ok!" + data.nombre)
             }
         }
     }
@@ -175,6 +193,9 @@ module.exports = class Room {
                         }
                     }
                 }
+                if (self.estado === 1) {
+
+                }
             } catch (e) {
                 console.log("ERROR! " + e)
             }
@@ -191,7 +212,7 @@ module.exports = class Room {
                 player.setPuntosRonda(puntos);
                 aciertoPlayers = !this.getAciertoJugadores().includes(false);
                 if (aciertoPlayers)
-                this.ronda.finalizarRonda(true);
+                    this.ronda.finalizarRonda(true);
 
             } else {
                 console.log("No estblece puntos jugador es null! " + player.getAcierto())
@@ -212,6 +233,13 @@ module.exports = class Room {
             return true;
         }
         return false;
+    }
+
+    reiniciarPartida() {
+        this.setEstado(1);
+        this.ronda.setRonda(0);
+        this.ronda.setFinRonda(false);
+        this.setFin(false);
     }
 
     finalizarPartida() {
@@ -244,6 +272,9 @@ module.exports = class Room {
         return this.ronda.nextPalabraFicticia();
     }
 
+    getCodigo() {
+        return this.codigo;
+    }
 
 
 

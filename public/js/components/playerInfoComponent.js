@@ -20,7 +20,8 @@ let playerInfoComponent = Vue.component("player-info-component", {
         players.forEach(element => {
             if (element.getAttribute("id") === this.id)
                 element.classList.add("active");
-
+            console.log("jugadores:")
+                console.log(players)
         });
     },
     methods: {

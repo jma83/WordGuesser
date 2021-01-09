@@ -69,8 +69,10 @@ module.exports = class Round {
     }
 
     resolverPalabra() {
-        this.palabraFictia = this.palabra;
-        this.palabra = '';
+        if (this.palabra !== '') {
+            this.palabraFictia = this.palabra;
+            this.palabra = '';
+        }
     }
 
     comprobarPalabra(mensaje) {

@@ -4,6 +4,8 @@ module.exports = class Player{
         this.room = data.codigoPartida;
 
         this.nombre = data.nombre;
+        this.tipoUsuario = data.tipoUsuario;
+        this.conectado = true;
         this.siguiente = false;
         this.puntos = 0;
         this.acierto = false;
@@ -32,5 +34,14 @@ module.exports = class Player{
 
     getPuntos(){
         return this.puntos;
+    }
+
+    getTipoUsuario(){
+        return this.tipoUsuario;
+    }
+
+    setConectado(b){
+        console.log("setConectado " +b)
+        this.conectado = b;
     }
 }

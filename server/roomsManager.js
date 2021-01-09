@@ -7,11 +7,13 @@ const Room = require('./room')
 module.exports = class RoomsManager {
     constructor() {
         this.rooms = [];
+
     }
 
     crearSala(data) {
-        if (!this.comprobarSala(data.codigoPartida) && Number(data.tipoUsuario) === 1)
+        if (!this.comprobarSala(data.codigoPartida) && Number(data.tipoUsuario) === 1) {
             this.rooms.push(new Room(data));
+        }
     }
 
     comprobarSala(sala) {
@@ -21,13 +23,39 @@ module.exports = class RoomsManager {
         return false;
     }
 
-    comprobarPalabra(p){
-        if (this.palabra.toLowerCase() === p.toLowerCase()){
+    avisoBorrarSala(sala) {
+        console.log("avisoBorrarSala")
+        setTimeout(() => { this.comprobarAnfitrionSala(sala) }, 5000);
+    }
+
+    comprobarPalabra(p) {
+        if (this.palabra.toLowerCase() === p.toLowerCase()) {
             return true;
         }
         return false;
-
     }
+
+    comprobarAnfitrionSala(sala) {
+        let checkAnfi = false;
+        if (this.comprobarSala(sala.getCodigo())) {
+            let jugadores = sala.getJugadores();
+
+            for (let j = 0; j < jugadores.length; j++) {
+                if (jugadores[j].getTipoUsuario() === 1 && jugadores[j].conectado === true) {
+                    checkAnfi = true;
+                    sala.borrarJugadorSala(jugadores[j].id,true)
+
+                    break;
+                }
+            }
+            if (!checkAnfi) {
+                console.log("borro sala!");
+                this.borrarSala2(sala.getCodigo());
+
+            }
+        }
+    }
+    
 
     comprobarUnionSala(data, reenter) {
         console.log("comprobar!")
@@ -48,6 +76,20 @@ module.exports = class RoomsManager {
                 console.log("antes de borrar sala!");
                 this.rooms.splice(index, 1);
                 console.log("borro ok!" + data.codigoPartida)
+                return true;
+            }
+        }
+        return false;
+    }
+
+    borrarSala2(codigo) {
+        if (this.comprobarSala(codigo)) {
+            let index = this.getIndexSala(codigo);
+
+            if (index !== -1) {
+                console.log("antes de borrar sala!");
+                this.rooms.splice(index, 1);
+                console.log("borro ok!" + codigo)
                 return true;
             }
         }

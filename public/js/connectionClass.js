@@ -4,7 +4,7 @@
 export default class Conexion {
     socket = '';
     code = '';
-    id = 0;
+    id = '';
 
     constructor() {
         this.startConnection();

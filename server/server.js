@@ -26,8 +26,9 @@ module.exports = class Server {
 
             if (!reenter)
                 if (!sala.crearJugadorSala(data))
-                this.io.to(data.id).emit('sala_no_valida', data);
+                    this.io.to(data.id).emit('sala_no_valida', data);
 
+            sala.conexionAnfitrion(data.id);
             console.log("conexion_sala " + data.codigoPartida);
             console.log("id " + data.id);
             socket.join(data.codigoPartida);
@@ -47,26 +48,35 @@ module.exports = class Server {
             console.log("sala no valida!! " + data.id)
             this.io.to(data.id).emit('sala_no_valida', data);
         }
-        console.log("Salas!!! " + this.roomsManager.getCodigosSalas())
+        console.log("Salas!!! conec " + this.roomsManager.getCodigosSalas())
 
     }
 
     desconexion_sala(data, socket) {
         let sala = this.roomsManager.getSala(data.codigoPartida);
-        if (data.endGameMethod && sala != null) {
-            if (this.roomsManager.borrarSala(data)) {
-                this.borrarInterval(data);
+
+
+        if (sala != null) {
+            if (data.endGameMethod) {
+                sala.borrarJugadorSala(data.id,true);
+
+                if (this.roomsManager.borrarSala(data)) {
+                    this.borrarInterval(data);
+                }
+            } else {
+                console.log("data.tipoUsuario " + data.id)
+                sala.avisoAnfitrion(data.id);
+                this.roomsManager.avisoBorrarSala(sala);
             }
-
-            sala.borrarJugadorSala(data);
-
+            sala.borrarJugadorSala(data.id);
             console.log("desconexion_sala")
-
             this.emitirListPlayer(sala, data);
             socket.to(data.codigoPartida).emit('desconexion_sala', data);
-
         }
-        console.log("Salas!!! " + this.roomsManager.getCodigosSalas())
+
+
+
+        console.log("Salas!!! desc " + this.roomsManager.getCodigosSalas())
 
     }
 
@@ -100,7 +110,7 @@ module.exports = class Server {
                 data.puntos = res.puntos;
                 this.emitirListPlayer(sala, data);
                 if (res.aciertoPlayers)
-                this.enviarInfoSala(data);
+                    this.enviarInfoSala(data);
             }
             this.io.to(data.codigoPartida).emit('mensaje_chat', data);
         }
@@ -174,7 +184,7 @@ module.exports = class Server {
         }
     }
 
-    async enviarInfoSala(data){
+    async enviarInfoSala(data) {
         let sala = this.roomsManager.getSala(data.codigoPartida);
 
         try {
