@@ -3,7 +3,7 @@ import './imageInfoComponent.js';
 import './lobbyComponent.js';
 import './titleComponent.js';
 import './ventanaComponent.js';
-import './ajustesComponent.js';
+import './verAjustesComponent.js';
 
 let playGameComponent = Vue.component("play-game-component", {
     props: ["name", "code", "mode", "socket", "socketid", "serverInfo"],
@@ -50,7 +50,7 @@ let playGameComponent = Vue.component("play-game-component", {
             <div class="row justify-content-around">
                 <div class=" col-10 col-md-4 align-self-start p-2 ">
                     <player-info-component v-bind:id="this.getId()" v-bind:serverInfo="this.serverInfo" v-bind:players="players" v-if="this.serverInfo.estado === 1"></player-info-component>
-                    <ajustes-component v-bind:editable="false" v-if="this.serverInfo.estado !== 1" v-bind:serverInfo="this.serverInfo"></ajustes-component>
+                    <ver-ajustes-component v-if="this.serverInfo.estado !== 1" v-bind:serverInfo="this.serverInfo"></ver-ajustes-component>
                     </div>
                 <form class="col-10 col-md-3 mt-2 p-2 align-self-start">
                     <div class="form-group">
@@ -110,14 +110,14 @@ let playGameComponent = Vue.component("play-game-component", {
 
             let rondas = document.getElementsByClassName("rondas");
             rondas.forEach(element => {
-                if (this.serverInfo.maxRondas === Number(element.value)) {
+                if (Number(this.serverInfo.maxRondas) === Number(element.value)) {
                     element.selected = true;
                 }
             });
 
             let dif = document.getElementsByClassName("dif");
             dif.forEach(element => {
-                if (this.serverInfo.dificultad === Number(element.value)) {
+                if (Number(this.serverInfo.dificultad) === Number(element.value)) {
                     element.selected = true;
                 }
             });
@@ -128,8 +128,7 @@ let playGameComponent = Vue.component("play-game-component", {
 
             let tipoRadio = document.getElementsByClassName("tipoRadio");
             tipoRadio.forEach(element => {
-                if (this.serverInfo.tipo === Number(element.value)) {
-                    console.log("tipo? " + element.value + " " + this.serverInfo.tipo)
+                if (Number(this.serverInfo.tipo) === Number(element.value)) {
 
                     element.checked = true;
                 }

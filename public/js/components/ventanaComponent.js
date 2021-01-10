@@ -1,4 +1,4 @@
-import './ajustesComponent.js';
+import './modAjustesComponent.js';
 
 let ventanaComponent = Vue.component("ventana-component", {
   props: ["tiempoAux"],
@@ -18,7 +18,7 @@ let ventanaComponent = Vue.component("ventana-component", {
             ></button>
           </div>
           <div class="modal-body">
-            <ajustes-component v-bind:editable="true" v-bind:tiempoAux="this.tiempoAux"></ajustes-component>
+            <mod-ajustes-component v-bind:tiempoAux="this.tiempoAux"></mod-ajustes-component>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-primary" id="btn-save">Guardar cambios</button>
