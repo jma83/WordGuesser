@@ -2,6 +2,8 @@ import './playerInfoComponent.js';
 import './imageInfoComponent.js';
 import './lobbyComponent.js';
 import './titleComponent.js';
+import './ventanaComponent.js';
+import './ajustesComponent.js';
 
 let playGameComponent = Vue.component("play-game-component", {
     props: ["name", "code", "mode", "socket", "socketid", "serverInfo"],
@@ -16,6 +18,8 @@ let playGameComponent = Vue.component("play-game-component", {
             players: [],
             connected: false,
             intervalID: null,
+            modalWindow: null,
+            tiempoAux: this.serverInfo.maxTiempo,
         }
     },
     template:
@@ -46,7 +50,8 @@ let playGameComponent = Vue.component("play-game-component", {
             <div class="row justify-content-around">
                 <div class=" col-10 col-md-4 align-self-start p-2 ">
                     <player-info-component v-bind:id="this.getId()" v-bind:serverInfo="this.serverInfo" v-bind:players="players" v-if="this.serverInfo.estado === 1"></player-info-component>
-                </div>
+                    <ajustes-component v-bind:editable="false" v-if="this.serverInfo.estado !== 1" v-bind:serverInfo="this.serverInfo"></ajustes-component>
+                    </div>
                 <form class="col-10 col-md-3 mt-2 p-2 align-self-start">
                     <div class="form-group">
                         <label for="name" >Chat de respuestas: </label>
@@ -57,14 +62,16 @@ let playGameComponent = Vue.component("play-game-component", {
                 </form>
             </div>
             <div class="row justify-content-end">
-                <button v-if="Number(this.mode)===1 && this.serverInfo.estado === 0" type="input" v-on:click.prevent="ajustes()" class="btn btn-primary col-4 col-md-3 col-lg-2 mr-2 align-self-end" id="ajustes" name="ajustes" data-dif="2"><i class="fas fa-cog"></i> &nbsp;Ajustes de partida</button>
+                <button data-mdb-toggle="modal" data-mdb-target="#myModal" v-if="Number(this.mode)===1 && this.serverInfo.estado !== 1" type="input" v-on:click.prevent="ajustes(); actualizarAjustes();" class="btn btn-primary col-4 col-md-3 col-lg-2 mr-2 align-self-end" id="ajustes" name="ajustes" data-dif="2"><i class="fas fa-cog"></i> &nbsp;Ajustes de partida</button>
                 <button v-if="this.serverInfo.estado === 0 || this.serverInfo.finRonda===true" type="input" v-on:click.prevent="siguiente()" class="btn btn-info col-4 col-md-3 col-lg-2 mr-2 " id="siguiente" name="siguiente" data-dif="2"><i class="fas fa-check-circle"></i> &nbsp; Siguiente</button>
             </div>
-        </div>        
+        </div>       
+        <ventana-component v-on:setTiempo="this.setTiempo" v-on:ajustes="ajustes" v-on:modificarAjustesSala="modificarAjustesSala" v-bind:tiempoAux="this.tiempoAux"></ventana-component> 
   </div>`,
     created() {
         this.getPlayers();
         this.getServerInfo();
+
     },
     mounted() {
         if (Number(this.mode) === 0) {
@@ -72,17 +79,12 @@ let playGameComponent = Vue.component("play-game-component", {
         } else if (Number(this.mode) === 1) {
             this.host = "Anfitrión";
         }
+        this.modalWindow = new mdb.Modal(document.getElementById('myModal'));
 
     },
     updated() {
         let id = this.getId();
-        //console.log("ID!!!! " + id);
-        //console.log("this.serverInfo.estado!!!! " + this.serverInfo.estado);
         if (id != null && id !== '' && this.connected === false && this.code !== '' && this.serverInfo.estado === 0) {
-
-            //console.log("conexion_sala");
-            //console.log("updated! id:" + id)
-
             this.connected = true;
             this.emitir('conexion_sala');
         }
@@ -94,6 +96,48 @@ let playGameComponent = Vue.component("play-game-component", {
         this.endGameEvent();
     },
     methods: {
+        ajustes() {
+            document.getElementById('sliderTiempo').value = this.serverInfo.maxTiempo;
+            this.modalWindow.toggle();
+        },
+        actualizarAjustes() {
+            let players = document.getElementsByClassName("players");
+            players.forEach(element => {
+                if (Number(this.serverInfo.maxPlayers) === Number(element.value)) {
+                    element.selected = true;
+                }
+            });
+
+            let rondas = document.getElementsByClassName("rondas");
+            rondas.forEach(element => {
+                if (this.serverInfo.maxRondas === Number(element.value)) {
+                    element.selected = true;
+                }
+            });
+
+            let dif = document.getElementsByClassName("dif");
+            dif.forEach(element => {
+                if (this.serverInfo.dificultad === Number(element.value)) {
+                    element.selected = true;
+                }
+            });
+
+            let slider = document.getElementById("sliderTiempo");
+            this.tiempoAux = slider.value = this.serverInfo.maxTiempo;
+            console.log("this.serverInfo.maxTiempo " + this.serverInfo.maxTiempo)
+
+            let tipoRadio = document.getElementsByClassName("tipoRadio");
+            tipoRadio.forEach(element => {
+                if (this.serverInfo.tipo === Number(element.value)) {
+                    console.log("tipo? " + element.value + " " + this.serverInfo.tipo)
+
+                    element.checked = true;
+                }
+            });
+        },
+        setTiempo(t){
+            this.tiempoAux = t;
+        },
         endGameEvent() {
             this.emitir('desconexion_sala');
             this.borrarInterval();
@@ -113,9 +157,30 @@ let playGameComponent = Vue.component("play-game-component", {
                 this.socket.emit('mensaje', { id, idmsg, codigoPartida, nombre, mensaje, acierto, puntos });
                 this.idmsg++;
             }
+            document.getElementById("mensaje").focus();
+
         },
         siguiente() {
             this.emitir('siguiente');
+        },
+        modificarAjustesSala() {
+            this.ajustes();
+            let dificultad = document.getElementById("dificultad").value;
+            let maxTiempo = this.tiempoAux;
+            let maxRondas = document.getElementById("rondas").value;
+            let maxPlayers = document.getElementById("jugadores").value;
+            let tipo = -1;
+            let tipoRadio = document.getElementsByClassName("tipoRadio");
+            tipoRadio.forEach(element => {
+                if (element.checked === true) {
+                    tipo = element.value;
+                }
+            });
+            let codigoPartida = this.code;
+            let id = this.getId();
+            this.socket.emit("modificarAjustesSala", { id, codigoPartida, dificultad, maxTiempo, maxRondas, maxPlayers, tipo });
+
+
         },
         crearInterval() {
             if (this.serverInfo.finRonda === false && this.intervalID === null) {
@@ -153,7 +218,7 @@ let playGameComponent = Vue.component("play-game-component", {
                     let acierto = p.listAcierto[i];
                     let puntos = p.listPuntos[i];
 
-                    console.log("nombre: " +nombre )
+                    console.log("nombre: " + nombre)
                     this.players.push({ id, nombre, siguiente, acierto, puntos });
                 }
             });

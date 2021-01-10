@@ -1,5 +1,5 @@
-module.exports = class Player{
-    constructor(data){
+module.exports = class Player {
+    constructor(data) {
         this.id = data.id;
         this.room = data.codigoPartida;
 
@@ -11,37 +11,39 @@ module.exports = class Player{
         this.acierto = false;
     }
 
-    setSiguiente(value){
+    setSiguiente(value) {
         this.siguiente = value;
     }
 
-    setNombre(value){
+    setNombre(value) {
         this.nombre = value;
     }
 
-    setPuntosRonda(puntos){
-        this.puntos+= puntos;
-        this.setAcierto(true);
+    setPuntosRonda(puntos) {
+        if (!this.acierto) {
+            this.puntos += puntos;
+            this.setAcierto(true);
+        }
     }
 
-    setAcierto(b){
+    setAcierto(b) {
         this.acierto = b;
     }
 
-    getAcierto(){
+    getAcierto() {
         return this.acierto;
     }
 
-    getPuntos(){
+    getPuntos() {
         return this.puntos;
     }
 
-    getTipoUsuario(){
+    getTipoUsuario() {
         return this.tipoUsuario;
     }
 
-    setConectado(b){
-        console.log("setConectado " +b)
+    setConectado(b) {
+        console.log("!!!!!!!*setConectado " + b)
         this.conectado = b;
     }
 }

@@ -109,6 +109,8 @@ let gameComponent = Vue.component("game-component", {
         },
         setServerInfo(dat) {
             this.serverInfo = dat;
+            console.log("tipo " + dat.tipo)
+            console.log("dificultad " + dat.dificultad)
         },
         initServerInfo() {
             return {
@@ -120,6 +122,9 @@ let gameComponent = Vue.component("game-component", {
                 finRonda: false,
                 tiempo: 0,
                 fin: false,
+                dificultad: 0,
+                maxTiempo: 20,
+                tipo: 1,
                 maxRondas: 6,
                 maxPlayers: 4
             }

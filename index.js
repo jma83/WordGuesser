@@ -49,6 +49,12 @@ io.on('connection', (socket) => {
         game.siguiente(data);
     });
 
+    socket.on("modificarAjustesSala", data => {
+        game.modificarAjustesSala(data);
+    });
+
+    
+
     socket.on("desconexion_sala", data => {
         game.desconexion_sala(data,socket);
     });

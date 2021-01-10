@@ -10,8 +10,21 @@ module.exports = class Round {
         this.apiManager = new APIManager();
         this.tiempo = 0;
         this.intervalID = 0;
-        this.tiempoMax = 30;
-        this.porcentajeMostrar = 80;
+        this.tiempoMax = 20;
+        this.dificultad = 0;
+        this.selectDificultad();
+    }
+
+    selectDificultad() {
+        if (Number(this.dificultad) === 0) {
+            this.porcentajeMostrar = 80;
+        } else if (Number(this.dificultad) === 1) {
+            this.porcentajeMostrar = 60;
+        } else if (Number(this.dificultad) === 2) {
+            this.porcentajeMostrar = 40;
+        } else if (Number(this.dificultad) === 3) {
+            this.porcentajeMostrar = 0;
+        }
     }
 
     initPalabraFicticia() {
@@ -57,6 +70,7 @@ module.exports = class Round {
             let array = Array.from(this.palabra);
             let array2 = Array.from(this.palabraFictia);
             array2[index] = array[index];
+            if (this.porcentajeMostrar > 0 && Number(this.dificultad) !== 3)
             this.palabraFictia = array2.join("");
         }
         if (index === -1) {
@@ -193,6 +207,39 @@ module.exports = class Round {
 
     getPalabraFicticia() {
         return this.palabraFictia;
+    }
+
+    getTipo() {
+        return this.apiManager.getType2();
+    }
+
+    getDificultad() {
+        return this.dificultad;
+    }
+
+    getMaxTiempo() {
+        return this.tiempoMax;
+    }
+
+    setMaxTiempo(t) {
+        console.log()
+        this.tiempoMax = t;
+    }
+
+    setTipo(t) {
+        let self = this;
+        return new Promise(function (resolve, reject) {
+            self.apiManager.setType(t);
+            resolve(true);
+        });
+    }
+    setDificultad(d) {
+        let self = this;
+        return new Promise(function (resolve, reject) {
+            self.dificultad = d;
+            self.selectDificultad();
+            resolve(true);
+        });
     }
 
 }

@@ -94,7 +94,7 @@ export default class ConnectionEvents {
             let nombre = sessionStorage.getItem("partida_nombre");
             let codigoPartida = sessionStorage.getItem("partida_codigo");
             let endGameMethod = false;
-            let id = this.socket.id;
+            let id = this.connection.getId() || this.socket.id;
 
             /*if (Number(modo) === 0) {
                 tipoUsuario = "Invitado";

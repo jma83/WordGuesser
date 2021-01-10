@@ -19,19 +19,27 @@ module.exports = class Room {
     /* Metodo generico inicio */
     getInfoSala() {
         let self = this;
-        return new Promise(function (resolve, reject) {
+        return new Promise(async function (resolve, reject) {
             let codigo = self.codigo;
             let estado = self.estado;
             let fin = self.fin;
-            let maxRondas = self.maxRondas;
+
             let maxPlayers = self.maxPlayers;
+            let dificultad = await self.ronda.getDificultad();
+            let maxRondas = self.maxRondas;
+            let maxTiempo = self.ronda.getMaxTiempo();
+            let tipo = await self.ronda.getTipo();
+
+            console.log("tipo: " +  tipo)
+            console.log("dificultad: " +  dificultad)
+
             let ganador = self.getGanador();
             let ronda = self.ronda.getRonda();
             let imagen = self.ronda.getImagen();
             let palabra = self.ronda.getPalabraFicticia();
             let finRonda = self.ronda.getFinRonda();
             let tiempo = self.ronda.getTime();
-            let res = { codigo, estado, ronda, imagen, palabra, finRonda, tiempo, fin, maxRondas, maxPlayers, ganador };
+            let res = { codigo, estado, ronda, imagen, palabra, finRonda, tiempo, fin, dificultad, maxTiempo, tipo, maxRondas, maxPlayers, ganador };
             resolve(res);
         });
     }
@@ -58,17 +66,21 @@ module.exports = class Room {
 
     avisoAnfitrion(p) {
         let index = this.getIndexJugador(p);
-        console.log("avisoAnfitrion")
-        if (index !== -1 && this.players[index].tipoUsuario === 1) {
+        console.log("avisoAnfitrion " + index + " ")
+        console.log("id: " + p)
+        let jugadores = this.getJugadores();
+        console.log(jugadores);
+        if (index !== -1 && Number(this.players[index].tipoUsuario) === 1) {
             this.players[index].setConectado(false);
 
         }
     }
 
-    conexionAnfitrion(p){
+    conexionAnfitrion(p) {
         let index = this.getIndexJugador(p);
-        console.log("avisoAnfitrion")
-        if (index !== -1 && this.players[index].tipoUsuario === 1) {
+        console.log("conexionAnfitrion " + index + " " + this.players[index].tipoUsuario)
+        console.log("id: " + p)
+        if (index !== -1 && Number(this.players[index].tipoUsuario) === 1) {
             this.players[index].setConectado(true);
 
         }
@@ -91,7 +103,7 @@ module.exports = class Room {
 
     }
 
-    borrarJugadorSala(id,anfitrion=false) {
+    borrarJugadorSala(id, anfitrion = false) {
         if (this.comprobarJugador(id)) {
             let index = this.getIndexJugador(id);
 
@@ -100,6 +112,21 @@ module.exports = class Room {
                 this.players.splice(index, 1);
             }
         }
+    }
+
+    modificarAjustesSala(data){
+        let self = this;
+        return new Promise(async function (resolve, reject) {
+
+            self.maxPlayers=data.maxPlayers;
+            self.maxRondas=data.maxRondas;
+            let a = await self.ronda.setDificultad(data.dificultad);
+
+             self.ronda.setMaxTiempo(data.maxTiempo);
+            let b = await self.ronda.setTipo(data.tipo);
+            if (a && b)
+            resolve(true);
+        });
     }
 
     getNombreJugadores() {
@@ -174,6 +201,7 @@ module.exports = class Room {
         return new Promise(async function (resolve, reject) {
             try {
                 if (self.estado === 0) {
+                    console.log("estado 0")
                     let b = await self.ronda.siguienteRonda();
                     if (b) {
                         self.setEstado(1);
@@ -183,7 +211,9 @@ module.exports = class Room {
 
                 }
                 if (self.estado === 1) {
+                    console.log("estado 1")
                     if (self.comprobarFinPartida()) {
+                        self.setAllSiguienteOff();
                         resolve(true);
                     } else if (self.ronda.getFinRonda() && !self.getSiguienteJugadores().includes(false)) {
                         let b = await self.ronda.siguienteRonda();
@@ -193,8 +223,15 @@ module.exports = class Room {
                         }
                     }
                 }
-                if (self.estado === 1) {
-
+                if (self.estado === 2 && !self.getSiguienteJugadores().includes(false)) {
+                    console.log("estado 2")
+                    self.reiniciarPartida();
+                    let b = await self.ronda.siguienteRonda();
+                    if (b) {
+                        self.setAllSiguienteOff();
+                        resolve(true);
+                    }
+                    resolve(true);
                 }
             } catch (e) {
                 console.log("ERROR! " + e)

@@ -58,7 +58,7 @@ module.exports = class Server {
 
         if (sala != null) {
             if (data.endGameMethod) {
-                sala.borrarJugadorSala(data.id,true);
+                sala.borrarJugadorSala(data.id, true);
 
                 if (this.roomsManager.borrarSala(data)) {
                     this.borrarInterval(data);
@@ -191,6 +191,23 @@ module.exports = class Server {
             let res = await sala.getInfoSala();
             console.log(data.codigoPartida);
             this.io.to(data.codigoPartida).emit('serverInfo', res);
+        } catch (e) {
+            console.log("ERROR! " + e);
+        }
+    }
+
+    async modificarAjustesSala(data) {
+        let sala = this.roomsManager.getSala(data.codigoPartida);
+
+        try {
+            console.log("modificarAjustesSala")
+            let b = await sala.modificarAjustesSala(data);
+            if (b) {
+                let res = await sala.getInfoSala();
+
+                console.log(data.codigoPartida);
+                this.io.to(data.codigoPartida).emit('serverInfo', res);
+            }
         } catch (e) {
             console.log("ERROR! " + e);
         }

@@ -37,18 +37,19 @@ module.exports = class RoomsManager {
 
     comprobarAnfitrionSala(sala) {
         let checkAnfi = false;
+        let id = -1;
         if (this.comprobarSala(sala.getCodigo())) {
             let jugadores = sala.getJugadores();
-
             for (let j = 0; j < jugadores.length; j++) {
-                if (jugadores[j].getTipoUsuario() === 1 && jugadores[j].conectado === true) {
+                if (Number(jugadores[j].getTipoUsuario()) === 1 && jugadores[j].conectado === true) {
                     checkAnfi = true;
-                    sala.borrarJugadorSala(jugadores[j].id,true)
-
+                    id = jugadores[j].id;
                     break;
                 }
             }
             if (!checkAnfi) {
+                sala.borrarJugadorSala(id,true)
+
                 console.log("borro sala!");
                 this.borrarSala2(sala.getCodigo());
 
