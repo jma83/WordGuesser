@@ -4,7 +4,7 @@ let ventanaComponent = Vue.component("ventana-component", {
   props: ["tiempoAux"],
 
     template:
-      `<div class="modal" id="myModal" tabindex="-1">
+      `<div class="modal" id="myModal1" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">

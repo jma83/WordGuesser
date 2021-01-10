@@ -1,11 +1,20 @@
+import './confirmWindowComponent.js';
+
 let headerComponent = Vue.component("header-component", {
+  props: ["eventBus"],
+  data: function () {
+    return {
+      nombre: '',
+      modalWindow: ''
+    }
+  },
   template:
     `<header>
       <nav class="mb-1 navbar navbar-expand-lg navbar-dark bg-dark">
       <router-link to="/" class="navbar-brand">
-          <img src="" width="54" height="54" class="d-inline-block align-top float-left mr-2"
+          <img src="./img/movie-icon-red.png" width="54" height="54" class="d-inline-block align-top float-left mr-3 ml-4 mb-2"
             alt="logo" />
-          <h1 class="float-left">Websockets!</h1>
+          <h1 class="float-left">MovieGuessr</h1>
         </router-link>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent-4" aria-controls="navbarSupportedContent-4" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -14,22 +23,45 @@ let headerComponent = Vue.component("header-component", {
           <ul class="navbar-nav ml-auto">
               <li class="nav-item active">
                   <router-link to="/about" class="navbar-brand">
-                      <i class="fas fa-envelope"> </i> &nbsp; About
+                      <i class="fas fa-question-circle "> </i> &nbsp; Acerca
                       <span class="sr-only">(current)</span>
                   </router-link>
               </li>
-              <li class="nav-item dropdown">
+              <li class="nav-item dropdown" v-if="this.getNombre()!==''">
                   <a class="nav-link dropdown-toggle waves-effect waves-light navbar-brand" id="navbarDropdownMenuLink-4" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                      <i class="fas fa-user"></i>  &nbsp; Profile </a>
+                      <i class="fas fa-user"></i>  &nbsp; {{this.getNombre()}} </a>
                   <div class="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4">
-                      <a class="dropdown-item waves-effect waves-light" href="">My account</a>
-                      <a class="dropdown-item waves-effect waves-light" href="">Log out</a>
+                      <router-link to="/profile" class="dropdown-item waves-effect waves-light">Mi perfil</router-link>
+                      <a v-on:click="confirmation()" class="dropdown-item waves-effect waves-light" >Salir</a>
+                      
                   </div>
               </li>
           </ul>
       </div>
   </nav>
-  </header>`
+  <confirm-window-component v-on:logout="this.borrarSession" v-on:cerrarVentana="this.confirmation"></confirm-window-component>
+  </header>`,
+  mounted() {
+    if (localStorage.getItem("nombre") != null)
+      this.nombre = localStorage.getItem("nombre");
+    this.eventBus.$on("setNombre", () => { this.nombre = localStorage.getItem("nombre");});
+
+    this.modalWindow = new mdb.Modal(document.getElementById('exampleCentralModal1'));
+  },
+  methods: {
+    getNombre() {
+      return this.nombre;
+    },
+    confirmation(){
+      this.modalWindow.toggle();
+    },
+    borrarSession() {
+      console.log("holi=?")
+      sessionStorage.clear();
+      localStorage.clear();
+      location.reload();
+    }
+  }
 });
 
 export default {

@@ -5,6 +5,7 @@ import ConnectionEvents from '../connectionEvents.js';
 
 
 let gameComponent = Vue.component("game-component", {
+    props: ["eventBus"],
     data: function () {
         return {
             startedGame: false,
@@ -73,6 +74,11 @@ let gameComponent = Vue.component("game-component", {
             sessionStorage.setItem("partida_modo", this.modo);
             sessionStorage.setItem("partida_nombre", this.nombre);
             this.responsive();
+
+            if (this.checkValid(localStorage.getItem("nombre"))){
+                console.log("setNombre")
+                this.eventBus.$emit("setNombre");
+            }
         },
         endGame() {
             this.startedGame = false;

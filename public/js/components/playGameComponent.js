@@ -79,7 +79,7 @@ let playGameComponent = Vue.component("play-game-component", {
         } else if (Number(this.mode) === 1) {
             this.host = "Anfitrión";
         }
-        this.modalWindow = new mdb.Modal(document.getElementById('myModal'));
+        this.modalWindow = new mdb.Modal(document.getElementById('myModal1'));
 
     },
     updated() {
@@ -124,7 +124,6 @@ let playGameComponent = Vue.component("play-game-component", {
 
             let slider = document.getElementById("sliderTiempo");
             this.tiempoAux = slider.value = this.serverInfo.maxTiempo;
-            console.log("this.serverInfo.maxTiempo " + this.serverInfo.maxTiempo)
 
             let tipoRadio = document.getElementsByClassName("tipoRadio");
             tipoRadio.forEach(element => {
