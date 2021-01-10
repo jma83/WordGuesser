@@ -19,8 +19,8 @@ let headerComponent = Vue.component("header-component", {
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent-4" aria-controls="navbarSupportedContent-4" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent-4">
-          <ul class="navbar-nav ml-auto">
+      <div class=" navbar-collapse" id="navbarSupportedContent-4">
+          <ul class="navbar-nav ml-auto justify-content-end align-items-end">
               <li class="nav-item active">
                   <router-link to="/about" class="navbar-brand">
                       <i class="fas fa-question-circle "> </i> &nbsp; Acerca
@@ -44,7 +44,7 @@ let headerComponent = Vue.component("header-component", {
   mounted() {
     if (localStorage.getItem("nombre") != null)
       this.nombre = localStorage.getItem("nombre");
-    this.eventBus.$on("setNombre", () => { this.nombre = localStorage.getItem("nombre");});
+    this.eventBus.$on("setNombre", () => { this.nombre = localStorage.getItem("nombre"); });
 
     this.modalWindow = new mdb.Modal(document.getElementById('exampleCentralModal1'));
   },
@@ -52,7 +52,7 @@ let headerComponent = Vue.component("header-component", {
     getNombre() {
       return this.nombre;
     },
-    confirmation(){
+    confirmation() {
       this.modalWindow.toggle();
     },
     borrarSession() {
@@ -60,7 +60,7 @@ let headerComponent = Vue.component("header-component", {
       sessionStorage.clear();
       localStorage.clear();
       location.reload();
-    }
+    },
   }
 });
 

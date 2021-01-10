@@ -24,16 +24,18 @@ module.exports = class Server {
             this.roomsManager.crearSala(data);
             if (sala == null) sala = this.roomsManager.getSala(data.codigoPartida);
 
-            if (!reenter)
-                if (!sala.crearJugadorSala(data))
+            if (!reenter){
+                if (!sala.crearJugadorSala(data)){
                     this.io.to(data.id).emit('sala_no_valida', data);
+                }
+            }
 
             sala.conexionAnfitrion(data.id);
             console.log("conexion_sala " + data.codigoPartida);
             console.log("id " + data.id);
             socket.join(data.codigoPartida);
 
-            this.io.to(data.codigoPartida).emit('conexion_sala', data);
+            this.io.to(data.codigoPartida).emit('conexion_sala', data, reenter);
 
             try {
                 this.emitirListPlayer(sala, data);

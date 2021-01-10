@@ -29,9 +29,10 @@ export default class ConnectionEvents {
         });
     }
     conexion_sala() {
-        this.socket.on("conexion_sala", (data) => {
-            let chat = document.getElementById(this.chatStr);
-            if (chat !== null)
+        this.socket.on("conexion_sala", (data,reenter) => {
+            let chat = document.getElementById(this.chatStr); 
+            console.log(data.tipoUsuario)
+            if (chat !== null && (reenter==false || reenter==true && Number(data.tipoUsuario)===1))
                 chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> se ha unido a la partida!</i></p>";
         });
     }

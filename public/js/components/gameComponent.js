@@ -23,7 +23,7 @@ let gameComponent = Vue.component("game-component", {
                 <selection-component v-on:start="startGame"></selection-component>
             </div>
             <div v-else>
-                <play-game-component ref="playgame" v-bind:name="nombre" v-bind:code="getCode()" v-bind:mode="modo" v-bind:socket="connection.socket" v-bind:socketid="getId()" v-bind:serverInfo="serverInfo" v-on:decreaseTime="decreaseTime" v-on:end="endGame" v-on:setServerInfo="setServerInfo"></play-game-component>
+                <play-game-component ref="playgame" v-bind:name="nombre" v-bind:code="getCode()" v-bind:mode="modo" v-bind:socket="connection.socket" v-bind:socketid="getId()" v-bind:serverInfo="serverInfo" v-on:decreaseTime="decreaseTime" v-on:end="endGame" v-on:setServerInfo="setServerInfo" v-on:actualizarPerfil="actualizarPerfil"></play-game-component>
             </div>
         </div>
     </div>`,
@@ -82,12 +82,14 @@ let gameComponent = Vue.component("game-component", {
         },
         endGame() {
             this.startedGame = false;
-            this.responsive();
+            this.nombre = null;
             this.serverInfo = this.initServerInfo();
             sessionStorage.clear();
             this.connection.startConnection();
             this.connection.restartValues();
             this.event = new ConnectionEvents(this.connection);
+            this.responsive();
+
         },
         getCode() {
             if (this.checkValid(this.connection.getCode()))
@@ -134,6 +136,9 @@ let gameComponent = Vue.component("game-component", {
                 maxRondas: 6,
                 maxPlayers: 4
             }
+        },
+        actualizarPerfil(){
+            this.eventBus.$emit("actualizarPerfil");
         },
         decreaseTime() {
             this.serverInfo.tiempo--;

@@ -1,6 +1,6 @@
 let welcomeComponent = Vue.component("welcome-component", {
-    template:
-      `
+  template:
+    `
       <div class="d-flex justify-content-center align-items-center">
         <div class="text-center">
             <h1 class=" text-one" style="color: #6a8255 ;">¡Bienvenid@!</h1>
@@ -11,9 +11,12 @@ let welcomeComponent = Vue.component("welcome-component", {
             <router-link to="/game" class="btn btn-danger text-white btn-rounded btn-lg mt-4" href=""><i
                     class="fas fa-play"></i> JUGAR</router-link>
         </div>
-      </div>`
-  });
-  
-  export default welcomeComponent;
+      </div>`,
+      mounted() {
+          document.getElementById("footer").style.position = "absolute";
+      }
+});
+
+export default welcomeComponent;
 
 

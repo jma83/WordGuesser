@@ -89,12 +89,6 @@ let playGameComponent = Vue.component("play-game-component", {
             this.emitir('conexion_sala');
         }
     },
-    deactivated() {
-        this.endGameEvent();
-    },
-    beforeUnmount() {
-        this.endGameEvent();
-    },
     methods: {
         ajustes() {
             document.getElementById('sliderTiempo').value = this.serverInfo.maxTiempo;
@@ -132,6 +126,48 @@ let playGameComponent = Vue.component("play-game-component", {
                     element.checked = true;
                 }
             });
+        },
+        comprobarFinPartida(data){
+            console.log("holi111")
+            if (data.fin && localStorage.getItem("nombre") != null){
+                if (data.ganador.id === this.getId()){
+                    let victorias = localStorage.getItem("victorias")
+                    if (victorias!=null){
+                        victorias++;
+                        localStorage.setItem("victorias",victorias);
+                    }else{
+                        localStorage.setItem("victorias",1);
+                    }
+                }
+
+                console.log("winner: " + data.ganador)
+                let partidas = localStorage.getItem("partidas")
+                if (partidas!=null){
+                    partidas++;
+                    localStorage.setItem("partidas",partidas);
+                }else{
+                    localStorage.setItem("partidas",1);
+                }
+
+                let puntuacion = localStorage.getItem("puntuacion");
+                let puntuacionActual = 0;
+                for (let i = 0;i<this.players.length;i++){
+                    if (this.players[i].id===this.getId()){
+                        puntuacionActual = this.players[i].puntos;
+                    }
+                }
+
+                if (puntuacion!=null){
+                    if (puntuacionActual > puntuacion){
+                        localStorage.setItem("puntuacion",puntuacionActual);
+                    }
+                }else{
+                    localStorage.setItem("puntuacion",puntuacionActual);
+                }
+                console.log("holi111222")
+
+                this.$emit("actualizarPerfil", {});
+            }
         },
         setTiempo(t){
             this.tiempoAux = t;
@@ -191,6 +227,7 @@ let playGameComponent = Vue.component("play-game-component", {
                 );
             }
         },
+        
         borrarInterval() {
             if (this.intervalID != null) {
                 clearInterval(this.intervalID);
@@ -226,6 +263,7 @@ let playGameComponent = Vue.component("play-game-component", {
                 console.log('serverInfo' + data.palabra)
                 this.$emit("setServerInfo", data);
                 this.crearInterval();
+                this.comprobarFinPartida(data);
 
             });
         },
