@@ -51,7 +51,7 @@ let playGameComponent = Vue.component("play-game-component", {
                 <div class=" col-10 col-md-4 align-self-start p-2 ">
                     <player-info-component v-bind:id="this.getId()" v-bind:serverInfo="this.serverInfo" v-bind:players="players" v-if="this.serverInfo.estado === 1"></player-info-component>
                     <ver-ajustes-component v-if="this.serverInfo.estado !== 1" v-bind:serverInfo="this.serverInfo"></ver-ajustes-component>
-                    </div>
+                </div>
                 <form class="col-10 col-md-3 mt-2 p-2 align-self-start">
                     <div class="form-group">
                         <label for="name" >Chat de respuestas: </label>
@@ -128,8 +128,9 @@ let playGameComponent = Vue.component("play-game-component", {
             });
         },
         comprobarFinPartida(data){
-            console.log("holi111")
-            if (data.fin && localStorage.getItem("nombre") != null){
+            if (data.fin && localStorage.getItem("nombre") != null && localStorage.getItem("codigo_partida")==null){
+                localStorage.setItem("codigo_partida",true);
+                this.end=true;
                 if (data.ganador.id === this.getId()){
                     let victorias = localStorage.getItem("victorias")
                     if (victorias!=null){
@@ -140,8 +141,7 @@ let playGameComponent = Vue.component("play-game-component", {
                     }
                 }
 
-                console.log("winner: " + data.ganador)
-                let partidas = localStorage.getItem("partidas")
+                let partidas = localStorage.getItem("partidas");
                 if (partidas!=null){
                     partidas++;
                     localStorage.setItem("partidas",partidas);
@@ -164,7 +164,6 @@ let playGameComponent = Vue.component("play-game-component", {
                 }else{
                     localStorage.setItem("puntuacion",puntuacionActual);
                 }
-                console.log("holi111222")
 
                 this.$emit("actualizarPerfil", {});
             }

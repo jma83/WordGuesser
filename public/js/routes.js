@@ -4,12 +4,11 @@ import gameComponent from './components/gameComponent.js';
 import profileComponent from './components/profileComponent.js';
 
 
-let eventBus = new Vue();
 const routes = [
   { path: '/', component: welcomeComponent, exact: true },
-  { path: '/game', component: gameComponent, props: {eventBus} },
+  { path: '/game', component: gameComponent, props: true },
   { path: '/about', component: about },
-  { path: '/profile', component: profileComponent, props: {eventBus} }
+  { path: '/profile', component: profileComponent, props: true }
 ]
 
 let router = new VueRouter({
@@ -17,4 +16,4 @@ let router = new VueRouter({
 })
 
 
-export default {router,eventBus};
+export default router;
