@@ -73,9 +73,15 @@ let profileComponent = Vue.component("profile-component", {
             this.partidas = localStorage.getItem("partidas");
             if (localStorage.getItem("puntuacion")!=null)
             this.puntuacion = localStorage.getItem("puntuacion");
-            this.ratio = Math.trunc((this.victorias * 100) / this.partidas);
-            var d = new Date();
-            this.fecha = d.toUTCString();
+            if (Number(this.partidas)!==0)
+                this.ratio = Math.trunc((this.victorias * 100) / this.partidas);
+            
+
+            if (localStorage.getItem("fecha")!=null){
+                this.fecha = d.toUTCString();
+            }else{
+                this.fecha = "Sin partidas";
+            }
         },
     }
 });

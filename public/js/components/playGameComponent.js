@@ -127,48 +127,58 @@ let playGameComponent = Vue.component("play-game-component", {
                 }
             });
         },
-        comprobarFinPartida(data){
-            if (data.fin && localStorage.getItem("nombre") != null && localStorage.getItem("codigo_partida")==null){
-                localStorage.setItem("codigo_partida",true);
-                this.end=true;
-                if (data.ganador.id === this.getId()){
+        comprobarFinPartida(data) {
+            if (data.fin && localStorage.getItem("nombre") != null && (localStorage.getItem("codigo_partida") == null || localStorage.getItem("codigo_partida") == false)) {
+                localStorage.setItem("codigo_partida", true);
+                this.end = true;
+                if (data.ganador.id === this.getId()) {
                     let victorias = localStorage.getItem("victorias")
-                    if (victorias!=null){
+                    if (victorias != null) {
                         victorias++;
-                        localStorage.setItem("victorias",victorias);
-                    }else{
-                        localStorage.setItem("victorias",1);
+                        localStorage.setItem("victorias", victorias);
+                    } else {
+                        localStorage.setItem("victorias", 1);
                     }
                 }
 
                 let partidas = localStorage.getItem("partidas");
-                if (partidas!=null){
+                if (partidas != null) {
                     partidas++;
-                    localStorage.setItem("partidas",partidas);
-                }else{
-                    localStorage.setItem("partidas",1);
+                    localStorage.setItem("partidas", partidas);
+                } else {
+                    localStorage.setItem("partidas", 1);
                 }
 
                 let puntuacion = localStorage.getItem("puntuacion");
                 let puntuacionActual = 0;
-                for (let i = 0;i<this.players.length;i++){
-                    if (this.players[i].id===this.getId()){
+                for (let i = 0; i < this.players.length; i++) {
+                    if (this.players[i].id === this.getId()) {
                         puntuacionActual = this.players[i].puntos;
                     }
                 }
 
-                if (puntuacion!=null){
-                    if (puntuacionActual > puntuacion){
-                        localStorage.setItem("puntuacion",puntuacionActual);
+                if (puntuacion != null) {
+                    if (puntuacionActual > puntuacion) {
+                        localStorage.setItem("puntuacion", puntuacionActual);
                     }
-                }else{
-                    localStorage.setItem("puntuacion",puntuacionActual);
+                } else {
+                    localStorage.setItem("puntuacion", puntuacionActual);
+                }
+
+                let date = d.toUTCString();
+
+                if (date != null) {
+                    localStorage.setItem("fecha", date);
                 }
 
                 this.$emit("actualizarPerfil", {});
+            }else{
+                if (localStorage.getItem("codigo_partida") == true){
+                    localStorage.setItem("codigo_partida", false);
+                }
             }
         },
-        setTiempo(t){
+        setTiempo(t) {
             this.tiempoAux = t;
         },
         endGameEvent() {
@@ -226,7 +236,7 @@ let playGameComponent = Vue.component("play-game-component", {
                 );
             }
         },
-        
+
         borrarInterval() {
             if (this.intervalID != null) {
                 clearInterval(this.intervalID);

@@ -14,6 +14,7 @@ let welcomeComponent = Vue.component("welcome-component", {
       </div>`,
       mounted() {
           document.getElementById("footer").style.position = "absolute";
+          sessionStorage.setItem("inicio", true);
       }
 });
 

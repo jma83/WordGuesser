@@ -13,7 +13,8 @@ let gameComponent = Vue.component("game-component", {
             modo: -1,
             connection: new Conexion(),
             event: '',
-            serverInfo: this.initServerInfo()
+            serverInfo: this.initServerInfo(),
+            checkVolver: false
         }
     },
     template: `
@@ -61,6 +62,10 @@ let gameComponent = Vue.component("game-component", {
     methods: {
 
         startGame(dat) {
+            if (this.checkVolver){
+                this.event = new ConnectionEvents(this.connection);
+                this.checkVolver = false;
+            }
             this.startedGame = true;
             this.modo = Number(dat.modo);
             this.nombre = dat.nombre;
@@ -87,7 +92,7 @@ let gameComponent = Vue.component("game-component", {
             sessionStorage.clear();
             this.connection.startConnection();
             this.connection.restartValues();
-            this.event = new ConnectionEvents(this.connection);
+            this.checkVolver = true;
             this.responsive();
 
         },

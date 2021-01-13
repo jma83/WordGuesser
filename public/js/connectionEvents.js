@@ -1,19 +1,27 @@
 
 export default class ConnectionEvents {
 
-    
+
 
     constructor(connection) {
-        this.connection = connection;
-        this.socket = connection.socket;
-        this.mensaje_chat();
-        this.conexion_sala();
-        this.desconexion_sala();
-        this.conexion();
-        this.sala_no_valida();
-        this.beforeunload();
-        this.chatStr = "chat";
-        this.gameStr = "maingame";
+        console.log(connection)
+        console.log("partida_sesion:" + sessionStorage.getItem("partida_sesion") )
+        if (sessionStorage.getItem("partida_sesion") === null) {
+
+            this.connection = connection;
+            this.socket = connection.socket;
+            this.mensaje_chat();
+            this.conexion_sala();
+            this.desconexion_sala();
+            this.conexion();
+            this.sala_no_valida();
+            this.beforeunload();
+            this.chatStr = "chat";
+            this.gameStr = "maingame";
+            sessionStorage.setItem("partida_sesion", true);
+            sessionStorage.removeItem("inicio");
+        }
+
     }
 
     mensaje_chat() {
@@ -29,10 +37,11 @@ export default class ConnectionEvents {
         });
     }
     conexion_sala() {
-        this.socket.on("conexion_sala", (data,reenter) => {
-            let chat = document.getElementById(this.chatStr); 
+        this.socket.on("conexion_sala", (data, reenter) => {
+            console.log("holaaaa")
+            let chat = document.getElementById(this.chatStr);
             console.log(data.tipoUsuario)
-            if (chat !== null && (reenter==false || reenter==true && Number(data.tipoUsuario)===1))
+            if (chat !== null && (reenter == false || reenter == true && Number(data.tipoUsuario) === 1))
                 chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> se ha unido a la partida!</i></p>";
         });
     }
@@ -105,7 +114,7 @@ export default class ConnectionEvents {
 
             if (nombre !== null && nombre !== undefined)
                 this.socket.emit('desconexion_sala', { id, codigoPartida, nombre, modo, endGameMethod });
-
+            sessionStorage.removeItem("partida_sesion");
         });
     }
 }
