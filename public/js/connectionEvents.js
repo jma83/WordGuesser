@@ -19,7 +19,6 @@ export default class ConnectionEvents {
             this.chatStr = "chat";
             this.gameStr = "maingame";
             sessionStorage.setItem("partida_sesion", true);
-            sessionStorage.removeItem("inicio");
         }
 
     }

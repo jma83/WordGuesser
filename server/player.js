@@ -46,4 +46,8 @@ module.exports = class Player {
         console.log("!!!!!!!*setConectado " + b)
         this.conectado = b;
     }
+
+    resetPuntos(){
+        this.puntos = 0;
+    }
 }

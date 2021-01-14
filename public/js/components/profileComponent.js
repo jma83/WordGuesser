@@ -76,9 +76,8 @@ let profileComponent = Vue.component("profile-component", {
             if (Number(this.partidas)!==0)
                 this.ratio = Math.trunc((this.victorias * 100) / this.partidas);
             
-
             if (localStorage.getItem("fecha")!=null){
-                this.fecha = d.toUTCString();
+                this.fecha = localStorage.getItem("fecha");
             }else{
                 this.fecha = "Sin partidas";
             }

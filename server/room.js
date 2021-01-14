@@ -161,6 +161,11 @@ module.exports = class Room {
         return aciertos;
     }
 
+    resetPuntosJugadores(){
+        for (let i = 0; i < this.players.length; i++)
+            this.players[i].resetPuntos();;
+    }
+
     getPuntosJugadores() {
         let puntos = [];
         for (let i = 0; i < this.players.length; i++)
@@ -277,6 +282,8 @@ module.exports = class Room {
         this.ronda.setRonda(0);
         this.ronda.setFinRonda(false);
         this.setFin(false);
+        this.ganador = null;
+        this.resetPuntosJugadores();
     }
 
     finalizarPartida() {

@@ -128,7 +128,7 @@ let playGameComponent = Vue.component("play-game-component", {
             });
         },
         comprobarFinPartida(data) {
-            if (data.fin && localStorage.getItem("nombre") != null && (localStorage.getItem("codigo_partida") == null || localStorage.getItem("codigo_partida") == false)) {
+            if (data.fin && localStorage.getItem("nombre") != null && (localStorage.getItem("codigo_partida") == null)) {
                 localStorage.setItem("codigo_partida", true);
                 this.end = true;
                 if (data.ganador.id === this.getId()) {
@@ -164,7 +164,7 @@ let playGameComponent = Vue.component("play-game-component", {
                 } else {
                     localStorage.setItem("puntuacion", puntuacionActual);
                 }
-
+                var d = new Date();
                 let date = d.toUTCString();
 
                 if (date != null) {
@@ -173,8 +173,8 @@ let playGameComponent = Vue.component("play-game-component", {
 
                 this.$emit("actualizarPerfil", {});
             }else{
-                if (localStorage.getItem("codigo_partida") == true){
-                    localStorage.setItem("codigo_partida", false);
+                if (!data.fin && localStorage.getItem("codigo_partida") !== null){
+                    localStorage.removeItem("codigo_partida");
                 }
             }
         },
