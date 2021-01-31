@@ -1,3 +1,4 @@
+import RoomClient from './roomClient.js'
 
 export default class ConnectionEvents {
 
@@ -5,26 +6,34 @@ export default class ConnectionEvents {
 
     constructor(connection) {
         console.log(connection)
-        console.log("partida_sesion:" + sessionStorage.getItem("partida_sesion") )
-        if (sessionStorage.getItem("partida_sesion") === null) {
-
-            this.connection = connection;
-            this.socket = connection.socket;
+        console.log("partida_sesion:" + sessionStorage.getItem("partida_sesion"))
+        this.chatStr = "chat";
+        this.gameStr = "maingame";
+        this.roomClient = new RoomClient();
+        this.idmsg = 0;
+        this.players = [];
+        
+        this.connection = connection;
+        this.socket = connection.socket;
+        //if (sessionStorage.getItem("partida_sesion") === null) {
+            console.log("partida sesion!")
+            
             this.mensaje_chat();
             this.conexion_sala();
             this.desconexion_sala();
             this.conexion();
             this.sala_no_valida();
             this.beforeunload();
-            this.chatStr = "chat";
-            this.gameStr = "maingame";
+            this.updatePlayers();
+            this.updateServerInfo();
+
+
             sessionStorage.setItem("partida_sesion", true);
-        }
 
     }
 
     mensaje_chat() {
-        this.socket.on("mensaje_chat", (data) => {
+        this.socket.on("mensaje_chat",  (data) => {
             let chat = document.getElementById(this.chatStr);
             if (chat !== null) {
                 if (!data.acierto) {
@@ -36,7 +45,7 @@ export default class ConnectionEvents {
         });
     }
     conexion_sala() {
-        this.socket.on("conexion_sala", (data, reenter) => {
+        this.socket.on("conexion_sala",  (data, reenter) => {
             console.log("holaaaa")
             let chat = document.getElementById(this.chatStr);
             console.log(data.tipoUsuario)
@@ -45,14 +54,14 @@ export default class ConnectionEvents {
         });
     }
     desconexion_sala() {
-        this.socket.on("desconexion_sala", (data) => {
+        this.socket.on("desconexion_sala",  (data) => {
             let chat = document.getElementById(this.chatStr);
             if (chat !== null)
                 chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> se ha desconectado de la partida!</i></p>";
         });
     }
     conexion() {
-        this.socket.on("conexion", (data) => {
+        this.socket.on("conexion",  (data) => {
             let code = data.substr(0, 5);
             this.connection.setCode(code);
             //this.connection.setId(this.socket.id);
@@ -60,8 +69,35 @@ export default class ConnectionEvents {
         });
     }
 
+    updatePlayers() {
+        this.socket.on("listPlayers",  (p) => {
+            console.log("listPlayers???? ")
+            console.log(p)
+            this.players = [];
+            for (let i = 0; i < p.listPlayers.length; i++) {
+                let id = p.listIds[i];
+                let nombre = p.listPlayers[i];
+                let siguiente = p.listSiguiente[i];
+                let acierto = p.listAcierto[i];
+                let puntos = p.listPuntos[i];
+
+                console.log("nombre: " + nombre)
+                this.players.push({ id, nombre, siguiente, acierto, puntos });
+            }
+        });
+    }
+    updateServerInfo() {
+        this.socket.on("serverInfo", (data) => {
+            console.log('serverInfo' + data.palabra);
+            this.roomClient.setValues(data);
+            this.roomClient.crearInterval();
+            this.roomClient.comprobarFinPartida(data,this.players);
+
+        });
+    }
+
     sala_no_valida() {
-        this.socket.on("sala_no_valida", () => {
+        this.socket.on("sala_no_valida",  () => {
 
             console.log("sala no valida!!!")
 
@@ -97,6 +133,9 @@ export default class ConnectionEvents {
 
         });
     }
+
+    
+
     beforeunload() {
         window.addEventListener('beforeunload', () => {
             let modo = sessionStorage.getItem("partida_modo");
@@ -105,15 +144,74 @@ export default class ConnectionEvents {
             let endGameMethod = false;
             let id = this.connection.getId() || this.socket.id;
 
-            /*if (Number(modo) === 0) {
-                tipoUsuario = "Invitado";
-            } else if (Number(modo) === 1) {
-                tipoUsuario = "Anfitrión";
-            }*/
-
             if (nombre !== null && nombre !== undefined)
                 this.socket.emit('desconexion_sala', { id, codigoPartida, nombre, modo, endGameMethod });
             sessionStorage.removeItem("partida_sesion");
         });
     }
+
+    setCurrent(name, mode) {
+        this.currentName = name;
+        this.currentMode = mode;
+    }
+    connectRoom() {
+        this.emitir('conexion_sala');
+
+    }
+    disconectRoom() {
+        this.removeListeners();
+        this.emitir('desconexion_sala');
+    }
+
+    removeListeners(){
+        
+        this.socket.off('serverInfo');
+        this.socket.off('sala_no_valida');
+        this.socket.off('conexion');
+        this.socket.off('desconexion_sala');
+        this.socket.off('conexion_sala');
+        this.socket.off('mensaje_chat');
+        this.socket.off('listPlayers');
+    }
+
+    siguiente() {
+        this.emitir('siguiente');
+
+    }
+
+    enviarTexto() {
+        let mensaje = document.getElementById("mensaje").value;
+        let nombre = this.currentName;
+        let codigoPartida = this.connection.getCode().substr(0, 5) || sessionStorage.getItem("partida_codigo");
+        let acierto = false;
+        let puntos = 0;
+        let id = this.getId();
+        if (mensaje !== "" && mensaje !== null) {
+            let idmsg = this.idmsg;
+            document.getElementById("mensaje").value = "";
+            this.socket.emit('mensaje', { id, idmsg, codigoPartida, nombre, mensaje, acierto, puntos });
+            this.idmsg++;
+        }
+        document.getElementById("mensaje").focus();
+
+    }
+
+
+    emitir(str) {
+        console.log("emitir")
+        let codigoPartida = this.connection.getCode().substr(0, 5) || sessionStorage.getItem("partida_codigo");
+        let tipoUsuario = this.currentMode;
+        let nombre = this.currentName;
+        let id = this.getId();
+        let estado = this.roomClient.data.estado;
+        let endGameMethod = true;
+        let data = { id, codigoPartida, nombre, tipoUsuario, endGameMethod, estado };
+        console.log(data);
+        this.socket.emit(str, data);
+    }
+
+    getId() {
+        return this.connection.getId() || this.socket.id;
+    }
+
 }

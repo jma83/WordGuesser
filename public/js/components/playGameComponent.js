@@ -6,16 +6,12 @@ import './ventanaComponent.js';
 import './verAjustesComponent.js';
 
 let playGameComponent = Vue.component("play-game-component", {
-    props: ["name", "code", "mode", "socket", "socketid", "serverInfo"],
+    props: ["name", "code", "mode", "socket", "socketid", "serverInfo","players"],
     data: function () {
         return {
-            //gm: new GameManager(this.dificultad),
-            idmsg: 0,
-            victorias: 3,
             host: '',
             msgCabecera: "Encuentra la palabra oculta!",
             descripcion: "Bienvenido al chat! Aqui quedarán registrados los mensajes y respuestas de todos los usuarios!",
-            players: [],
             connected: false,
             intervalID: null,
             modalWindow: null,
@@ -68,11 +64,6 @@ let playGameComponent = Vue.component("play-game-component", {
         </div>       
         <ventana-component v-on:setTiempo="this.setTiempo" v-on:ajustes="ajustes" v-on:modificarAjustesSala="modificarAjustesSala" v-bind:tiempoAux="this.tiempoAux"></ventana-component> 
   </div>`,
-    created() {
-        this.getPlayers();
-        this.getServerInfo();
-
-    },
     mounted() {
         if (Number(this.mode) === 0) {
             this.host = "Invitado";
@@ -86,7 +77,7 @@ let playGameComponent = Vue.component("play-game-component", {
         let id = this.getId();
         if (id != null && id !== '' && this.connected === false && this.code !== '' && this.serverInfo.estado === 0) {
             this.connected = true;
-            this.emitir('conexion_sala');
+            this.$emit('connectRoom');
         }
     },
     methods: {
@@ -127,84 +118,18 @@ let playGameComponent = Vue.component("play-game-component", {
                 }
             });
         },
-        comprobarFinPartida(data) {
-            if (data.fin && localStorage.getItem("nombre") != null && (localStorage.getItem("codigo_partida") == null)) {
-                localStorage.setItem("codigo_partida", true);
-                this.end = true;
-                if (data.ganador.id === this.getId()) {
-                    let victorias = localStorage.getItem("victorias")
-                    if (victorias != null) {
-                        victorias++;
-                        localStorage.setItem("victorias", victorias);
-                    } else {
-                        localStorage.setItem("victorias", 1);
-                    }
-                }
-
-                let partidas = localStorage.getItem("partidas");
-                if (partidas != null) {
-                    partidas++;
-                    localStorage.setItem("partidas", partidas);
-                } else {
-                    localStorage.setItem("partidas", 1);
-                }
-
-                let puntuacion = localStorage.getItem("puntuacion");
-                let puntuacionActual = 0;
-                for (let i = 0; i < this.players.length; i++) {
-                    if (this.players[i].id === this.getId()) {
-                        puntuacionActual = this.players[i].puntos;
-                    }
-                }
-
-                if (puntuacion != null) {
-                    if (puntuacionActual > puntuacion) {
-                        localStorage.setItem("puntuacion", puntuacionActual);
-                    }
-                } else {
-                    localStorage.setItem("puntuacion", puntuacionActual);
-                }
-                var d = new Date();
-                let date = d.toUTCString();
-
-                if (date != null) {
-                    localStorage.setItem("fecha", date);
-                }
-
-                this.$emit("actualizarPerfil", {});
-            }else{
-                if (!data.fin && localStorage.getItem("codigo_partida") !== null){
-                    localStorage.removeItem("codigo_partida");
-                }
-            }
-        },
         setTiempo(t) {
             this.tiempoAux = t;
         },
         endGameEvent() {
-            this.emitir('desconexion_sala');
-            this.borrarInterval();
             this.connected = false;
             this.$emit("end", {});
         },
         enviarTexto() {
-            let mensaje = document.getElementById("mensaje").value;
-            let nombre = this.name;
-            let codigoPartida = this.code;
-            let acierto = false;
-            let puntos = 0;
-            let id = this.getId();
-            if (mensaje !== "" && mensaje !== null) {
-                let idmsg = this.idmsg;
-                document.getElementById("mensaje").value = "";
-                this.socket.emit('mensaje', { id, idmsg, codigoPartida, nombre, mensaje, acierto, puntos });
-                this.idmsg++;
-            }
-            document.getElementById("mensaje").focus();
-
+            this.$emit('enviarTexto');
         },
         siguiente() {
-            this.emitir('siguiente');
+            this.$emit('siguiente');
         },
         modificarAjustesSala() {
             this.ajustes();
@@ -225,67 +150,6 @@ let playGameComponent = Vue.component("play-game-component", {
 
 
         },
-        crearInterval() {
-            if (this.serverInfo.finRonda === false && this.intervalID === null) {
-                this.intervalID = setInterval(
-                    (function (self) {
-                        return function () {
-                            self.decreaseTime();
-                        }
-                    })(this), 1000
-                );
-            }
-        },
-
-        borrarInterval() {
-            if (this.intervalID != null) {
-                clearInterval(this.intervalID);
-                this.intervalID = null;
-            }
-        },
-        decreaseTime() {
-            if (this.serverInfo.tiempo > 0) {
-                this.$emit("decreaseTime", {});
-            } else {
-                this.borrarInterval();
-            }
-        },
-        getPlayers() {
-            this.socket.on("listPlayers", (p) => {
-                console.log("listPlayers ")
-                console.log(p)
-                this.players = [];
-                for (let i = 0; i < p.listPlayers.length; i++) {
-                    let id = p.listIds[i];
-                    let nombre = p.listPlayers[i];
-                    let siguiente = p.listSiguiente[i];
-                    let acierto = p.listAcierto[i];
-                    let puntos = p.listPuntos[i];
-
-                    console.log("nombre: " + nombre)
-                    this.players.push({ id, nombre, siguiente, acierto, puntos });
-                }
-            });
-        },
-        getServerInfo() {
-            this.socket.on("serverInfo", (data) => {
-                console.log('serverInfo' + data.palabra)
-                this.$emit("setServerInfo", data);
-                this.crearInterval();
-                this.comprobarFinPartida(data);
-
-            });
-        },
-        emitir(str) {
-            let codigoPartida = this.code;
-            let tipoUsuario = this.mode;
-            let nombre = this.name;
-            let id = this.getId();
-            let estado = this.serverInfo.estado;
-            let endGameMethod = true;
-            this.socket.emit(str, { id, codigoPartida, nombre, tipoUsuario, endGameMethod, estado });
-        },
-
         getId() {
             return this.socketid || this.socket.id;
         }

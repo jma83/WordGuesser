@@ -15,6 +15,7 @@ let lobbyComponent = Vue.component("lobby-component", {
     </div>`,
 
   updated() {
+    console.log("update lobby")
     let players = document.getElementsByClassName("players");
     players.forEach(element => {
       console.log(element.getAttribute("id"))
