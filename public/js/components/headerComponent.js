@@ -1,4 +1,5 @@
 import './confirmWindowComponent.js';
+import * as ConsClass from '../constants.js'
 
 let headerComponent = Vue.component("header-component", {
   props: ["eventBus"],
@@ -42,11 +43,11 @@ let headerComponent = Vue.component("header-component", {
   <confirm-window-component v-on:logout="this.borrarSession" v-on:cerrarVentana="this.confirmation"></confirm-window-component>
   </header>`,
   mounted() {
-    if (localStorage.getItem("nombre") != null)
-      this.nombre = localStorage.getItem("nombre");
-    this.eventBus.$on("setNombre", () => { this.nombre = localStorage.getItem("nombre"); });
+    if (localStorage.getItem(ConsClass.LOCAL_NOMBRE) != null)
+      this.nombre = localStorage.getItem(ConsClass.LOCAL_NOMBRE);
+    this.eventBus.$on(ConsClass.EVENTBUS_NOMBRE, () => { this.nombre = localStorage.getItem(ConsClass.LOCAL_NOMBRE); });
 
-    this.modalWindow = new mdb.Modal(document.getElementById('exampleCentralModal1'));
+    this.modalWindow = new mdb.Modal(document.getElementById(ConsClass.CONFIRM_WIN_ELEMENT));
   },
   methods: {
     getNombre() {
@@ -56,7 +57,6 @@ let headerComponent = Vue.component("header-component", {
       this.modalWindow.toggle();
     },
     borrarSession() {
-      console.log("holi=?")
       sessionStorage.clear();
       localStorage.clear();
       location.reload();

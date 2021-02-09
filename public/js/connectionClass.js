@@ -1,5 +1,5 @@
 
-
+import * as ConsClass from './constants.js'
 
 export default class Conexion {
     socket = '';
@@ -8,24 +8,20 @@ export default class Conexion {
 
     constructor() {
         this.startConnection();
-
     }
     startConnection() {
-        console.log("startConnection")
         this.initSocket();
         this.initConection();
     }
     setCode(code, session = false) {
         if (this.code === undefined || this.code === '' || session) {
             this.code = code;
-            console.log("codigo: " + code);
         }
     }
 
     setId(id, session = false) {
         if (this.id === undefined || this.id === '' || session) {
             this.id = id;
-            console.log("id: " + id)
         }
     }
 
@@ -35,7 +31,7 @@ export default class Conexion {
 
     initConection(code = '') {
         this.code = code;
-        this.socket.emit('conexion');
+        this.socket.emit(ConsClass.CONEXION_EMIT);
     }
 
     getCode() {

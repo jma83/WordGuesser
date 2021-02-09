@@ -30,8 +30,8 @@ module.exports = class Room {
             let maxTiempo = self.ronda.getMaxTiempo();
             let tipo = await self.ronda.getTipo();
 
-            console.log("tipo: " +  tipo)
-            console.log("dificultad: " +  dificultad)
+            console.log("tipo: " + tipo)
+            console.log("dificultad: " + dificultad)
 
             let ganador = self.getGanador();
             let ronda = self.ronda.getRonda();
@@ -78,11 +78,13 @@ module.exports = class Room {
 
     conexionAnfitrion(p) {
         let index = this.getIndexJugador(p);
-        console.log("conexionAnfitrion " + index + " " + this.players[index].tipoUsuario)
-        console.log("id: " + p)
-        if (index !== -1 && Number(this.players[index].tipoUsuario) === 1) {
-            this.players[index].setConectado(true);
+        if (index < this.players.length && index >= 0) {
+            console.log("conexionAnfitrion " + index + " " + this.players[index].tipoUsuario)
+            console.log("id: " + p)
+            if (index !== -1 && Number(this.players[index].tipoUsuario) === 1) {
+                this.players[index].setConectado(true);
 
+            }
         }
     }
 
@@ -114,18 +116,18 @@ module.exports = class Room {
         }
     }
 
-    modificarAjustesSala(data){
+    modificarAjustesSala(data) {
         let self = this;
         return new Promise(async function (resolve, reject) {
 
-            self.maxPlayers=data.maxPlayers;
-            self.maxRondas=data.maxRondas;
+            self.maxPlayers = data.maxPlayers;
+            self.maxRondas = data.maxRondas;
             let a = await self.ronda.setDificultad(data.dificultad);
 
-             self.ronda.setMaxTiempo(data.maxTiempo);
+            self.ronda.setMaxTiempo(data.maxTiempo);
             let b = await self.ronda.setTipo(data.tipo);
             if (a && b)
-            resolve(true);
+                resolve(true);
         });
     }
 
@@ -161,7 +163,7 @@ module.exports = class Room {
         return aciertos;
     }
 
-    resetPuntosJugadores(){
+    resetPuntosJugadores() {
         for (let i = 0; i < this.players.length; i++)
             this.players[i].resetPuntos();;
     }

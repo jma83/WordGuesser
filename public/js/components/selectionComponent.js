@@ -1,6 +1,15 @@
+import * as ConsClass from '../constants.js'
 
 
 let selectionComponent = Vue.component("selection-component", {
+  data: function () {
+    return {
+      nombre: "",
+      codigo: "",
+      recordar: "",
+      error: ""
+    }
+  },
   template:
     `
     <div class="container">
@@ -9,22 +18,12 @@ let selectionComponent = Vue.component("selection-component", {
         <div id="seleccionInicial" class="card p-4 m-4">
           <h2 class="row p-2 justify-content-center">Indica tu nombre y a jugar!</h2>
           <form >
-            <!--
-            <div class="form-outline mb-4 ">
-              <input type="text" id="form1Example1" class="form-control border" />
-              <label class="form-label" for="form1Example1">Nombre</label>
-            </div>
-          
-            <div class="form-outline mb-4 ">
-              <input type="text" id="form1Example2" class="form-control border" />
-              <label class="form-label" for="form1Example2">Password</label>
-            </div>-->
             <div v-if="!this.comprobarLocalStorage()">
               <div class="col d-flex justify-content-center">
                 <div class="form-outline mb-4 mt-2">
-                  <input type="text" class="form-control border" id="nombre" name="nombre"/>
+                  <input type="text" class="form-control border" id="nombre" name="nombre" v-model="nombre"/>
                   <label class="form-label" for="nombre">Nombre</label>
-                  <input class="form-check-input" type="checkbox" id="recordarNombre" />
+                  <input class="form-check-input" type="checkbox" id="recordarNombre" v-model="recordar"/>
                   <label class="form-check-label" for="recordarNombre">Recordar</label>
                 </div>
               </div>
@@ -33,11 +32,11 @@ let selectionComponent = Vue.component("selection-component", {
 
             <div class="col d-flex justify-content-center">
               <div class="form-outline mb-4 ">
-                <input type="text" class="form-control border" id="codigo" name="codigo"/>
+                <input type="text" class="form-control border" id="codigo" name="codigo" v-model="codigo"/>
                 <label class="form-label" for="codigo">Código de partida</label>
               </div>
             </div>
-            <p id="error" class="text-danger"></p>
+            <p id="error" class="text-danger">{{ this.error }}</p>
 
             <div class="col d-flex justify-content-center">
               <div class="form-outline mb-2 ">
@@ -49,7 +48,6 @@ let selectionComponent = Vue.component("selection-component", {
                 <button type="submit" v-on:click.prevent="startGameEvent($event)" class="btn btn-danger btn-block" id="crear" name="crear" data-mode="1">Crear partida</button>
               </div>
             </div>
-            <!-- Submit button -->
           </form>
          
         </div>
@@ -57,52 +55,38 @@ let selectionComponent = Vue.component("selection-component", {
     </div>
   </div>`,
   methods: {
+
     startGameEvent(e) { //Al pulsar en alguno de los botones empieza el juego!
       let modo = e.target.dataset.mode;
-      let nombre = this.getNombre();
-      let recordarNombre = false;
-      if (document.getElementById("nombre") != null) {
-        nombre = document.getElementById("nombre").value;
-        let recordarNombre = document.getElementById("recordarNombre").checked;
-        if (recordarNombre) {
-          localStorage.setItem("nombre", nombre);
-        }
+      let nombre = this.getNombre() || this.nombre;
+      let codigo = this.codigo;
 
+      if (this.recordar) {
+        localStorage.setItem(ConsClass.LOCAL_NOMBRE, nombre);
       }
 
-
-      let codigo = document.getElementById("codigo").value;
-
-      console.log({ modo, nombre, codigo });
-
-
       if (nombre === "" || nombre === null) {
-        document.getElementById("error").innerText = "Error! Por favor, completa el nombre";
+        this.error = "Error! Por favor, completa el nombre";
         return -1;
       }
       if (Number(modo) === 0 && codigo === "" || codigo === null) {
-        document.getElementById("error").innerText = "Error! Por favor, completa el código de partida para unirte";
+        this.error = "Error! Por favor, completa el código de partida para unirte";
         return -1;
       }
-      this.$emit("start", { modo, nombre, codigo });
+      this.$emit(ConsClass.START_EMIT, { modo, nombre, codigo });
 
     },
 
     comprobarLocalStorage() {
-      let nombre = localStorage.getItem("nombre");
-      console.log("nombre " + nombre)
+      let nombre = localStorage.getItem(ConsClass.LOCAL_NOMBRE);
       if (nombre !== '' && nombre != null) {
-        console.log("true")
         return true;
       }
       return false;
     },
 
     getNombre() {
-      let nombre = localStorage.getItem("nombre");
-      if (nombre !== '' && nombre != null) {
-        return nombre;
-      }
+      let nombre = localStorage.getItem(ConsClass.LOCAL_NOMBRE);
       return nombre;
     }
   }

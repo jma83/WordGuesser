@@ -1,5 +1,5 @@
 
-
+import * as ConsClass from './constants.js'
 
 export default class RoomClient {
 
@@ -29,7 +29,6 @@ export default class RoomClient {
     }
 
     setValues(data) {
-        console.log("setValues! " + data.finRonda);
         let codigo = data.codigo;
         let estado = data.estado;
         let ronda = data.ronda;
@@ -51,60 +50,62 @@ export default class RoomClient {
         return this.data;
     }
 
-    comprobarFinPartida(data,players) {
-        if (data.fin && localStorage.getItem("nombre") != null && (localStorage.getItem("codigo_partida") == null)) {
-            localStorage.setItem("codigo_partida", true);
+    comprobarFinPartida(data,players,id) {
+        if (data.fin && localStorage.getItem(ConsClass.LOCAL_NOMBRE) != null && (localStorage.getItem("codigo_partida") == null)) {
+            localStorage.setItem(ConsClass.LOCAL_CODIGO, true);
             this.end = true;
-            if (data.ganador.id === this.getId()) {
-                let victorias = localStorage.getItem("victorias")
+            if (data.ganador.id === id) {
+                let victorias = localStorage.getItem(ConsClass.LOCAL_VICTORIAS)
                 if (victorias != null) {
                     victorias++;
-                    localStorage.setItem("victorias", victorias);
+                    localStorage.setItem(ConsClass.LOCAL_VICTORIAS, victorias);
                 } else {
-                    localStorage.setItem("victorias", 1);
+                    localStorage.setItem(ConsClass.LOCAL_VICTORIAS, 1);
                 }
             }
 
-            let partidas = localStorage.getItem("partidas");
+            let partidas = localStorage.getItem(ConsClass.LOCAL_PARTIDAS);
             if (partidas != null) {
                 partidas++;
-                localStorage.setItem("partidas", partidas);
+                localStorage.setItem(ConsClass.LOCAL_PARTIDAS, partidas);
             } else {
-                localStorage.setItem("partidas", 1);
+                localStorage.setItem(ConsClass.LOCAL_PARTIDAS, 1);
             }
 
-            let puntuacion = localStorage.getItem("puntuacion");
+            let puntuacion = localStorage.getItem(ConsClass.LOCAL_PUNTUACION);
             let puntuacionActual = 0;
             for (let i = 0; i < players.length; i++) {
-                if (players[i].id === this.getId()) {
+                if (players[i].id === id) {
                     puntuacionActual = players[i].puntos;
                 }
             }
 
             if (puntuacion != null) {
                 if (puntuacionActual > puntuacion) {
-                    localStorage.setItem("puntuacion", puntuacionActual);
+                    localStorage.setItem(ConsClass.LOCAL_PUNTUACION, puntuacionActual);
                 }
             } else {
-                localStorage.setItem("puntuacion", puntuacionActual);
+                localStorage.setItem(ConsClass.LOCAL_PUNTUACION, puntuacionActual);
             }
             var d = new Date();
             let date = d.toUTCString();
 
             if (date != null) {
-                localStorage.setItem("fecha", date);
+                localStorage.setItem(ConsClass.LOCAL_FECHA, date);
             }
 
             //this.$emit("actualizarPerfil", {});
         } else {
-            if (!data.fin && localStorage.getItem("codigo_partida") !== null) {
-                localStorage.removeItem("codigo_partida");
+            if (!data.fin && localStorage.getItem(ConsClass.LOCAL_CODIGO) !== null) {
+                localStorage.removeItem(ConsClass.LOCAL_CODIGO);
             }
         }
     }
 
     crearInterval() {
-        if (this.finRonda === false && this.intervalID === null) {
+        console.log("this.finRonda: "+this.data.finRonda)
+        console.log("this.intervalID: "+this.intervalID)
+        if (this.data.finRonda === false && this.intervalID === null) {
             this.intervalID = setInterval(
                 (function (self) {
                     return function () {
@@ -122,8 +123,9 @@ export default class RoomClient {
         }
     }
     decreaseTime() {
-        if (this.tiempo > 0) {
-            this.tiempo--;
+        console.log("decrease! " + this.data.tiempo)
+        if (this.data.tiempo > 0) {
+            this.data.tiempo--;
         } else {
             this.borrarInterval();
         }

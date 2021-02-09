@@ -2,7 +2,7 @@
 let confirmWindowComponent = Vue.component("confirm-window-component", {
 
     template:
-    `<div class="modal" id="exampleCentralModal1" tabindex="-1">
+    `<div class="modal" id="confirmWindow" tabindex="-1">
               <div class="modal-dialog modal-sm">
           <div class="modal-content text-center">
             <div class="modal-header bg-danger text-white d-flex justify-content-center">

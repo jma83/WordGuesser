@@ -4,7 +4,6 @@ import * as ConsClass from './constants.js'
 export default class ConnectionEvents {
 
     constructor(connection) {
-        console.log(connection)
 
         this.roomClient = new RoomClient();
         this.idmsg = 0;
@@ -80,7 +79,7 @@ export default class ConnectionEvents {
         this.socket.on(ConsClass.SERVER_INFO_SOCKET, (data) => {
             this.roomClient.setValues(data);
             this.roomClient.crearInterval();
-            this.roomClient.comprobarFinPartida(data, this.players);
+            this.roomClient.comprobarFinPartida(data, this.players, this.getId());
 
         });
     }
@@ -167,10 +166,12 @@ export default class ConnectionEvents {
 
     }
 
+    
+
     enviarTexto() {
         let mensaje = document.getElementById(ConsClass.MENSAJE_ELEMENT).value;
         let nombre = this.currentName;
-        let codigoPartida = this.connection.getCode().substr(0, 5);
+        let codigoPartida = this.getCode();
         let acierto = false;
         let puntos = 0;
         let id = this.getId();
@@ -184,10 +185,24 @@ export default class ConnectionEvents {
 
     }
 
+    modificarAjustesSala(data) {
+        if (data != null) {
+            let dificultad = data.dificultad;
+            let maxTiempo = data.maxTiempo;
+            let maxRondas = data.maxRondas;
+            let maxPlayers = data.maxPlayers;
+            let tipo = data.tipo;
+            let codigoPartida = this.getCode();
+            let id = this.getId();
+            this.socket.emit(ConsClass.MOD_AJUSTES_EMIT, { id, codigoPartida, dificultad, maxTiempo, maxRondas, maxPlayers, tipo });
+
+        }
+
+    }
+
 
     emitir(str) {
-        console.log("emitir")
-        let codigoPartida = this.connection.getCode().substr(0, 5);
+        let codigoPartida = this.getCode();
         let tipoUsuario = this.currentMode;
         let nombre = this.currentName;
         let id = this.getId();
@@ -200,6 +215,10 @@ export default class ConnectionEvents {
 
     getId() {
         return this.connection.getId() || this.socket.id;
+    }
+
+    getCode(){
+        return this.connection.getCode().substr(0, 5);
     }
 
 }

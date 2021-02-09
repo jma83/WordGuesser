@@ -1,10 +1,10 @@
 import './modAjustesComponent.js';
 
 let ventanaComponent = Vue.component("ventana-component", {
-  props: ["tiempoAux"],
+  props: ["serverInfo"],
 
     template:
-      `<div class="modal" id="myModal1" tabindex="-1">
+      `<div class="modal" id="modalAjustes" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -18,7 +18,7 @@ let ventanaComponent = Vue.component("ventana-component", {
             ></button>
           </div>
           <div class="modal-body">
-            <mod-ajustes-component v-bind:tiempoAux="this.tiempoAux"></mod-ajustes-component>
+            <mod-ajustes-component v-bind:serverInfo="this.serverInfo" v-on:modificarAjustesSala="modificarAjustesSala"></mod-ajustes-component>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-primary" id="btn-save">Guardar cambios</button>
@@ -26,21 +26,11 @@ let ventanaComponent = Vue.component("ventana-component", {
         </div>
       </div>
     </div>`,
-    mounted(){
-        document.getElementById("btn-close").addEventListener('click', () => this.cerrarVentana());
-        document.getElementById("btn-save").addEventListener('click', () => this.guardarCambios());
-        let slider = document.getElementById('sliderTiempo');
-        slider.addEventListener("change",()=>{
-          let value= document.getElementById('sliderTiempo').value;
-          this.$emit("setTiempo", value);
-        });
-    },
+
     methods: {
-        cerrarVentana(){
-            this.$emit("ajustes", {});
-        },
-        guardarCambios(){
-            this.$emit("modificarAjustesSala", {});
+
+        modificarAjustesSala(data){
+            this.$emit("modificarAjustesSala", data);
         }
         
     }

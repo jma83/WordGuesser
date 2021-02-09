@@ -2,7 +2,7 @@ import './playGameComponent.js';
 import './selectionComponent.js';
 import Conexion from '../connectionClass.js';
 import ConnectionEvents from '../connectionEvents.js';
-
+import * as ConsClass from '../constants.js'
 
 let gameComponent = Vue.component("game-component", {
     props: ["eventBus"],
@@ -23,19 +23,26 @@ let gameComponent = Vue.component("game-component", {
                 <selection-component v-on:start="startGame"></selection-component>
             </div>
             <div v-else>
-                <play-game-component ref="playgame" v-bind:name="nombre" v-bind:code="getCode()" v-bind:mode="modo" v-bind:socket="connection.socket" v-bind:socketid="getId()" v-bind:players="this.event.players" v-bind:serverInfo="this.event.roomClient.data" v-on:enviarTexto="enviarTexto" v-on:siguiente="siguiente" v-on:connectRoom="connectRoom" v-on:end="endGame" v-on:setServerInfo="setServerInfo"></play-game-component>
+                <play-game-component v-bind:code="getCode()" v-bind:mode="modo" v-bind:socketid="getId()" v-bind:players="this.event.players" v-bind:serverInfo="this.event.roomClient.data" 
+                v-on:enviarTexto="enviarTexto" 
+                v-on:siguiente="siguiente" 
+                v-on:connectRoom="connectRoom" 
+                v-on:end="endGame" 
+                v-on:setServerInfo="setServerInfo" 
+                v-on:modificarAjustesSala="modificarAjustesSala">
+                </play-game-component>
             </div>
         </div>
     </div>`,
     async created() {
-        if (this.checkValid(sessionStorage.getItem("partida_codigo")))
-            this.connection.setCode(sessionStorage.getItem("partida_codigo"), true);
-        if (this.checkValid(sessionStorage.getItem("partida_id")))
-            this.connection.setId(sessionStorage.getItem("partida_id"), true);
+        if (this.checkValid(sessionStorage.getItem(ConsClass.SESION_CODIGO)))
+            this.connection.setCode(sessionStorage.getItem(ConsClass.SESION_CODIGO), true);
+        if (this.checkValid(sessionStorage.getItem(ConsClass.SESION_ID)))
+            this.connection.setId(sessionStorage.getItem(ConsClass.SESION_ID), true);
 
         this.event = new ConnectionEvents(this.connection);
-        this.modo = sessionStorage.getItem("partida_modo");
-        this.nombre = sessionStorage.getItem("partida_nombre");
+        this.modo = sessionStorage.getItem(ConsClass.SESION_MODO);
+        this.nombre = sessionStorage.getItem(ConsClass.SESION_NOMBRE);
         this.event.setCurrent(this.nombre, this.modo);
         this.event.updatePlayers();
         this.event.updateServerInfo();
@@ -53,19 +60,18 @@ let gameComponent = Vue.component("game-component", {
     },
     updated() {
         if (this.checkValid(this.connection.getCode()))
-            sessionStorage.setItem("partida_codigo", this.connection.getCode());
+            sessionStorage.setItem(ConsClass.SESION_CODIGO, this.connection.getCode());
 
         if (this.checkValid(this.connection.getId())) {
-            sessionStorage.setItem("partida_id", this.connection.getId());
+            sessionStorage.setItem(ConsClass.SESION_ID, this.connection.getId());
         } else if (this.checkValid(this.connection.socket.id)) {
-            sessionStorage.setItem("partida_id", this.connection.socket.id);
+            sessionStorage.setItem(ConsClass.SESION_ID, this.connection.socket.id);
         }
         console.log("update")
     },
 
     beforeDestroy() {
         this.event.removeListeners();
-        console.log("remove listeners!")
     },
 
     methods: {
@@ -85,13 +91,12 @@ let gameComponent = Vue.component("game-component", {
                 this.connection.initConection();
             }
 
-            sessionStorage.setItem("partida_modo", this.modo);
-            sessionStorage.setItem("partida_nombre", this.nombre);
+            sessionStorage.setItem(ConsClass.SESION_MODO, this.modo);
+            sessionStorage.setItem(ConsClass.SESION_NOMBRE, this.nombre);
             this.responsive();
 
-            if (this.checkValid(localStorage.getItem("nombre"))) {
-                console.log("setNombre")
-                this.eventBus.$emit("setNombre");
+            if (this.checkValid(localStorage.getItem(ConsClass.LOCAL_NOMBRE))) {
+                this.eventBus.$emit(ConsClass.EVENTBUS_NOMBRE);
             }
         },
         endGame() {
@@ -117,6 +122,9 @@ let gameComponent = Vue.component("game-component", {
         enviarTexto() {
             this.event.enviarTexto();
         },
+        modificarAjustesSala(data){
+            this.event.modificarAjustesSala(data);
+        },
         getCode() {
             if (this.checkValid(this.connection.getCode()))
                 return this.connection.getCode().substr(0, 5);
@@ -125,7 +133,7 @@ let gameComponent = Vue.component("game-component", {
 
         },
         getId() {
-            return this.connection.getId();
+            return this.event.getId();
         },
 
         checkValid(val) {
@@ -136,15 +144,13 @@ let gameComponent = Vue.component("game-component", {
         },
         responsive() {
             if (this.startedGame === false && this.nombre === null) {
-                document.getElementById("footer").style.position = "absolute";
+                document.getElementById(ConsClass.FOOTER_ELEMENT).style.position = "absolute";
             } else {
-                document.getElementById("footer").style.position = "relative";
+                document.getElementById(ConsClass.FOOTER_ELEMENT).style.position = "relative";
             }
         },
         setServerInfo(dat) {
             this.event.roomClient.setValues(dat);
-            console.log("tipo " + dat.tipo)
-            console.log("dificultad " + dat.dificultad)
         }
 
     }

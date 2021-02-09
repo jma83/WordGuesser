@@ -1,3 +1,6 @@
+import * as ConsClass from '../constants.js'
+
+
 let profileComponent = Vue.component("profile-component", {
     props: ["eventBus"],
     data: function () {
@@ -58,27 +61,27 @@ let profileComponent = Vue.component("profile-component", {
 
     },
     methods: {
-        setName(){
-            let nombreProfile = document.getElementById("nombreProfile").value;
-            localStorage.setItem("nombre",nombreProfile);
-            this.eventBus.$emit("setNombre",{});
+        setName() {
+            if (this.nombre !== "") {
+                localStorage.setItem(ConsClass.LOCAL_NOMBRE, this.nombre);
+                this.eventBus.$emit(ConsClass.EVENTBUS_NOMBRE, {});
+            }
         },
         actualizarPerfil() {
-            console.log(localStorage.getItem("victorias"))
-            if (localStorage.getItem("nombre")!=null)
-            this.nombre = localStorage.getItem("nombre");
-            if (localStorage.getItem("victorias")!=null)
-            this.victorias = localStorage.getItem("victorias");
-            if (localStorage.getItem("partidas")!=null)
-            this.partidas = localStorage.getItem("partidas");
-            if (localStorage.getItem("puntuacion")!=null)
-            this.puntuacion = localStorage.getItem("puntuacion");
-            if (Number(this.partidas)!==0)
+            if (localStorage.getItem(ConsClass.LOCAL_NOMBRE) != null)
+                this.nombre = localStorage.getItem(ConsClass.LOCAL_NOMBRE);
+            if (localStorage.getItem(ConsClass.LOCAL_VICTORIAS) != null)
+                this.victorias = localStorage.getItem(ConsClass.LOCAL_VICTORIAS);
+            if (localStorage.getItem(ConsClass.LOCAL_PARTIDAS) != null)
+                this.partidas = localStorage.getItem(ConsClass.LOCAL_PARTIDAS);
+            if (localStorage.getItem(ConsClass.LOCAL_PUNTUACION) != null)
+                this.puntuacion = localStorage.getItem(ConsClass.LOCAL_PUNTUACION);
+            if (Number(this.partidas) !== 0)
                 this.ratio = Math.trunc((this.victorias * 100) / this.partidas);
-            
-            if (localStorage.getItem("fecha")!=null){
-                this.fecha = localStorage.getItem("fecha");
-            }else{
+
+            if (localStorage.getItem(ConsClass.LOCAL_FECHA) != null) {
+                this.fecha = localStorage.getItem(ConsClass.LOCAL_FECHA);
+            } else {
                 this.fecha = "Sin partidas";
             }
         },
