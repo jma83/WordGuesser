@@ -1,5 +1,5 @@
 const Player = require('./player')
-const Round = require('./Round')
+const Round = require('./round')
 
 module.exports = class Room {
     constructor(data) {
@@ -178,6 +178,19 @@ module.exports = class Room {
 
     getJugadores() {
         return this.players;
+    }
+
+    getJugadoresInfo() {
+        let array = [];
+        for (let i = 0; i < this.players.length; i++) {
+            let id = this.players[i].id;
+            let nombre = this.players[i].nombre;
+            let siguiente = this.players[i].siguiente;
+            let acierto = this.players[i].acierto;
+            let puntos = this.players[i].puntos;
+            array.push({id,nombre,siguiente,acierto,puntos});
+        }
+        return array;
     }
 
     getIndexJugador(id) {

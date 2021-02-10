@@ -1,5 +1,5 @@
 
-import * as ConsClass from './constants.js'
+import * as ConsClass from '../constants.js'
 
 export default class Conexion {
     socket = '';

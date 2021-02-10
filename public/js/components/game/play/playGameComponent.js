@@ -2,8 +2,8 @@ import './playerInfoComponent.js';
 import './imageInfoComponent.js';
 import './lobbyComponent.js';
 import './titleComponent.js';
-import './ventanaComponent.js';
-import './verAjustesComponent.js';
+import '../settings/ventanaComponent.js';
+import '../settings/verAjustesComponent.js';
 
 let playGameComponent = Vue.component("play-game-component", {
     props: ["mode", "code", "socketid", "serverInfo", "players"],

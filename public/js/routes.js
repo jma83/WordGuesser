@@ -1,7 +1,7 @@
 const about = { template: '<div>ABOUT</div>' }
-import welcomeComponent from './components/welcomeComponent.js';
-import gameComponent from './components/gameComponent.js';
-import profileComponent from './components/profileComponent.js';
+import welcomeComponent from './components/welcome/welcomeComponent.js';
+import gameComponent from './components/game/gameComponent.js';
+import profileComponent from './components/profile/profileComponent.js';
 
 
 const routes = [

@@ -1,8 +1,8 @@
-import './playGameComponent.js';
-import './selectionComponent.js';
-import Conexion from '../connectionClass.js';
-import ConnectionEvents from '../connectionEvents.js';
-import * as ConsClass from '../constants.js'
+import './play/playGameComponent.js';
+import './selection/selectionComponent.js';
+import Conexion from '../../game/connectionClass.js';
+import ConnectionEvents from '../../game/connectionEvents.js';
+import * as ConsClass from '../../constants.js'
 
 let gameComponent = Vue.component("game-component", {
     props: ["eventBus"],
@@ -23,7 +23,7 @@ let gameComponent = Vue.component("game-component", {
                 <selection-component v-on:start="startGame"></selection-component>
             </div>
             <div v-else>
-                <play-game-component v-bind:code="getCode()" v-bind:mode="modo" v-bind:socketid="getId()" v-bind:players="this.event.players" v-bind:serverInfo="this.event.roomClient.data" 
+                <play-game-component v-bind:code="getCode()" v-bind:mode="modo" v-bind:socketid="getId()" v-bind:players="this.event.roomClient.players" v-bind:serverInfo="this.event.roomClient.data" 
                 v-on:enviarTexto="enviarTexto" 
                 v-on:siguiente="siguiente" 
                 v-on:connectRoom="connectRoom" 

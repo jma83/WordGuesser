@@ -1,5 +1,5 @@
 import './confirmWindowComponent.js';
-import * as ConsClass from '../constants.js'
+import * as ConsClass from '../../constants.js'
 
 let headerComponent = Vue.component("header-component", {
   props: ["eventBus"],

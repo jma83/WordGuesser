@@ -40,25 +40,28 @@ module.exports = class Round {
         let self = this;
         return new Promise(async function (resolve, reject) {
             let ronda = self.getRonda() + 1;
+            try {
+                if (self.palabra === '' || self.getFinRonda()) {
+                    self.setRonda(ronda);
+                    self.setFinRonda(false);
+                    self.palabraFictia = [];
 
-            if (self.palabra === '' || self.getFinRonda()) {
-                self.setRonda(ronda);
-                self.setFinRonda(false);
-                self.palabraFictia = [];
+                    try {
+                        let data = await self.apiManager.getImage();
+                        self.setPalabra(data.palabra);
+                        self.setImagen(data.imagen);
+                        self.initPalabraFicticia();
+                        self.crearInterval();
+                        resolve(true);
+                    } catch (e) {
+                        console.log("ERROR! " + e);
+                    }
 
-                try {
-                    let data = await self.apiManager.getImage();
-                    self.setPalabra(data.palabra);
-                    self.setImagen(data.imagen);
-                    self.initPalabraFicticia();
-                    self.crearInterval();
-                    resolve(true);
-                } catch (e) {
-                    console.log("ERROR! " + e);
+                } else {
+                    resolve(false);
                 }
-
-            } else {
-                resolve(false);
+            } catch (e) {
+                reject(e);
             }
         });
     }
@@ -71,7 +74,7 @@ module.exports = class Round {
             let array2 = Array.from(this.palabraFictia);
             array2[index] = array[index];
             if (this.porcentajeMostrar > 0 && Number(this.dificultad) !== 3)
-            this.palabraFictia = array2.join("");
+                this.palabraFictia = array2.join("");
         }
         if (index === -1) {
 
@@ -173,6 +176,30 @@ module.exports = class Round {
         this.borrarInterval();
     }
 
+    setTipo(t) {
+        let self = this;
+        return new Promise(function (resolve, reject) {
+            try {
+                self.apiManager.setType(t);
+                resolve(true);
+            } catch (e) {
+                reject(e);
+            }
+        });
+    }
+    setDificultad(d) {
+        let self = this;
+        return new Promise(function (resolve, reject) {
+            try {
+                self.dificultad = d;
+                self.selectDificultad();
+                resolve(true);
+            } catch (e) {
+                reject(e);
+            }
+        });
+    }
+
     setImagen(img) {
         this.imagen = img;
     }
@@ -226,20 +253,6 @@ module.exports = class Round {
         this.tiempoMax = t;
     }
 
-    setTipo(t) {
-        let self = this;
-        return new Promise(function (resolve, reject) {
-            self.apiManager.setType(t);
-            resolve(true);
-        });
-    }
-    setDificultad(d) {
-        let self = this;
-        return new Promise(function (resolve, reject) {
-            self.dificultad = d;
-            self.selectDificultad();
-            resolve(true);
-        });
-    }
+    
 
 }

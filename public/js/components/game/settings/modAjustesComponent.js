@@ -74,7 +74,9 @@ let modAjustesComponent = Vue.component("mod-ajustes-component", {
             </div>
         </form>`,
     mounted() {
-        document.getElementById("ajustes").addEventListener('click', () => this.actualizarState());
+        let ajustesEl = document.getElementById("ajustes");
+        if (ajustesEl != null)
+            ajustesEl.addEventListener('click', () => this.actualizarState());
         document.getElementById("btn-close").addEventListener('click', () => this.cerrarVentana());
         document.getElementById("btn-save").addEventListener('click', () => this.guardarCambios());
     },
@@ -85,20 +87,20 @@ let modAjustesComponent = Vue.component("mod-ajustes-component", {
             this.dificultad = this.serverInfo.dificultad;
             this.maxTiempo = this.serverInfo.maxTiempo;
             this.tipo = this.serverInfo.tipo;
-            
+
         },
         guardarCambios() {
-             
-            let maxPlayers = this.maxPlayers 
-            let maxRondas = this.maxRondas 
+
+            let maxPlayers = this.maxPlayers
+            let maxRondas = this.maxRondas
             let maxTiempo = this.maxTiempo;
             let dificultad = this.dificultad;
             let tipo = this.tipo;
-            
-            this.$emit("modificarAjustesSala", {maxPlayers,maxRondas,maxTiempo,dificultad,tipo});
+
+            this.$emit("modificarAjustesSala", { maxPlayers, maxRondas, maxTiempo, dificultad, tipo });
         },
 
-        cerrarVentana(){
+        cerrarVentana() {
             this.$emit("modificarAjustesSala", null);
         }
     }

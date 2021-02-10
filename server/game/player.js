@@ -43,7 +43,6 @@ module.exports = class Player {
     }
 
     setConectado(b) {
-        console.log("!!!!!!!*setConectado " + b)
         this.conectado = b;
     }
 

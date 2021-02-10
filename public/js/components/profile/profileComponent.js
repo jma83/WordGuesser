@@ -1,4 +1,4 @@
-import * as ConsClass from '../constants.js'
+import * as ConsClass from '../../constants.js'
 
 
 let profileComponent = Vue.component("profile-component", {

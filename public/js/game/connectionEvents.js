@@ -1,5 +1,5 @@
 import RoomClient from './roomClient.js'
-import * as ConsClass from './constants.js'
+import * as ConsClass from '../constants.js'
 
 export default class ConnectionEvents {
 
@@ -7,7 +7,6 @@ export default class ConnectionEvents {
 
         this.roomClient = new RoomClient();
         this.idmsg = 0;
-        this.players = [];
 
         this.connection = connection;
         this.socket = connection.socket;
@@ -33,7 +32,7 @@ export default class ConnectionEvents {
                 if (!data.acierto) {
                     chat.innerHTML += "<p><b>" + data.nombre + ":</b> " + data.mensaje + "</p>";
                 } else {
-                    chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> acertó la respuesta! (+" + data.puntos + " puntos!)</i></p>";
+                    chat.innerHTML += "<p><i> - <b>" + data.nombre + "</b> acertó la respuesta! (+" + data.puntos + " puntos!)</i></p>";
                 }
             }
         });
@@ -43,14 +42,14 @@ export default class ConnectionEvents {
             let chat = document.getElementById(ConsClass.CHAT_ELEMENT);
             console.log(data.tipoUsuario)
             if (chat !== null && (reenter == false || reenter == true && Number(data.tipoUsuario) === 1))
-                chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> se ha unido a la partida!</i></p>";
+                chat.innerHTML += "<p><i> - <b>" + data.nombre + "</b> se ha unido a la partida!</i></p>";
         });
     }
     desconexion_sala() {
         this.socket.on(ConsClass.DESCON_SALA_SOCKET, (data) => {
             let chat = document.getElementById(ConsClass.CHAT_ELEMENT);
             if (chat !== null)
-                chat.innerHTML += "<p><i> - <b>" + data.nombre + " " + data.id + "</b> se ha desconectado de la partida!</i></p>";
+                chat.innerHTML += "<p><i> - <b>" + data.nombre + "</b> se ha desconectado de la partida!</i></p>";
         });
     }
     conexion() {
@@ -63,23 +62,16 @@ export default class ConnectionEvents {
 
     updatePlayers() {
         this.socket.on(ConsClass.LPLAYERS_SOCKET, (p) => {
-            this.players = [];
-            for (let i = 0; i < p.listPlayers.length; i++) {
-                let id = p.listIds[i];
-                let nombre = p.listPlayers[i];
-                let siguiente = p.listSiguiente[i];
-                let acierto = p.listAcierto[i];
-                let puntos = p.listPuntos[i];
-
-                this.players.push({ id, nombre, siguiente, acierto, puntos });
-            }
+            console.log("updatePlayers")
+            console.log(p);
+            this.roomClient.updatePlayers(p);
         });
     }
     updateServerInfo() {
         this.socket.on(ConsClass.SERVER_INFO_SOCKET, (data) => {
             this.roomClient.setValues(data);
             this.roomClient.crearInterval();
-            this.roomClient.comprobarFinPartida(data, this.players, this.getId());
+            this.roomClient.comprobarFinPartida(data,  this.getId());
 
         });
     }

@@ -1,6 +1,5 @@
-import './headerComponent.js';
-import './footerComponent.js';
-import './welcomeComponent.js';
+import './header/headerComponent.js';
+import './footer/footerComponent.js';
 import router from '../routes.js'
 
 let miapp = new Vue({

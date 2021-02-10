@@ -1,5 +1,5 @@
 
-import * as ConsClass from './constants.js'
+import * as ConsClass from '../constants.js'
 
 export default class RoomClient {
 
@@ -10,47 +10,50 @@ export default class RoomClient {
     }
 
     setDefaultValues() {
-        let codigo = '';
-        let estado = 0;
-        let ronda = 0;
-        let imagen = '';
-        let palabra = '';
-        let finRonda = false;
-        let tiempo = 0;
-        let fin = false;
-        let dificultad = 0;
-        let maxTiempo = 20;
-        let tipo = 1;
-        let maxRondas = 6;
-        let maxPlayers = 4
-        let ganador = null;
 
-        this.data = {codigo,estado,ronda,imagen,palabra,finRonda,tiempo,fin,dificultad,maxTiempo,tipo,maxRondas,maxPlayers,ganador};
+        this.data = { 
+            codigo: '', 
+            estado: 0, 
+            ronda: 0, 
+            imagen: '', 
+            palabra: '', 
+            finRonda: false, 
+            tiempo: 0, 
+            fin: false, 
+            dificultad: 0, 
+            maxTiempo: 20, 
+            tipo: 1, 
+            maxRondas: 6, 
+            maxPlayers: 4, 
+            ganador: null 
+        };
     }
 
     setValues(data) {
-        let codigo = data.codigo;
-        let estado = data.estado;
-        let ronda = data.ronda;
-        let imagen = data.imagen;
-        let palabra = data.palabra;
-        let finRonda = data.finRonda;
-        let tiempo = data.tiempo;
-        let fin = data.fin;
-        let dificultad = data.dificultad;
-        let maxTiempo = data.maxTiempo;
-        let tipo = data.tipo;
-        let maxRondas = data.maxRondas;
-        let maxPlayers = data.maxPlayers;
-        let ganador = data.ganador;
-        this.data = {codigo,estado,ronda,imagen,palabra,finRonda,tiempo,fin,dificultad,maxTiempo,tipo,maxRondas,maxPlayers,ganador};
+
+        this.data = {
+            codigo: data.codigo, 
+            estado: data.estado, 
+            ronda: data.ronda, 
+            imagen: data.imagen, 
+            palabra: data.palabra, 
+            finRonda: data.finRonda, 
+            tiempo: data.tiempo, 
+            fin: data.fin, 
+            dificultad: data.dificultad, 
+            maxTiempo: data.maxTiempo, 
+            tipo: data.tipo,
+            maxRondas: data.maxRondas, 
+            maxPlayers: data.maxPlayers, 
+            ganador: data.ganador
+        };
     }
 
-    getData(){
+    getData() {
         return this.data;
     }
 
-    comprobarFinPartida(data,players,id) {
+    comprobarFinPartida(data, id) {
         if (data.fin && localStorage.getItem(ConsClass.LOCAL_NOMBRE) != null && (localStorage.getItem("codigo_partida") == null)) {
             localStorage.setItem(ConsClass.LOCAL_CODIGO, true);
             this.end = true;
@@ -74,9 +77,9 @@ export default class RoomClient {
 
             let puntuacion = localStorage.getItem(ConsClass.LOCAL_PUNTUACION);
             let puntuacionActual = 0;
-            for (let i = 0; i < players.length; i++) {
-                if (players[i].id === id) {
-                    puntuacionActual = players[i].puntos;
+            for (let i = 0; i < this.players.length; i++) {
+                if (this.players[i].id === id) {
+                    puntuacionActual = this.players[i].puntos;
                 }
             }
 
@@ -103,8 +106,6 @@ export default class RoomClient {
     }
 
     crearInterval() {
-        console.log("this.finRonda: "+this.data.finRonda)
-        console.log("this.intervalID: "+this.intervalID)
         if (this.data.finRonda === false && this.intervalID === null) {
             this.intervalID = setInterval(
                 (function (self) {
@@ -123,7 +124,6 @@ export default class RoomClient {
         }
     }
     decreaseTime() {
-        console.log("decrease! " + this.data.tiempo)
         if (this.data.tiempo > 0) {
             this.data.tiempo--;
         } else {
@@ -131,5 +131,18 @@ export default class RoomClient {
         }
     }
 
-  
+    updatePlayers(newPlayers) {
+        this.players = [];
+        for (let i = 0; i < newPlayers.length; i++) {
+            this.players.push({
+                id: newPlayers[i].id,
+                nombre: newPlayers[i].nombre,
+                siguiente: newPlayers[i].siguiente,
+                acierto: newPlayers[i].acierto,
+                puntos: newPlayers[i].puntos
+            });
+        }
+    }
+
+
 }
