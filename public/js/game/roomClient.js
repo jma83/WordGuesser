@@ -11,40 +11,40 @@ export default class RoomClient {
 
     setDefaultValues() {
 
-        this.data = { 
-            codigo: '', 
-            estado: 0, 
-            ronda: 0, 
-            imagen: '', 
-            palabra: '', 
-            finRonda: false, 
-            tiempo: 0, 
-            fin: false, 
-            dificultad: 0, 
-            maxTiempo: 20, 
-            tipo: 1, 
-            maxRondas: 6, 
-            maxPlayers: 4, 
-            ganador: null 
+        this.data = {
+            codigo: '',
+            estado: 0,
+            ronda: 0,
+            imagen: '',
+            palabra: '',
+            finRonda: false,
+            tiempo: 0,
+            fin: false,
+            dificultad: 0,
+            maxTiempo: 20,
+            tipo: 1,
+            maxRondas: 6,
+            maxPlayers: 4,
+            ganador: null
         };
     }
 
     setValues(data) {
 
         this.data = {
-            codigo: data.codigo, 
-            estado: data.estado, 
-            ronda: data.ronda, 
-            imagen: data.imagen, 
-            palabra: data.palabra, 
-            finRonda: data.finRonda, 
-            tiempo: data.tiempo, 
-            fin: data.fin, 
-            dificultad: data.dificultad, 
-            maxTiempo: data.maxTiempo, 
+            codigo: data.codigo,
+            estado: data.estado,
+            ronda: data.ronda,
+            imagen: data.imagen,
+            palabra: data.palabra,
+            finRonda: data.finRonda,
+            tiempo: data.tiempo,
+            fin: data.fin,
+            dificultad: data.dificultad,
+            maxTiempo: data.maxTiempo,
             tipo: data.tipo,
-            maxRondas: data.maxRondas, 
-            maxPlayers: data.maxPlayers, 
+            maxRondas: data.maxRondas,
+            maxPlayers: data.maxPlayers,
             ganador: data.ganador
         };
     }
@@ -57,13 +57,15 @@ export default class RoomClient {
         if (data.fin && localStorage.getItem(ConsClass.LOCAL_NOMBRE) != null && (localStorage.getItem("codigo_partida") == null)) {
             localStorage.setItem(ConsClass.LOCAL_CODIGO, true);
             this.end = true;
-            if (data.ganador.id === id) {
-                let victorias = localStorage.getItem(ConsClass.LOCAL_VICTORIAS)
-                if (victorias != null) {
-                    victorias++;
-                    localStorage.setItem(ConsClass.LOCAL_VICTORIAS, victorias);
-                } else {
-                    localStorage.setItem(ConsClass.LOCAL_VICTORIAS, 1);
+            if (data.ganador.length === 1) {
+                if (data.ganador[0].id === id) {
+                    let victorias = localStorage.getItem(ConsClass.LOCAL_VICTORIAS)
+                    if (victorias != null) {
+                        victorias++;
+                        localStorage.setItem(ConsClass.LOCAL_VICTORIAS, victorias);
+                    } else {
+                        localStorage.setItem(ConsClass.LOCAL_VICTORIAS, 1);
+                    }
                 }
             }
 

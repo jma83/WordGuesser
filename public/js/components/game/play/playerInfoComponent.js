@@ -1,5 +1,5 @@
 let playerInfoComponent = Vue.component("player-info-component", {
-    props: ["players", "id", "serverInfo","finRonda"],
+    props: ["players", "id", "serverInfo"],
     template:
         `<div>
               <p>Jugadores Conectados {{this.getNumPlayers()}}/{{this.serverInfo.maxPlayers}}</p>

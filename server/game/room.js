@@ -131,21 +131,7 @@ module.exports = class Room {
         });
     }
 
-    getNombreJugadores() {
-        let nombres = [];
-        for (let i = 0; i < this.players.length; i++)
-            nombres.push(this.players[i].nombre);
 
-        return nombres;
-    }
-
-    getIdJugadores() {
-        let ids = [];
-        for (let i = 0; i < this.players.length; i++)
-            ids.push(this.players[i].id);
-
-        return ids;
-    }
 
     getSiguienteJugadores() {
         let siguientes = [];
@@ -166,14 +152,6 @@ module.exports = class Room {
     resetPuntosJugadores() {
         for (let i = 0; i < this.players.length; i++)
             this.players[i].resetPuntos();;
-    }
-
-    getPuntosJugadores() {
-        let puntos = [];
-        for (let i = 0; i < this.players.length; i++)
-            puntos.push(this.players[i].puntos);
-
-        return puntos;
     }
 
     getJugadores() {
@@ -251,7 +229,6 @@ module.exports = class Room {
                         self.setAllSiguienteOff();
                         resolve(true);
                     }
-                    resolve(true);
                 }
             } catch (e) {
                 console.log("ERROR! " + e)
@@ -318,10 +295,15 @@ module.exports = class Room {
     }
 
     comprobarGanador() {
-        let max = -1;
+        let max = [];
         for (let i = 0; i < this.players.length; i++) {
-            if (max === -1 || this.players[i].puntos > max.puntos) {
-                max = this.players[i];
+            if (max.length===0){
+                max.push(this.players[i]);
+            }else if (this.players[i].puntos > max[0].puntos) {
+                max = [];
+                max.push(this.players[i]);
+            }else if (this.players[i].puntos === max[0].puntos) {
+                max.push(this.players[i]);
             }
         }
         this.ganador = max;

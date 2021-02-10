@@ -57,7 +57,6 @@ module.exports = class Server {
     desconexion_sala(data, socket) {
         let sala = this.roomsManager.getSala(data.codigoPartida);
 
-
         if (sala != null) {
             if (data.endGameMethod) {
                 sala.borrarJugadorSala(data.id, true);
@@ -75,8 +74,6 @@ module.exports = class Server {
             this.emitirListPlayer(sala, data);
             socket.to(data.codigoPartida).emit(ConsClass.DESCON_SALA_EMIT, data);
         }
-
-
 
         console.log("Salas!!! desc " + this.roomsManager.getCodigosSalas())
 
