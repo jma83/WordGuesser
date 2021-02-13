@@ -4,7 +4,6 @@ let verAjustesComponent = Vue.component("ver-ajustes-component", {
         `<div class="p-1 card">
             <h5>Ajustes</h5>
             <ul class="list-group list-group-horizontal-sm">
-                <!--<li class="list-group-item"><b>Partida pública: </b>Si</li>-->
                 <li class="list-group-item"><b>Nº de jugadores máximo: </b>{{this.serverInfo.maxPlayers}}</li>
                 <li class="list-group-item"><b>Nº de rondas: </b>{{this.serverInfo.maxRondas}}</li>
                 <li class="list-group-item"><b>Tiempo de ronda: </b>{{this.serverInfo.maxTiempo}} segundos</li>

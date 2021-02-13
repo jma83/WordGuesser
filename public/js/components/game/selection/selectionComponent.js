@@ -1,4 +1,5 @@
 import * as ConsClass from '../../../constants.js'
+import Utils from '../../../utils.js'
 
 
 let selectionComponent = Vue.component("selection-component", {
@@ -61,33 +62,33 @@ let selectionComponent = Vue.component("selection-component", {
       let nombre = this.getNombre() || this.nombre;
       let codigo = this.codigo;
 
-      if (this.recordar) {
-        localStorage.setItem(ConsClass.LOCAL_NOMBRE, nombre);
+      if (this.validarCampos(nombre,codigo,modo)) {
+
+        if (this.recordar) 
+          localStorage.setItem(ConsClass.LOCAL_NOMBRE, nombre);
+        
+        this.$emit(ConsClass.START_EMIT, { modo, nombre, codigo });
       }
 
-      if (nombre === "" || nombre === null) {
+    },
+    validarCampos(nombre,codigo,modo) {
+      if (!Utils.checkValid(nombre)) {
         this.error = "Error! Por favor, completa el nombre";
-        return -1;
+        return false;
       }
-      if (Number(modo) === 0 && codigo === "" || codigo === null) {
+      if (Number(modo) === 0 && !Utils.checkValid(codigo)) {
         this.error = "Error! Por favor, completa el código de partida para unirte";
-        return -1;
+        return false;
       }
-      this.$emit(ConsClass.START_EMIT, { modo, nombre, codigo });
-
+      return true;
     },
 
     comprobarLocalStorage() {
-      let nombre = localStorage.getItem(ConsClass.LOCAL_NOMBRE);
-      if (nombre !== '' && nombre != null) {
-        return true;
-      }
-      return false;
+      return Utils.comprobarLocalStorage();
     },
 
     getNombre() {
-      let nombre = localStorage.getItem(ConsClass.LOCAL_NOMBRE);
-      return nombre;
+      return Utils.getNombreLocal();
     }
   }
 });

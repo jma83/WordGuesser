@@ -7,7 +7,7 @@ export default class ConnectionEvents {
 
         this.roomClient = new RoomClient();
         this.idmsg = 0;
-
+        this.mensajesChat = []
         this.connection = connection;
         this.socket = connection.socket;
 
@@ -24,32 +24,61 @@ export default class ConnectionEvents {
 
 
     }
+    crearMensaje(nombre, msg, flagServer){
+        let p = document.createElement("p");
+        let b = document.createElement("b");
+        let i = document.createElement("i");
+        let textUsu = document.createTextNode(nombre);
+        let text = document.createTextNode(msg);
+       
+        b.appendChild(textUsu);
+        if (flagServer){ 
+            i.appendChild(b);
+            p.appendChild(i);
+        }else{
+            p.appendChild(b);
+        }   
+        
+        p.appendChild(text);
+        return p;
+        
+    }
 
     mensaje_chat() {
         this.socket.on(ConsClass.MENSAJE_SOCKET, (data) => {
-            let chat = document.getElementById(ConsClass.CHAT_ELEMENT);
-            if (chat !== null) {
-                if (!data.acierto) {
-                    chat.innerHTML += "<p><b>" + data.nombre + ":</b> " + data.mensaje + "</p>";
-                } else {
-                    chat.innerHTML += "<p><i> - <b>" + data.nombre + "</b> acertó la respuesta! (+" + data.puntos + " puntos!)</i></p>";
-                }
+            if (!data.acierto) {
+                //this.mensajesChat += "<p><b>" + data.nombre + ":</b> " +  + "</p>";
+                this.mensajesChat.push({nombre:data.nombre, mensaje: data.mensaje, serverFlag: false});
+            } else {
+                this.mensajesChat.push({
+                    nombre: data.nombre, 
+                    mensaje: " acertó la respuesta! (+" + data.puntos + " puntos!)", 
+                    serverFlag: true
+                });
+                //this.mensajesChat += "<p><i> - <b>" + data.nombre + "</b> acertó la respuesta! (+" + data.puntos + " puntos!)</i></p>";
             }
+            
         });
     }
     conexion_sala() {
         this.socket.on(ConsClass.CON_SALA_SOCKET, (data, reenter) => {
-            let chat = document.getElementById(ConsClass.CHAT_ELEMENT);
-            console.log(data.tipoUsuario)
-            if (chat !== null && (reenter == false || reenter == true && Number(data.tipoUsuario) === 1))
-                chat.innerHTML += "<p><i> - <b>" + data.nombre + "</b> se ha unido a la partida!</i></p>";
+            if (reenter == false || reenter == true && Number(data.tipoUsuario) === 1)
+                this.mensajesChat.push({
+                    nombre: data.nombre, 
+                    mensaje: " se ha unido a la partida!", 
+                    serverFlag: true
+                });
+            //this.mensajesChat += "<p><i> - <b>" + data.nombre + "</b> se ha unido a la partida!</i></p>";
         });
     }
     desconexion_sala() {
         this.socket.on(ConsClass.DESCON_SALA_SOCKET, (data) => {
-            let chat = document.getElementById(ConsClass.CHAT_ELEMENT);
-            if (chat !== null)
-                chat.innerHTML += "<p><i> - <b>" + data.nombre + "</b> se ha desconectado de la partida!</i></p>";
+            this.mensajesChat.push({
+                nombre: data.nombre, 
+                mensaje: " se ha desconectado de la partida!", 
+                serverFlag: true
+            });
+            //this.mensajesChat += "<p><i> - <b>" + data.nombre + "</b> se ha desconectado de la partida!</i></p>";
         });
     }
     conexion() {
@@ -78,7 +107,6 @@ export default class ConnectionEvents {
 
     sala_no_valida() {
         this.socket.on(ConsClass.SALA_INV_SOCKET, () => {
-
 
             let game = document.getElementById(ConsClass.GAME_ELEMENT);
             let div1 = document.createElement("div");
@@ -160,20 +188,17 @@ export default class ConnectionEvents {
 
     
 
-    enviarTexto() {
-        let mensaje = document.getElementById(ConsClass.MENSAJE_ELEMENT).value;
+    enviarTexto(message) {
+        let mensaje = message;
         let nombre = this.currentName;
         let codigoPartida = this.getCode();
         let acierto = false;
         let puntos = 0;
         let id = this.getId();
-        if (mensaje !== "" && mensaje !== null) {
-            let idmsg = this.idmsg;
-            document.getElementById(ConsClass.MENSAJE_ELEMENT).value = "";
-            this.socket.emit(ConsClass.MENSAJE_ELEMENT, { id, idmsg, codigoPartida, nombre, mensaje, acierto, puntos });
-            this.idmsg++;
-        }
-        document.getElementById(ConsClass.MENSAJE_ELEMENT).focus();
+        let idmsg = this.idmsg;
+
+        this.socket.emit(ConsClass.MENSAJE_ELEMENT, { id, idmsg, codigoPartida, nombre, mensaje, acierto, puntos });
+        this.idmsg++;
 
     }
 

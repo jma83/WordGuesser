@@ -45,7 +45,7 @@ let headerComponent = Vue.component("header-component", {
   mounted() {
     if (localStorage.getItem(ConsClass.LOCAL_NOMBRE) != null)
       this.nombre = localStorage.getItem(ConsClass.LOCAL_NOMBRE);
-    this.eventBus.$on(ConsClass.EVENTBUS_NOMBRE, () => { this.nombre = localStorage.getItem(ConsClass.LOCAL_NOMBRE); });
+    this.eventBus.$on(ConsClass.EVENTBUS_NOMBRE, (n) => { this.nombre = n; });
 
     this.modalWindow = new mdb.Modal(document.getElementById(ConsClass.CONFIRM_WIN_ELEMENT));
   },

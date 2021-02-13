@@ -6,16 +6,14 @@ let modAjustesComponent = Vue.component("mod-ajustes-component", {
             maxRondas: "",
             maxTiempo: "",
             dificultad: "",
-            tipo: ""
+            tipo: "",
+            btnClose: "btn-close",
+            btnSave: "btn-save",
+            ajustes: "ajustes"
         }
     },
     template:
         `<form class="p-4 ">
-            <!--<div class="form-check form-switch mb-4">
-                <input class="form-check-input" type="checkbox" id="privacidad"  />
-                <label class="form-check-label" for="privacidad">Partida pública</label>
-                
-            </div>-->
             <div class="form-outline mb-4">
                 <label class="form-label " for="jugadores">Nº de jugadores máximo</label>
                 <select class="form-select" id="jugadores" v-model="maxPlayers">
@@ -74,11 +72,17 @@ let modAjustesComponent = Vue.component("mod-ajustes-component", {
             </div>
         </form>`,
     mounted() {
-        let ajustesEl = document.getElementById("ajustes");
+        let ajustesEl = document.getElementById(this.ajustes);
         if (ajustesEl != null)
             ajustesEl.addEventListener('click', () => this.actualizarState());
-        document.getElementById("btn-close").addEventListener('click', () => this.cerrarVentana());
-        document.getElementById("btn-save").addEventListener('click', () => this.guardarCambios());
+
+        document.getElementById(this.btnClose).addEventListener('click',() =>  this.cerrarVentana());
+        document.getElementById(this.btnSave).addEventListener('click', () => this.guardarCambios());
+    },
+    beforeDestroy(){
+        //document.getElementById(this.btnClose).removeEventListener('click');
+
+
     },
     methods: {
         actualizarState() {

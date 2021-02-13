@@ -1,4 +1,4 @@
-import * as ConsClass from '../../constants.js'
+import Utils from '../../utils.js'
 
 let welcomeComponent = Vue.component("welcome-component", {
   template:
@@ -25,31 +25,20 @@ let welcomeComponent = Vue.component("welcome-component", {
         </div>
       </div>`,
       mounted() {
-          document.getElementById(ConsClass.FOOTER_ELEMENT).style.position = "absolute";
+          Utils.responsive(false);
       },
       methods:{
         getSession() {
-          let nombre = sessionStorage.getItem(ConsClass.SESION_NOMBRE);
-          return nombre || "";
+          return Utils.getNombreSession();
         },
         comprobarSession(){
-          let nombre = sessionStorage.getItem(ConsClass.SESION_NOMBRE);
-          if (nombre !== '' && nombre != null) {
-            return true;
-          }
-          return false;
+          return Utils.comprobarSession();
         },
         comprobarLocalStorage() {
-          let nombre = localStorage.getItem(ConsClass.LOCAL_NOMBRE);
-          if (nombre !== '' && nombre != null) {
-            return true;
-          }
-          return false;
+          return Utils.comprobarLocalStorage();
         },
-    
         getNombreLocal() {
-          let nombre = localStorage.getItem(ConsClass.LOCAL_NOMBRE);
-          return nombre || "";
+          return Utils.getNombreLocal();
         }
 
     }

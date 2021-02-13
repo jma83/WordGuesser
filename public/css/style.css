@@ -18,8 +18,15 @@
     background-color: #94536d !important;
 }
 
+html {
+  height: 100%;
+}
 body {
-    background-color: #f6e0a2;
+  height: 100%;
+  margin: 0;
+  background: rgb(255,255,255);
+  background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(246,224,162,1) 70%);
+  background-attachment: fixed;
 }
 
 #chat {
