@@ -8,6 +8,8 @@ export const RECORDAR_ELEMENT = "recordarNombre"
 export const ERROR_ELEMENT = "error"
 export const CODIGO_ELEMENT = "codigo"
 export const CONFIRM_WIN_ELEMENT = "confirmWindow"
+export const MODAL_WIN_ELEMENT = "modalAjustes"
+
 
 export const MENSAJE_SOCKET = "mensaje_chat";
 export const CON_SALA_SOCKET = "conexion_sala";

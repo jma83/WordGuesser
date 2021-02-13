@@ -54,7 +54,7 @@ export default class RoomClient {
     }
 
     comprobarFinPartida(data, id) {
-        if (data.fin && localStorage.getItem(ConsClass.LOCAL_NOMBRE) != null && (localStorage.getItem("codigo_partida") == null)) {
+        if (data.fin && localStorage.getItem(ConsClass.LOCAL_NOMBRE) != null && (localStorage.getItem(ConsClass.LOCAL_CODIGO) == null)) {
             localStorage.setItem(ConsClass.LOCAL_CODIGO, true);
             this.end = true;
             if (data.ganador.length === 1) {

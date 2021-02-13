@@ -15,13 +15,6 @@ let chatLogComponent = Vue.component("chat-log-component", {
             <span v-else><b>{{mensaje.nombre}}</b> {{mensaje.mensaje}} </span>
         </p>
     </div>`,
-    methods: {
-        enviarTexto() {
-            this.$emit("enviarTexto",this.texto);
-            this.texto = "";
-            document.getElementById("mensaje").focus();
-        },
-    },
 });
 
 export default {

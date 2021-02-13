@@ -61,12 +61,12 @@ let playGameComponent = Vue.component("play-game-component", {
         } else if (Number(this.mode) === 1) {
             this.host = "Anfitrión";
         }
-        this.modalWindow = new mdb.Modal(document.getElementById('modalAjustes'));
+        this.modalWindow = new mdb.Modal(document.getElementById(ConsClass.MODAL_WIN_ELEMENT));
 
 
     },
     updated() {
-        if (Utils.checkValid(this.socketid) && Utils.checkValid(this.code) && this.connected === false && this.serverInfo.estado === 0) {
+        if (Utils.checkValid(this.socketid) && Utils.checkValid(this.code) && this.connected === false ) {
             this.connected = true;
             this.$emit('connectRoom');
         }

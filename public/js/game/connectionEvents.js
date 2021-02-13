@@ -24,30 +24,11 @@ export default class ConnectionEvents {
 
 
     }
-    crearMensaje(nombre, msg, flagServer){
-        let p = document.createElement("p");
-        let b = document.createElement("b");
-        let i = document.createElement("i");
-        let textUsu = document.createTextNode(nombre);
-        let text = document.createTextNode(msg);
-       
-        b.appendChild(textUsu);
-        if (flagServer){ 
-            i.appendChild(b);
-            p.appendChild(i);
-        }else{
-            p.appendChild(b);
-        }   
-        
-        p.appendChild(text);
-        return p;
-        
-    }
+
 
     mensaje_chat() {
         this.socket.on(ConsClass.MENSAJE_SOCKET, (data) => {
             if (!data.acierto) {
-                //this.mensajesChat += "<p><b>" + data.nombre + ":</b> " +  + "</p>";
                 this.mensajesChat.push({nombre:data.nombre, mensaje: data.mensaje, serverFlag: false});
             } else {
                 this.mensajesChat.push({
@@ -55,7 +36,6 @@ export default class ConnectionEvents {
                     mensaje: " acertó la respuesta! (+" + data.puntos + " puntos!)", 
                     serverFlag: true
                 });
-                //this.mensajesChat += "<p><i> - <b>" + data.nombre + "</b> acertó la respuesta! (+" + data.puntos + " puntos!)</i></p>";
             }
             
         });
@@ -68,7 +48,6 @@ export default class ConnectionEvents {
                     mensaje: " se ha unido a la partida!", 
                     serverFlag: true
                 });
-            //this.mensajesChat += "<p><i> - <b>" + data.nombre + "</b> se ha unido a la partida!</i></p>";
         });
     }
     desconexion_sala() {
@@ -78,7 +57,6 @@ export default class ConnectionEvents {
                 mensaje: " se ha desconectado de la partida!", 
                 serverFlag: true
             });
-            //this.mensajesChat += "<p><i> - <b>" + data.nombre + "</b> se ha desconectado de la partida!</i></p>";
         });
     }
     conexion() {
