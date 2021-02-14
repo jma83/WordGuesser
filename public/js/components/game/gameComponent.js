@@ -9,7 +9,6 @@ let gameComponent = Vue.component("game-component", {
     props: ["eventBus"],
     data: function () {
         return {
-            modo: -1,
             startedGame: false,
             connection: new Conexion(),
             event: '',
@@ -23,7 +22,7 @@ let gameComponent = Vue.component("game-component", {
                 <selection-component v-on:start="startGame"></selection-component>
             </div>
             <div v-else>
-                <play-game-component v-bind:mensajesChat="this.event.mensajesChat" v-bind:code="getCode()" v-bind:mode="modo" v-bind:socketid="this.event.getId()" v-bind:players="this.event.roomClient.players" v-bind:serverInfo="this.event.roomClient.data" 
+                <play-game-component v-bind:mensajesChat="this.event.roomClient.mensajesChat" v-bind:code="this.event.getCode()" v-bind:mode="this.event.roomClient.currentMode" v-bind:socketid="this.event.getId()" v-bind:players="this.event.roomClient.players" v-bind:serverInfo="this.event.roomClient.data" 
                 v-on:enviarTexto="enviarTexto" 
                 v-on:siguiente="siguiente" 
                 v-on:connectRoom="connectRoom" 
@@ -42,8 +41,8 @@ let gameComponent = Vue.component("game-component", {
 
         this.event = new ConnectionEvents(this.connection);
         let nombre = sessionStorage.getItem(ConsClass.SESION_NOMBRE);
-        this.modo = sessionStorage.getItem(ConsClass.SESION_MODO);
-        this.event.setCurrent(nombre, this.modo);
+        let modo = sessionStorage.getItem(ConsClass.SESION_MODO);
+        this.event.roomClient.setCurrent(nombre, modo);
 
 
         if (Utils.checkValid(nombre)) {
@@ -78,12 +77,12 @@ let gameComponent = Vue.component("game-component", {
             }
 
             this.startedGame = true;
-            this.modo = Number(dat.modo);
-            this.event.setCurrent(dat.nombre, this.modo);
-            sessionStorage.setItem(ConsClass.SESION_MODO, this.modo);
+            let modo = Number(dat.modo);
+            this.event.roomClient.setCurrent(dat.nombre, modo);
+            sessionStorage.setItem(ConsClass.SESION_MODO, modo);
             sessionStorage.setItem(ConsClass.SESION_NOMBRE, dat.nombre);
 
-            if (Utils.checkValid(dat.codigo) && this.modo === 0) {
+            if (Utils.checkValid(dat.codigo) && modo === 0) {
                 this.connection.initConection(dat.codigo);
             } else {
                 this.connection.initConection();

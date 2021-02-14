@@ -13,7 +13,6 @@ let playGameComponent = Vue.component("play-game-component", {
     data: function () {
         return {
             host: '',
-            msgCabecera: "Encuentra la palabra oculta!",
             connected: false,
             modalWindow: null,
         }

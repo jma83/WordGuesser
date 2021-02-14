@@ -7,6 +7,9 @@ export default class RoomClient {
         this.setDefaultValues();
         this.players = [];
         this.intervalID = null;
+        this.mensajesChat = []
+        this.currentName = '';
+        this.currentMode = -1;
     }
 
     setDefaultValues() {
@@ -51,6 +54,11 @@ export default class RoomClient {
 
     getData() {
         return this.data;
+    }
+
+    setCurrent(name, mode) {
+        this.currentName = name;
+        this.currentMode = mode;
     }
 
     comprobarFinPartida(data, id) {

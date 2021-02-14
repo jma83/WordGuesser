@@ -7,7 +7,7 @@ export default class ConnectionEvents {
 
         this.roomClient = new RoomClient();
         this.idmsg = 0;
-        this.mensajesChat = []
+        
         this.connection = connection;
         this.socket = connection.socket;
 
@@ -29,9 +29,9 @@ export default class ConnectionEvents {
     mensaje_chat() {
         this.socket.on(ConsClass.MENSAJE_SOCKET, (data) => {
             if (!data.acierto) {
-                this.mensajesChat.push({nombre:data.nombre, mensaje: data.mensaje, serverFlag: false});
+                this.roomClient.mensajesChat.push({nombre:data.nombre, mensaje: data.mensaje, serverFlag: false});
             } else {
-                this.mensajesChat.push({
+                this.roomClient.mensajesChat.push({
                     nombre: data.nombre, 
                     mensaje: " acertó la respuesta! (+" + data.puntos + " puntos!)", 
                     serverFlag: true
@@ -43,7 +43,7 @@ export default class ConnectionEvents {
     conexion_sala() {
         this.socket.on(ConsClass.CON_SALA_SOCKET, (data, reenter) => {
             if (reenter == false || reenter == true && Number(data.tipoUsuario) === 1)
-                this.mensajesChat.push({
+                this.roomClient.mensajesChat.push({
                     nombre: data.nombre, 
                     mensaje: " se ha unido a la partida!", 
                     serverFlag: true
@@ -52,7 +52,7 @@ export default class ConnectionEvents {
     }
     desconexion_sala() {
         this.socket.on(ConsClass.DESCON_SALA_SOCKET, (data) => {
-            this.mensajesChat.push({
+            this.roomClient.mensajesChat.push({
                 nombre: data.nombre, 
                 mensaje: " se ha desconectado de la partida!", 
                 serverFlag: true
@@ -122,7 +122,7 @@ export default class ConnectionEvents {
     }
 
     revelarRespuesta(){
-        this.mensajesChat.push({
+        this.roomClient.mensajesChat.push({
             nombre: this.roomClient.data.palabra, 
             mensaje: " era la respuesta correcta!", 
             serverFlag: true
@@ -131,8 +131,8 @@ export default class ConnectionEvents {
 
     beforeunload() {
         window.addEventListener(ConsClass.BEFORE_UNLOAD, this.beforeunloadEvent = () => {
-            let modo = this.currentMode;
-            let nombre = this.currentName;
+            let modo = this.roomClient.currentMode;
+            let nombre = this.roomClient.currentName;
             let codigoPartida = this.connection.getCode().substr(0, 5);
             let endGameMethod = false;
             let id = this.connection.getId() || this.socket.id;
@@ -142,10 +142,7 @@ export default class ConnectionEvents {
         });
     }
 
-    setCurrent(name, mode) {
-        this.currentName = name;
-        this.currentMode = mode;
-    }
+    
     connectRoom() {
         this.emitir(ConsClass.CON_SALA_SOCKET);
 
@@ -175,7 +172,7 @@ export default class ConnectionEvents {
 
     enviarTexto(message) {
         let mensaje = message;
-        let nombre = this.currentName;
+        let nombre = this.roomClient.currentName;
         let codigoPartida = this.getCode();
         let acierto = false;
         let puntos = 0;
@@ -205,8 +202,8 @@ export default class ConnectionEvents {
 
     emitir(str) {
         let codigoPartida = this.getCode();
-        let tipoUsuario = this.currentMode;
-        let nombre = this.currentName;
+        let tipoUsuario = this.roomClient.currentMode;
+        let nombre = this.roomClient.currentName;
         let id = this.getId();
         let estado = this.roomClient.data.estado;
         let endGameMethod = true;
