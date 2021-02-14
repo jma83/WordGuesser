@@ -69,7 +69,7 @@ let profileComponent = Vue.component("profile-component", {
         },
         actualizarPerfil() {
             this.nombre = localStorage.getItem(ConsClass.LOCAL_NOMBRE) ? localStorage.getItem(ConsClass.LOCAL_NOMBRE) : this.nombre;
-            this.victorias = localStorage.getItem(ConsClass.LOCAL_VICTORIAS) ? localStorage.getItem(ConsClass.LOCAL_NOMBRE) : this.victorias;
+            this.victorias = localStorage.getItem(ConsClass.LOCAL_VICTORIAS) ? localStorage.getItem(ConsClass.LOCAL_VICTORIAS) : this.victorias;
             this.partidas = localStorage.getItem(ConsClass.LOCAL_PARTIDAS) ? localStorage.getItem(ConsClass.LOCAL_PARTIDAS) : this.partidas;
             this.puntuacion = localStorage.getItem(ConsClass.LOCAL_PUNTUACION) ? localStorage.getItem(ConsClass.LOCAL_PUNTUACION) : this.puntuacion;
             this.fecha = localStorage.getItem(ConsClass.LOCAL_FECHA) ? localStorage.getItem(ConsClass.LOCAL_FECHA) : this.fecha;

@@ -25,7 +25,7 @@ export default class ConnectionEvents {
 
     }
 
-
+    
     mensaje_chat() {
         this.socket.on(ConsClass.MENSAJE_SOCKET, (data) => {
             if (!data.acierto) {
@@ -77,6 +77,8 @@ export default class ConnectionEvents {
     updateServerInfo() {
         this.socket.on(ConsClass.SERVER_INFO_SOCKET, (data) => {
             this.roomClient.setValues(data);
+            if (this.roomClient.data.finRonda && !this.roomClient.data.fin)
+                this.revelarRespuesta();
             this.roomClient.crearInterval();
             this.roomClient.comprobarFinPartida(data,  this.getId());
 
@@ -119,7 +121,13 @@ export default class ConnectionEvents {
         });
     }
 
-
+    revelarRespuesta(){
+        this.mensajesChat.push({
+            nombre: this.roomClient.data.palabra, 
+            mensaje: " era la respuesta correcta!", 
+            serverFlag: true
+        });
+    }
 
     beforeunload() {
         window.addEventListener(ConsClass.BEFORE_UNLOAD, this.beforeunloadEvent = () => {
@@ -161,7 +169,6 @@ export default class ConnectionEvents {
 
     siguiente() {
         this.emitir(ConsClass.SIGUIENTE_EMIT);
-
     }
 
     

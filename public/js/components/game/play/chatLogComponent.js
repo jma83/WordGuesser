@@ -12,7 +12,7 @@ let chatLogComponent = Vue.component("chat-log-component", {
         <p><i>{{this.descripcion}}</i></p>
         <p v-for="(mensaje,index) in mensajesChat" v-bind:key="index">
             <i v-if="mensaje.serverFlag" > - <b>{{mensaje.nombre}}</b> {{mensaje.mensaje}} </i>
-            <span v-else><b>{{mensaje.nombre}}</b> {{mensaje.mensaje}} </span>
+            <span v-else><b>{{mensaje.nombre}}:</b> {{mensaje.mensaje}} </span>
         </p>
     </div>`,
 });
