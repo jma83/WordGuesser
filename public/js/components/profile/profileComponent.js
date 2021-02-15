@@ -69,6 +69,7 @@ let profileComponent = Vue.component("profile-component", {
         },
         actualizarPerfil() {
             this.nombre = localStorage.getItem(ConsClass.LOCAL_NOMBRE) ? localStorage.getItem(ConsClass.LOCAL_NOMBRE) : this.nombre;
+            if (this.nombre!==""){
             this.victorias = localStorage.getItem(ConsClass.LOCAL_VICTORIAS) ? localStorage.getItem(ConsClass.LOCAL_VICTORIAS) : this.victorias;
             this.partidas = localStorage.getItem(ConsClass.LOCAL_PARTIDAS) ? localStorage.getItem(ConsClass.LOCAL_PARTIDAS) : this.partidas;
             this.puntuacion = localStorage.getItem(ConsClass.LOCAL_PUNTUACION) ? localStorage.getItem(ConsClass.LOCAL_PUNTUACION) : this.puntuacion;
@@ -76,7 +77,9 @@ let profileComponent = Vue.component("profile-component", {
 
             if (Number(this.partidas) !== 0)
                 this.ratio = Math.trunc((this.victorias * 100) / this.partidas);
-
+            }else{
+                this.$router.push( "/" );
+            }
 
         },
     }
