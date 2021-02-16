@@ -69,8 +69,6 @@ export default class ConnectionEvents {
 
     updatePlayers() {
         this.socket.on(ConsClass.LPLAYERS_SOCKET, (p) => {
-            console.log("updatePlayers")
-            console.log(p);
             this.roomClient.updatePlayers(p);
         });
     }
@@ -208,7 +206,6 @@ export default class ConnectionEvents {
         let estado = this.roomClient.data.estado;
         let endGameMethod = true;
         let data = { id, codigoPartida, nombre, tipoUsuario, endGameMethod, estado };
-        console.log(data);
         this.socket.emit(str, data);
     }
 

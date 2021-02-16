@@ -24,9 +24,7 @@ module.exports = class APIManager {
             let queryString = self.mbd_apiURL + self.getType() + self.getFilter() + self.getApiKey() + self.getPage() + self.getLanguage();
             if (self.typeFixed !== 0)
                 queryString += self.getRegion();
-            console.log("QUERY! " + queryString)
             axios.get(queryString).then(function (response) {
-                console.log("OBTENGO LA PALABRA!")
                 let data = self.procesarPalabras(response.data);
                 resolve(data);
             }).catch(function (error) {
@@ -44,7 +42,6 @@ module.exports = class APIManager {
         while ((img == null || img === '' || palabra.length > 45) && count < 10) {
             let index = this.calcularRandom(0, 20);
             let res = data.results[index];
-            console.log(res.media_type)
             this.traducirType(res.media_type);
             switch (Number(this.type)) {
                 case 1:
@@ -65,8 +62,6 @@ module.exports = class APIManager {
             }
             count++;
         }
-        console.log("PALABRA " + palabra)
-        console.log("IMAGEN " + imagen)
         return { palabra, imagen }
     }
 

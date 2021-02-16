@@ -249,7 +249,6 @@ module.exports = class Round {
     }
 
     setMaxTiempo(t) {
-        console.log()
         this.tiempoMax = t;
     }
 

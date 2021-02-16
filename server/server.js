@@ -15,7 +15,6 @@ module.exports = class Server {
 
 
     async conexion_sala(data, socket) {
-        console.log(data);
         let reenter = false;
         let sala = this.roomsManager.getSala(data.codigoPartida);
         if (sala != null)
@@ -33,8 +32,6 @@ module.exports = class Server {
             }
 
             sala.conexionAnfitrion(data.id);
-            console.log(ConsClass.CON_SALA_EMIT + " " + data.codigoPartida);
-            console.log("id " + data.id);
             socket.join(data.codigoPartida);
 
             this.io.to(data.codigoPartida).emit(ConsClass.CON_SALA_EMIT, data, reenter);
@@ -47,10 +44,8 @@ module.exports = class Server {
             }
 
         } else {
-            console.log(ConsClass.SALA_INV_SOCKET + " " + data.id)
             this.io.to(data.id).emit(ConsClass.SALA_INV_SOCKET, data);
         }
-        console.log("Salas!!! conec " + this.roomsManager.getCodigosSalas())
 
     }
 
@@ -65,17 +60,14 @@ module.exports = class Server {
                     this.borrarInterval(data);
                 }
             } else {
-                console.log("Comprobar anfitrion - borrado sala " + data.id)
                 sala.avisoAnfitrion(data.id);
                 this.roomsManager.avisoBorrarSala(sala);
             }
             sala.borrarJugadorSala(data.id);
-            console.log(ConsClass.DESCON_SALA_EMIT)
             this.emitirListPlayer(sala, data);
             socket.to(data.codigoPartida).emit(ConsClass.DESCON_SALA_EMIT, data);
         }
 
-        console.log("Salas!!! desc " + this.roomsManager.getCodigosSalas())
 
     }
 
@@ -87,14 +79,12 @@ module.exports = class Server {
                 try {
                     let res = await this.cambiarEstadoServer(data);
                     if (res) {
-                        console.log("-emitirListPlayer")
                         this.emitirListPlayer(sala, data);
                     }
                 } catch (e) {
                     console.log("ERROR! " + e)
                 }
             } else {
-                console.log("-emitirListPlayer")
                 this.emitirListPlayer(sala, data);
             }
         }
@@ -117,7 +107,6 @@ module.exports = class Server {
 
     emitirListPlayer(sala, data) {
         let dataPlayers = sala.getJugadoresInfo();
-        console.log("EMITIR LIST PLAYER:");
         this.io.to(data.codigoPartida).emit(ConsClass.LPLAYERS_EMIT, dataPlayers);
     }
 
@@ -126,13 +115,11 @@ module.exports = class Server {
         return new Promise(async function (resolve, reject) {
             let sala = self.roomsManager.getSala(data.codigoPartida);
             if (sala != null) {
-                console.log("cambio estado server")
                 try {
                     await sala.gestionarRonda();
                     let res = await sala.getInfoSala();
                     let interval = await sala.calcularTiempoMuestra(res.ronda);
                     self.interval = interval;
-                    console.log("interval: " + self.interval);
 
                     self.crearInterval(res, data);
                     self.io.to(data.codigoPartida).emit(ConsClass.SERVER_INFO_EMIT, res);
@@ -183,7 +170,6 @@ module.exports = class Server {
 
         try {
             let res = await sala.getInfoSala();
-            console.log(data.codigoPartida);
             this.io.to(data.codigoPartida).emit(ConsClass.SERVER_INFO_EMIT, res);
         } catch (e) {
             console.log("ERROR! " + e);
@@ -194,7 +180,6 @@ module.exports = class Server {
         let sala = this.roomsManager.getSala(data.codigoPartida);
 
         try {
-            console.log(ConsClass.MOD_AJUSTES_SOCKET)
             let b = await sala.modificarAjustesSala(data);
             if (b) {
                 this.enviarInfoSala(sala,data);

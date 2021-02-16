@@ -61,7 +61,6 @@ let gameComponent = Vue.component("game-component", {
         } else if (Utils.checkValid(this.connection.socket.id)) {
             sessionStorage.setItem(ConsClass.SESION_ID, this.connection.socket.id);
         }
-        console.log("update")
     },
 
     beforeDestroy() {

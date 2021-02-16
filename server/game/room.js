@@ -30,9 +30,6 @@ module.exports = class Room {
             let maxTiempo = self.ronda.getMaxTiempo();
             let tipo = await self.ronda.getTipo();
 
-            console.log("tipo: " + tipo)
-            console.log("dificultad: " + dificultad)
-
             let ganador = self.getGanador();
             let ronda = self.ronda.getRonda();
             let imagen = self.ronda.getImagen();
@@ -66,10 +63,6 @@ module.exports = class Room {
 
     avisoAnfitrion(p) {
         let index = this.getIndexJugador(p);
-        console.log("avisoAnfitrion " + index + " ")
-        console.log("id: " + p)
-        let jugadores = this.getJugadores();
-        console.log(jugadores);
         if (index !== -1 && Number(this.players[index].tipoUsuario) === 1) {
             this.players[index].setConectado(false);
 
@@ -79,8 +72,6 @@ module.exports = class Room {
     conexionAnfitrion(p) {
         let index = this.getIndexJugador(p);
         if (index < this.players.length && index >= 0) {
-            console.log("conexionAnfitrion " + index + " " + this.players[index].tipoUsuario)
-            console.log("id: " + p)
             if (index !== -1 && Number(this.players[index].tipoUsuario) === 1) {
                 this.players[index].setConectado(true);
 
@@ -97,7 +88,6 @@ module.exports = class Room {
     }
 
     setAllSiguienteOff() {
-        console.log("--setAllSiguienteOff")
         for (let i = 0; i < this.players.length; i++) {
             this.players[i].setSiguiente(false);
             this.players[i].setAcierto(false);
@@ -110,7 +100,6 @@ module.exports = class Room {
             let index = this.getIndexJugador(id);
 
             if (index !== -1 && (anfitrion || !anfitrion && this.players[index].tipoUsuario === 0)) {
-                console.log("antes de borrar player!");
                 this.players.splice(index, 1);
             }
         }
@@ -199,7 +188,6 @@ module.exports = class Room {
         return new Promise(async function (resolve, reject) {
             try {
                 if (self.estado === 0) {
-                    console.log("estado 0")
                     let b = await self.ronda.siguienteRonda();
                     if (b) {
                         self.setEstado(1);
@@ -209,7 +197,6 @@ module.exports = class Room {
 
                 }
                 if (self.estado === 1) {
-                    console.log("estado 1")
                     if (self.comprobarFinPartida()) {
                         self.setAllSiguienteOff();
                         resolve(true);
@@ -222,7 +209,6 @@ module.exports = class Room {
                     }
                 }
                 if (self.estado === 2 && !self.getSiguienteJugadores().includes(false)) {
-                    console.log("estado 2")
                     self.reiniciarPartida();
                     let b = await self.ronda.siguienteRonda();
                     if (b) {
@@ -249,7 +235,6 @@ module.exports = class Room {
                     this.ronda.finalizarRonda(true);
 
             } else {
-                console.log("No estblece puntos jugador es null! " + player.getAcierto())
                 puntos = -1;
             }
         }
@@ -259,11 +244,9 @@ module.exports = class Room {
     }
 
     comprobarFinPartida() {
-        console.log("comprobarFinPartida")
         if (this.ronda.getRonda() >= this.maxRondas) {
             this.finalizarPartida();
             this.setAllSiguienteOff();
-            console.log("zzz")
             return true;
         }
         return false;

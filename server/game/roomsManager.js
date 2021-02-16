@@ -24,7 +24,6 @@ module.exports = class RoomsManager {
     }
 
     avisoBorrarSala(sala) {
-        console.log("avisoBorrarSala")
         setTimeout(() => { this.comprobarAnfitrionSala(sala) }, 5000);
     }
 
@@ -50,7 +49,6 @@ module.exports = class RoomsManager {
             if (!checkAnfi) {
                 sala.borrarJugadorSala(id,true)
 
-                console.log("borro sala!");
                 this.borrarSala2(sala.getCodigo());
 
             }
@@ -59,8 +57,6 @@ module.exports = class RoomsManager {
     
 
     comprobarUnionSala(data, reenter) {
-        console.log("comprobar!")
-        console.log(data);
         if (!this.comprobarSala(data.codigoPartida) && Number(data.tipoUsuario) === 1 ||
             this.comprobarSala(data.codigoPartida) && Number(data.tipoUsuario) === 0 ||
             reenter) {
@@ -74,9 +70,7 @@ module.exports = class RoomsManager {
             let index = this.getIndexSala(data.codigoPartida);
 
             if (index !== -1) {
-                console.log("antes de borrar sala!");
                 this.rooms.splice(index, 1);
-                console.log("borro ok!" + data.codigoPartida)
                 return true;
             }
         }
@@ -88,9 +82,7 @@ module.exports = class RoomsManager {
             let index = this.getIndexSala(codigo);
 
             if (index !== -1) {
-                console.log("antes de borrar sala!");
                 this.rooms.splice(index, 1);
-                console.log("borro ok!" + codigo)
                 return true;
             }
         }
